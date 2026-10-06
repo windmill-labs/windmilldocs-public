@@ -455,6 +455,9 @@ If you define a [form](../flows/11_flow_approval.mdx#form) on the approval step,
 
 ![Approval form slack](../assets/flows/tuto_approval_slack_form.png.webp)
 
+The wording of the message follows the approval step's [skin](../flows/11_flow_approval.mdx#approval-page-skin): with `Minimal`, the channel post reads "Approval requested" with your message and a `Review` button, and the modal offers `Approve` / `Reject` instead of the workflow's details.
+Slack limits how much text the message's button can carry, so a long `message` is shortened to fit.
+
 Both of these scripts are using the Windmill client helper function:
 
 <Tabs className="unique-tabs">

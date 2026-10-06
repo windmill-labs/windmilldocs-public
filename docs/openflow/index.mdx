@@ -143,6 +143,7 @@ type FlowModule = {
     self_approval_disabled?: boolean;
     hide_cancel?: boolean;
     continue_on_disapprove_timeout?: boolean;
+    skin?: "detailed" | "minimal";
   };
 
   // continue the flow even if this step fails
@@ -372,6 +373,9 @@ The module-level `suspend` object determines the number of
 events (resume messages) needed to progress to the next step in the Flow. This
 is useful for inserting user inputs during the execution of a Flow, such as
 approving (resume) or disapproving (cancel) a Flow. See [Approval/Suspend steps](../flows/11_flow_approval.mdx).
+
+`suspend.skin` sets how the request is presented to approvers on the approval page and in Slack and Teams approval messages: `detailed`, the default when unset, or `minimal`.
+See [approval page skin](../flows/11_flow_approval.mdx#approval-page-skin).
 
 Resume messages are sent to
 `https://app.windmill.dev/w/<WORKSPACE>/jobs/resume/<JOB_ID>` as POST or GET

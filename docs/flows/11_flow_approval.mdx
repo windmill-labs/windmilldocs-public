@@ -13,7 +13,7 @@ feature is most useful for implementing approval steps.
 
 ![Approval step diagram](../assets/flows/approval_diagram.png 'Approval step diagram')
 
-An approval step is a normal script with the **Suspend** option enabled in the step's advanced settings. This will suspend the execution of a flow until it has been approved through the resume endpoints or the approval page by and solely by the recipients of the secret URLs.
+An approval step is a normal script with `Suspend until approval/resume` enabled in the step's `Run settings` tab. This will suspend the execution of a flow until it has been approved through the resume endpoints or the approval page by and solely by the recipients of the secret URLs.
 
 :::info Suspending a flow in Windmill
 
@@ -100,6 +100,94 @@ Note that approval steps can be applied the same configurations as regular steps
 Set a custom timeout after which the flow will be automatically canceled if no approval is received.
 
 ![Approval Timeout](../assets/flows/approvals-timeout.png 'Approval Timeout')
+
+### Approval page skin
+
+The approval page skin sets how a request is presented to approvers, on the approval page and in [Slack](#slack-approval-step) and [Microsoft Teams](#microsoft-teams-approval-step) approval messages.
+
+- `Detailed` (default): the request along with the flow's details, meaning the approvers so far, the run's metadata, the flow arguments and the flow graph.
+- `Minimal`: only the request, meaning who requested it and when, the step's description, the form and the Approve / Reject buttons.
+  It suits approvers who are not the flow's developers and only need to make a decision.
+
+To pick a skin, open the approval step, go to the `Run settings` tab and, under `Suspend until approval/resume`, in the `Core` tab, set `Approval page skin` to `Detailed` or `Minimal`.
+Each approval step has its own skin, so two approval steps of the same flow can present their requests differently.
+
+![Approval page skin setting](../assets/flows/approval_page_skin_setting.webp 'Approval page skin setting')
+
+In the flow's [OpenFlow](../openflow/index.mdx) definition (YAML for the CLI and git sync, JSON for the API), the skin is the step's `suspend.skin`:
+
+```yaml
+- id: approve_expense
+  summary: Approve the team offsite expense
+  value: ...
+  suspend:
+    required_events: 1
+    timeout: 1800
+    skin: minimal # or detailed, the same as leaving it out
+```
+
+Picking `Detailed` in the editor removes the key rather than writing `detailed`.
+A value your Windmill version doesn't know is read as `detailed`, so a flow written for a newer version still loads and runs.
+
+In [workflows as code](../core_concepts/31_workflows_as_code/index.mdx#approval--human-in-the-loop), pass `skin` to the approval call, along with the `description` approvers see:
+
+<Tabs className="unique-tabs">
+<TabItem value="typescript" label="TypeScript" attributes={{className: "text-xs p-4 !mt-0 !ml-0"}}>
+
+```ts
+const approval = await waitForApproval({
+	skin: 'minimal',
+	description: `Expense of $${amount} for the team offsite`
+});
+```
+
+</TabItem>
+<TabItem value="python" label="Python" attributes={{className: "text-xs p-4 !mt-0 !ml-0"}}>
+
+```python
+approval = await wait_for_approval(
+    skin="minimal",
+    description=f"Expense of ${amount} for the team offsite",
+)
+```
+
+</TabItem>
+</Tabs>
+
+#### What the minimal page shows
+
+![Minimal approval page](../assets/flows/approval_page_minimal.webp 'Minimal approval page')
+
+- Title: the approval step's summary, the field at the top of the step panel.
+  Without one, the page uses the flow's summary, and otherwise "Approval request".
+  In workflows as code, the title is the script's summary.
+- Under the title: the flow's summary when the title comes from the step, or the flow's path when the flow has no summary.
+  Then who started the run, and when.
+- Description: the `description` the approval step returns (see [Description](#description)), or the `description` option in workflows as code.
+  A string is shown as plain text, and an object is rendered with [rich display rendering](../core_concepts/19_rich_display_rendering/index.mdx), for example `{ "markdown": "..." }`.
+- The step's [form](#form), then the Approve and Reject buttons.
+  [Hiding the cancel button](#hide-cancel-button-on-approval-page) removes Reject.
+- After a decision, the page reads Approved or Rejected.
+  Someone opening the link once the run is no longer waiting on the request sees that it is closed.
+
+When a step needs several approvals, the page lists who has already approved, and workspace members get a link to the run details.
+If the step [requires approvers to be logged in](#require-approvers-to-be-logged-in), none of the above is shown until the viewer signs in as a user allowed to approve.
+
+The page uses the skin of the approval step the run is waiting on.
+Once the run has moved past that step, finished or been rejected, the page keeps the skin of the last approval step the run went through, so a link opened late still shows the request as it was set up.
+
+#### Slack and Teams messages
+
+Messages sent with the [Slack](#slack-approval-step) and [Teams](#microsoft-teams-approval-step) approval helpers use the skin of the approval step that sends them.
+With `Detailed`, the messages list who created the run and when, the script path, the arguments and the flow ID, followed by your message.
+With `Minimal`:
+
+- Slack: the channel post reads "Approval requested" followed by your message, with a `Review` button.
+  The modal it opens is titled "Approval request", shows the message and who requested it, and offers `Approve` and `Reject`.
+  After a decision, the post reads "Approved" or "Rejected".
+- Teams: the card is titled "Approval request", with the message, who requested it, a "View in Windmill" link and `Approve` / `Reject` actions.
+
+The `resumeButtonText` and `cancelButtonText` options of the TypeScript Slack helper still override the labels of the modal's buttons.
 
 ### Continue on disapproval/timeout
 
@@ -518,6 +606,9 @@ If you define a [form](./flow_approval#form) on the approval step, the form will
 
 ![Approval form slack](../assets/flows/tuto_approval_slack_form.png.webp)
 
+The wording of the message follows the approval step's [skin](#slack-and-teams-messages).
+Slack limits how much text the message's button can carry, so a long `message` is shortened to fit.
+
 Both of these scripts are using the Windmill client helper function:
 
 <Tabs className="unique-tabs">
@@ -613,6 +704,8 @@ The following hub scripts can be used:
 If you define a [form](./flow_approval#form) on the approval step, the form will be displayed in the Teams message as a modal.
 
 ![Approval form teams](../assets/flows/tuto_approval_teams.png.webp)
+
+The wording of the interactive card follows the approval step's [skin](#slack-and-teams-messages).
 
 Both of these scripts are using the Windmill client helper function:
 
