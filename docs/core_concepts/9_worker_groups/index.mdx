@@ -125,7 +125,7 @@ The tags of _default_ worker group are:
 - `go`: The default worker group for [Go scripts](../../getting_started/0_scripts_quickstart/3_go_quickstart/index.mdx).
 - `bash`: The default worker group for [Bash scripts](../../getting_started/0_scripts_quickstart/4_bash_quickstart/index.mdx).
 - `powershell`: The default worker group for [Powershell scripts](../../getting_started/0_scripts_quickstart/4_bash_quickstart/index.mdx).
-- `dependency`: Where [dependency](../../advanced/6_imports/index.mdx) jobs are run.
+- `dependency`: Where [dependency](../../advanced/6_imports/index.mdx) jobs of flows and apps are run. A script's dependency job runs on the script's own tag, or on its language's default tag. See [dependency job tag](#dependency-job-tag) to route them all to one tag.
 - `flow`: The default worker group for executing [flows](../../flows/1_flow_editor.mdx) modules outside of the script steps.
 - `hub`: The default worker group for executing [Hub](https://hub.windmill.dev/) scripts.
 - `bun`: The default worker group for [Bun](../../getting_started/0_scripts_quickstart/1_typescript_quickstart/index.mdx) scripts.
@@ -267,6 +267,15 @@ The same resolution applies to workspace-specific default tags: when they are en
 [Concurrency keys](../21_concurrency_limits/index.md), [volume names](../67_volumes/index.mdx) and dedicated workers are not affected: `$workspace` there is still the workspace's own id, so a fork keeps its own concurrency budget and a dedicated worker keeps running the code version it was pinned to.
 
 :::
+
+### Dependency job tag
+
+On the [Enterprise Edition](/pricing), the "Dependency job tag" field in Workers > Manage tags > Default tags routes every dependency job to one tag, whatever tag the runnable itself runs on.
+It supports `$workspace`, so `deps-$workspace` sends the dependency jobs of workspace `prod` to `deps-prod`.
+Leave it empty to keep the default routing.
+
+The worker group listening to that tag must be able to resolve every lock: it needs network access to your private registries and any registry [environment variables](#environment-variables-passed-to-jobs) you set on other worker groups.
+[Dedicated workers](../25_dedicated_workers/index.mdx) still build their own locks, and [Bun native](../../getting_started/0_scripts_quickstart/1_typescript_quickstart/index.mdx#native) scripts still build their bundle on the `bun` tag.
 
 ## Alerts
 
