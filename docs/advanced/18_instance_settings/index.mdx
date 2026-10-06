@@ -130,6 +130,16 @@ Alternatively, you can copy a development license key using the dedicated button
 
 This setting is only available on [Enterprise Edition](/pricing).
 
+### Accent color
+
+Recolors buttons, selections and the sidebar for every user of the instance, so each environment of a deployment (for example staging and production) is recognizable at a glance.
+The value is a hex color of the form `#rrggbb`.
+Only its hue is used, so text stays readable but the accents will not match the hex value exactly.
+
+It can also be set under the `accent_color` key of `global_settings`, through the [Kubernetes operator or `sync-config`](../../core_concepts/57_infrastructure_as_code/index.mdx#global-settings).
+
+This setting is only available on [Enterprise Edition](/pricing).
+
 ### HTTP route default allowed origins
 
 Comma-separated list of origins that [HTTP routes](../../triggers/2_http_routing/index.mdx#allowed-origins) allow to call them from a browser when the route sets none of its own, stored under `http_route_default_allowed_origins` (the API also accepts a JSON array).
