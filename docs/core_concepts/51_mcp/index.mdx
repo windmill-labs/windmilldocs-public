@@ -171,6 +171,14 @@ The server answers five revisions of the MCP specification on the same endpoint:
 
 Both eras expose the same tools, and the client picks the revision it speaks, so there is nothing to configure on the Windmill side. A client asking for a revision outside that list gets a `400` with JSON-RPC error `-32022`, whose payload lists the revisions the server accepts.
 
+### Tool list updates
+
+The server sends `notifications/tools/list_changed` when a [script](../../script_editor/index.mdx) or [flow](../../flows/1_flow_editor.mdx) of the workspace is added, updated, moved, archived or deleted, so an agent can create a script and call it as a tool in the same conversation.
+Notifications require a client on protocol `2026-07-28` or later: older clients see new tools the next time they list them.
+Changes made outside the MCP tools (the UI, the [CLI](../../advanced/3_cli/index.mdx), [git sync](../../advanced/11_git_sync/index.mdx), another user) can take up to 30 seconds to be announced.
+
+Clients connected with a [multi-workspace token](#multi-workspace-tokens) or a token created with the Read-only toggle on receive no notifications, since their tool list does not include the workspace's scripts and flows.
+
 ## Example: Triggering a script from Claude
 
 Say you’ve created a script called `send_welcome_email`.
@@ -222,6 +230,7 @@ When configuring the MCP scope (via OAuth or token generation), you can select *
 |------|-------------|
 | `listScripts` | List all scripts in the workspace |
 | `createScript` | Create a new script |
+| `updateScript` | Deploy a new version of a script, optionally moving it to a new path |
 | `getScriptByPath` | Get a script by its path |
 | `deleteScriptByHash` | Delete a script by hash (admin only) |
 | `deleteScriptByPath` | Delete a script at a given path (admin only) |
@@ -370,6 +379,8 @@ Where a runnable relies on an identity read from its headers, scope the token to
 - **My LLM does not find the correct script/flow to run**
   - Ensure the script or flow is deployed and visible in your workspace.
   - Choose good titles and descriptions to help the LLM find the correct script/flow.
+- **A script or flow I just deployed doesn't show up as a tool**
+  - Reconnect the MCP server in your client to re-list the tools, or see [tool list updates](#tool-list-updates) for when clients refresh on their own.
 - **Client has issues connecting to the MCP server**
   - Make sure your MCP client is configured to use **HTTP streamable** as the transport protocol.
   - Verify that your MCP URL is correct and the token is valid.
