@@ -165,6 +165,22 @@ Native scripts run in an efficient in-process runtime that only allows `fetch` a
 
 So expressions like `res.body instanceof ReadableStream` or `new TextEncoder().encode(...)` now work in native scripts just as they do in Bun.
 
+#### Block all network access with `//no_network`
+
+A native script that only transforms its inputs can add `//no_network` after `//native` in its leading comment block:
+
+```ts
+//native
+//no_network
+
+export async function main(items: { price: number; qty: number }[]) {
+  return items.reduce((sum, i) => sum + i.price * i.qty, 0);
+}
+```
+
+The script then has no network access at execution time, including to the Windmill API: [`windmill-client`](../../../advanced/2_clients/ts_client.mdx) calls fail and the `WM_TOKEN` [environment variable](../../../core_concepts/47_environment_variables/index.mdx) is not set.
+The annotation only applies to the native runtime, and to execution only: relative imports and npm packages are still fetched when the script is bundled.
+
 Replace the `<jsonplaceholder>` URL with the API endpoint of your choice and customize the headers object according to your fetch requirements.
 
 REST scripts benefit from the [auto-generated UI](../../../core_concepts/6_auto_generated_uis/index.mdx) capabilities of any Windmill script.
