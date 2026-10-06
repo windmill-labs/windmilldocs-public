@@ -10,6 +10,8 @@ Concurrency limit is a [Cloud plans and Self-Hosted Enterprise Edition](/pricing
 
 Concurrency limit can be set from the Settings menu. When jobs reach the concurrency limit, they are automatically queued for execution at the next available optimal slot given the time window.
 
+If the jobs holding the slot finish early, you can [start a deferred job now](../20_jobs/index.mdx#start-a-queued-job-now) without changing its job ID.
+
 The Concurrency limit operates globally and across flow runs. It involves three key parameters:
 
 ## Max number of executions within the time window

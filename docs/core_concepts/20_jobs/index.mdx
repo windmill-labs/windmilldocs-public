@@ -405,6 +405,20 @@ with only_result = true, the updates are much lighter.
 - The `notfound`, `timeout`, and `ping` events are signals with no additional data.
 
 
+## Start a queued job now
+
+A queued job waiting for a future start can be started right away while keeping the same job ID, which matters when something else tracks that ID and cancelling and re-running is not an option.
+This covers jobs [scheduled to run later](../1_scheduling/index.mdx#schedule-to-run-later), [debounced](../64_job_debouncing/index.mdx) jobs, jobs pushed back by a [concurrency limit](../21_concurrency_limits/index.md), and flow steps waiting on a [sleep](../../flows/15_sleep.md) or a [retry](../../flows/14_retries.md) delay.
+
+On the [run page](../5_monitor_past_and_future_runs/index.mdx#details-per-run) of such a job, click Run now.
+From the API, call `POST /api/w/{workspace}/jobs/queue/run_now/{id}`.
+
+- The job keeps its inputs and settings. Only its start time moves to now, so it runs as soon as a worker is available.
+- A concurrency limit is still enforced: if its key is still saturated when a worker pulls the job, the job is deferred again.
+- The upcoming run of a [schedule](../1_scheduling/index.mdx) cannot be started early, since the schedule would queue that same run again once it completes. Run the schedule's script or flow directly instead. A scheduled run that a concurrency limit pushed past its time can still be started now.
+- A job that is running, suspended, canceled or already due is refused.
+- It requires the same access as cancelling the job. The move is written to the job logs and to the [audit logs](../14_audit_logs/index.mdx) as `jobs.run_now`.
+
 ## High priority jobs
 
 High priority jobs are jobs that are given a `priority` value between 1 and 100. Jobs with a higher priority value will be given precedence over jobs with a lower priority value in the job queue.
