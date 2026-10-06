@@ -160,6 +160,20 @@ Once setup, the groups page should contain a new section:
 
 ![New section SCIM](okta-scim-groups.png.webp)
 
+### Usernames of provisioned users
+
+The Windmill username (used in `u/<username>/` paths, see [automatic username creation](../18_instance_settings/index.mdx#global-users)) is chosen once, when the user is first provisioned.
+It is the first available of: the username already reserved for that email, the SCIM `nickName` attribute, the SCIM `displayName` attribute, and the local part of the email.
+Characters other than ASCII letters, digits and `_` are removed.
+
+To give users their directory login name (for example an Active Directory sAMAccountName such as `johsmi`) rather than a name derived from their email, map it to `nickName` in your identity provider:
+
+- Okta: in the SCIM application, go to Provisioning > To App > attribute mappings and map `nickName` to `appuser.samAccountName` (or another expression producing the login name, such as a substring of `user.login`). Keep the application username format as `Email`.
+- Microsoft Entra: in the provisioning attribute mappings for users, add a mapping from `mailNickname` (or an extension attribute holding the sAMAccountName) to `nickName`.
+
+Existing users keep their username.
+To change it, rename them from the [global users](../18_instance_settings/index.mdx#global-users) list in the instance settings, which also rewrites their paths.
+
 ## User deprovisioning
 
 When your identity provider sends a SCIM PATCH request with `active: false` for a user, Windmill disables the user at the instance level rather than deleting them. Disabled users:
