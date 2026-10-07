@@ -328,6 +328,20 @@ Examples of configurations include:
 2. [Set an init or periodic script](#worker-scripts) that will run at the start of the workers or periodically (e.g. to pre-install binaries).
 3. [Dedicate your worker to a specific script or flow](#dedicated-workers--high-throughput) for high throughput.
 
+## Pause a worker group
+
+Pausing a worker group stops its workers from pulling jobs without stopping them, and is available in the Community Edition.
+
+Open the worker group config, enable "Pause this worker group" and apply the changes, then disable it the same way to resume.
+
+![Pause toggle in the worker group config](./worker_group_pause_toggle.webp 'Pause toggle in the worker group config')
+
+Workers stop pulling within about 10 seconds, without restarting: running jobs finish, queued jobs and resumed [suspended flows](../../flows/11_flow_approval.mdx) wait until the group is resumed, and [autoscaling](#autoscaling) leaves the group at its current size.
+
+The toggle sets `paused: true` in the worker group config, which can also be set in the [instance config](../57_infrastructure_as_code/index.mdx#worker-group-config-fields) or with `POST /api/configs/update/worker__<group>`, a call that replaces the whole config of the group, so send its other fields along.
+
+[Agent workers](../28_agent_workers/index.mdx) have no config drawer: the server enforces the pause for them, so pause their group with the same API call.
+
 ## Python runtime settings
 
 Configure Python-specific settings at the worker group level.

@@ -454,6 +454,7 @@ Keys are worker group names (e.g. `default`, `native`, `gpu`).
 | `additional_python_paths` | list | Extra Python paths |
 | `priority_tags` | object | Tag priority mapping |
 | `autoscaling` | object | Autoscaling config (`enabled`, `min_workers`, `max_workers`, `integration`) |
+| `paused` | bool | [Pause the worker group](../9_worker_groups/index.mdx#pause-a-worker-group): its workers stop pulling jobs and keep running |
 | `object_store_cache_config` | object | Object storage this group caches dependencies in, instead of the instance one ([Enterprise Edition](/pricing)). Same shape as the instance object storage settings, see [dependency cache object storage](../9_worker_groups/index.mdx#dependency-cache-object-storage) |
 
 ## Workspace content with the CLI
