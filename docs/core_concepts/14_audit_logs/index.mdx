@@ -74,6 +74,46 @@ Key properties:
 
 This is the recommended setup when you forward audit logs to a [SIEM](https://en.wikipedia.org/wiki/Security_information_and_event_management) for long-term security analysis: point your SIEM (or its collector) at the day-partitioned NDJSON files in the bucket. Because the bucket then holds the durable, complete history, you can safely lower the database [Audit log retention (days)](../../advanced/18_instance_settings/index.mdx#audit-log-retention-days) to only what you need for the in-app audit log view.
 
+## Exporting audit events through OpenTelemetry
+
+On [Enterprise Edition](/pricing), every audit log is also emitted as an [OpenTelemetry](../../misc/9_guides/otel/index.mdx) log record when it is written, so a collector can forward audit events to a SIEM in near real time.
+Nothing is replayed after a collector outage, so keep the [object storage export](#exporting-audit-logs-to-object-storage) for a complete history.
+
+To enable it, turn on the Logs toggle of the [OpenTelemetry instance setting](../../advanced/18_instance_settings/index.mdx#opentelemetry-otel) (or set `OTEL_LOGS_ENABLED=true` on the servers and workers) and point Windmill at your collector with the endpoint of that setting or `OTEL_EXPORTER_OTLP_ENDPOINT`.
+
+Audit events are the log records whose instrumentation scope name is `windmill:audit`.
+With the OpenTelemetry Collector, a [filter processor](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/filterprocessor) keeps only those:
+
+```yaml
+processors:
+  filter/audit:
+    logs:
+      log_record:
+        - instrumentation_scope.name != "windmill:audit"
+```
+
+Each record carries these attributes, all strings:
+
+| Attribute | Content |
+| --- | --- |
+| `kind` | Always `audit` |
+| `operation` | The operation, such as `scripts.create` |
+| `action_kind` | `Create`, `Update`, `Delete` or `Execute` |
+| `resource` | The path, job id or setting name the operation applied to, when there is one |
+| `parameters` | The operation's metadata as a JSON-encoded object, or `null` |
+| `workspace_id` | The workspace, or `global` for instance-level operations |
+| `username` | The user who performed it |
+| `email` | That user's email |
+| `span` | The prefix of the [token](../59_user_tokens/index.mdx) that authenticated the request, when there is one |
+
+On a Pro license, `operation`, `resource` and `parameters` are redacted as in the audit logs page, and the Community Edition emits no audit events.
+
+Audit events are emitted at `INFO`, so if you lower the log level, keep them with a directive for their target such as `RUST_LOG=warn,windmill:audit=info`.
+
+Changes to [instance settings](../../advanced/18_instance_settings/index.mdx) are recorded as `global_settings.update` and `global_settings.delete` with the setting name as the resource, and the new value only when it is a boolean or a number.
+[Worker group](../9_worker_groups/index.mdx) changes are recorded as `worker_config.update` and `worker_config.delete`, and license key renewal, custom instance database setup or drop and secret backend migrations as `settings.*` operations.
+Settings applied by [`windmill sync-config` or the Kubernetes operator](../57_infrastructure_as_code/index.mdx), or written by Windmill itself, are not recorded.
+
 ## SCIM and SSO operations
 
 Changes Windmill makes on behalf of your [identity provider](../../advanced/28_saml_and_scim/index.mdx) are recorded under the "Instance" scope and attributed to a system user rather than to the person who triggered them, so an audit reader can tell which channel moved a user.

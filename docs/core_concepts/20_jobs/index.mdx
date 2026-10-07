@@ -419,6 +419,25 @@ From the API, call `POST /api/w/{workspace}/jobs/queue/run_now/{id}`.
 - A job that is running, suspended, canceled or already due is refused.
 - It requires the same access as cancelling the job. The move is written to the job logs and to the [audit logs](../14_audit_logs/index.mdx) as `jobs.run_now`.
 
+## Canceling a job
+
+A job can be canceled from its [run page](../5_monitor_past_and_future_runs/index.mdx#details-per-run), from the runs page, or with `POST /api/w/{workspace}/jobs_u/queue/cancel/{id}`.
+
+- Queued job: it is completed as canceled without running.
+- Running job, cancel: it keeps running until its worker notices, then the worker stops its process and completes it as canceled.
+- Running job, force cancel: the server completes it as canceled right away, and the worker stops the process on its next check. Use it when a worker is gone or unresponsive.
+
+A worker checks for a cancel at an interval while the job's process runs, so a cancel takes up to one interval to be noticed, or longer when a check fails:
+
+| Worker | Interval between checks |
+| --- | --- |
+| Normal worker | 0.5 seconds for the first 10 seconds of the process, 2.5 seconds until it has run for 60 seconds, then 5 seconds |
+| [Agent worker](../28_agent_workers/index.mdx) | 2 seconds for the first 10 seconds of the process, then 5 seconds |
+
+The worker then sends `SIGKILL` to the job's process group, except for Bash scripts and [Docker](../../advanced/7_docker/index.mdx) jobs, which first get `SIGTERM` and 5 seconds to exit (`MAX_WAIT_FOR_SIGTERM` on the worker, in seconds).
+Once canceled, a job can no longer obtain an [OIDC token](../29_oidc/index.mdx).
+Workers report each stopped process to OpenTelemetry as a [`job.canceled` event](../../misc/9_guides/otel/index.mdx#job-cancellation-event).
+
 ## High priority jobs
 
 High priority jobs are jobs that are given a `priority` value between 1 and 100. Jobs with a higher priority value will be given precedence over jobs with a lower priority value in the job queue.

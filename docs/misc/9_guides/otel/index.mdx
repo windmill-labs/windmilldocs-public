@@ -88,7 +88,8 @@ The following tags are useful to filter for specific traces:
 - `script_path`: The path of the script
 - `script_hash`: Hex hash of the deployed script version (lets you correlate failures with a specific deploy)
 - `workspace_id`: The name of the workspace
-- `worker_id`: The ID of the worker
+- `worker`: The name of the worker
+- `worker_group`: The [worker group](../../../core_concepts/9_worker_groups/index.mdx) of the worker that ran the job (on the `job` span and on the job's log records)
 - `language`: The language of the script
 - `tag`: The queue tag of the workflow
 - `job_kind`: Job type — `script`, `flow`, `appscript`, `aiagent`, `preview`, `flowscript`, etc.
@@ -126,6 +127,26 @@ A few details:
 
 - It applies to the run endpoints that accept a request body: running a script or flow by path, hash or version, including the synchronous `run_wait_result` variants. [HTTP routes](../../../triggers/2_http_routing/index.mdx) and other native triggers are not picked up as inbound trace sources.
 - An invalid or malformed `traceparent` header is ignored: the job keeps its own trace derived from the job UUID, so the `job_id` / `root_job` lookup and dashboards built on it keep working.
+
+### Job cancellation event
+
+When a worker stops the process of a job that was [canceled](../../../core_concepts/20_jobs/index.mdx#canceling-a-job), force canceled or timed out, it emits a `job.canceled` event once the process has exited.
+It is exported as a span event on the span of the stopped process (for example `bash run`) and as a log record with the body `job.canceled`, which also carries the job's attributes listed [above](#searching-for-specific-traces).
+
+| Attribute | Description |
+| --- | --- |
+| `job_id` | The ID of the job |
+| `root_job` | The ID of the root job, when the job is part of a flow |
+| `kill_reason` | `cancelled` (the job was canceled without force), `already_completed` (the job was completed while its process was still running, which is what a force cancel does), or `timeout` |
+| `canceled_by` | Who canceled the job, or `timeout`. Absent for `already_completed` |
+| `canceled_reason` | The reason given with the cancel, or the timeout that was exceeded. Absent for `already_completed` |
+| `force` | `false` for `cancelled`. Absent otherwise: the worker cannot tell a force cancel from another completion of the job |
+| `kill_signal` | The last signal the worker sent before the process exited: `SIGINT`, `SIGTERM` or `SIGKILL`. On Windows, `taskkill`, or `none` when the process exited by itself before it |
+| `cancel_detected_at` | When the worker noticed the cancel (RFC 3339, UTC) |
+| `process_exited_at` | When the process had exited (RFC 3339, UTC) |
+| `kill_duration_ms` | Milliseconds between the two |
+
+Jobs that run inside the worker without a process of their own, such as SQL queries, do not emit it.
 
 ### Monitoring metrics with Jaeger
 

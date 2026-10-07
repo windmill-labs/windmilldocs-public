@@ -66,6 +66,7 @@ Examples:
 | `scripts:write:f/production/*` | Write access to scripts in the `f/production/` folder |
 | `jobs:run:scripts:u/admin/my_script` | Run a specific script |
 | `jobs:run:flows` | Run any flow |
+| `jobs:read:f/production/*` | Read the runs of the scripts, flows and AI agents in the `f/production/` folder |
 | `resources:read:u/user/*` | Read resources owned by `u/user/` |
 
 A `write` scope automatically includes `read` access for the same domain and resource.
@@ -74,7 +75,7 @@ A `write` scope automatically includes `read` access for the same domain and res
 
 All domains support `read` and `write` actions. The **Jobs** domain additionally supports `run:scripts` and `run:flows`.
 
-Domains with path restriction support: `scripts`, `flows`, `apps`, `raw_apps`, `resources`, `variables`, `schedules`, `folders`, `jobs` (for run), and all trigger types (`http_triggers`, `websocket_triggers`, `kafka_triggers`, `nats_triggers`, `mqtt_triggers`, `sqs_triggers`, `gcp_triggers`, `postgres_triggers`).
+Domains with path restriction support: `scripts`, `flows`, `apps`, `raw_apps`, `resources`, `variables`, `schedules`, `folders`, `jobs` (for read and run), and all trigger types (`http_triggers`, `websocket_triggers`, `kafka_triggers`, `nats_triggers`, `mqtt_triggers`, `sqs_triggers`, `gcp_triggers`, `postgres_triggers`).
 
 Domains without path restriction: `users`, `groups`, `workspaces`, `audit`, `workers`, `settings`, `service_logs`, `configs`, `oauth`, `ai`, `agent_workers`, `drafts`, `favorites`, `inputs`, `job_helpers`, `openapi`, `capture`, `concurrency_groups`, `oidc`, `acls`, `indexer`, `teams`, `git_sync`.
 
@@ -90,6 +91,10 @@ For scopes that support it, you can restrict access to specific resource paths u
 | (omitted) | All resources in the domain |
 
 Multiple paths can be combined with commas: `scripts:read:f/production/*,f/staging/*`.
+
+Since Windmill 1.825.0, a `jobs:read` scope with paths only reads the runs of the deployed scripts, flows and [AI agents](../54_ai_agents/index.mdx) at those paths and the jobs started under them, such as the steps of a flow; any other job answers `404`.
+The job lists return only the top-level script and flow runs at those paths, and the job routes that aggregate over the workspace or issue a link or token for a job are refused with a `403`.
+Previews are not readable, and a token that also holds `jobs:write` is not restricted.
 
 ### HTTP triggers and tokens
 
