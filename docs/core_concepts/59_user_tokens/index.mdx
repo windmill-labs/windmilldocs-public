@@ -138,6 +138,14 @@ https://your-windmill-instance.com/api/w/<workspace>/jobs/run/p/<script_path>?to
 
 Within Windmill scripts, an ephemeral token for the current job is available as the `WM_TOKEN` environment variable. It can be used to call the Windmill API directly, for example to fetch [variables](../2_variables_and_secrets/index.mdx) or [resources](../3_resources_and_types/index.mdx). The [TypeScript](../../advanced/2_clients/ts_client.mdx), [Python](../../advanced/2_clients/python_client.md), and [Rust](../../advanced/2_clients/rust_client.mdx) client libraries load it automatically, so you typically don't need to handle it yourself.
 
+### Restricted job tokens
+
+By default, `WM_TOKEN` has the full permissions of the identity the job runs as. A script, a flow or a flow step can restrict it instead: in its settings, under **Job token**, pick **Restrict the job token** and select the [scopes](#token-scopes) its jobs keep. With no scope selected, the token can only reach its own job (its result, logs and progress). A job started by a restricted job never gets a wider token than the job that started it.
+
+Saving a restriction is refused while a worker older than 1.822.0 is connected, since such a worker ignores the setting and gives the job an unrestricted token. That check only counts workers that reported in the last few minutes: it does not see servers, nor a worker that connects later, so keep every worker and server of an instance that uses restricted job tokens on 1.822.0 or later.
+
+A consumer of [OIDC tokens](../29_oidc/index.mdx#token-payload-reference) can check the restriction with the `job_token_scopes` claim.
+
 ## Maximum token expiration
 
 Superadmins can cap how long user tokens live with the "Maximum token expiration (days)" [instance setting](../../advanced/18_instance_settings/index.mdx#maximum-token-expiration-days) (`max_token_expiration_days`), a whole number of days.

@@ -25,8 +25,9 @@ If you are using a TypeScript or Python scripts, you can use the Windmill SDK to
 curl -s -X POST -H "Authorization: Bearer $WM_TOKEN" "$BASE_INTERNAL_URL/api/w/$WM_WORKSPACE/oidc/token/MY_AUDIENCE"
 ```
 
-The default expiry time is 48 hours. You can specify a custom expiry time in seconds when generating the token using the `expires_in` query parameter.
-You can also set the default expiry time for the token using the `OIDC_TOKEN_EXPIRY_SECS` environment variable.
+The default expiry time is 48 hours.
+Set another one in seconds with the `expires_in` query parameter, change the default with the `OIDC_TOKEN_EXPIRY_SECS` environment variable, and cap what a job can request with `OIDC_TOKEN_MAX_EXPIRY_SECS`.
+A token is only issued while the job is running and not being canceled: its `WM_TOKEN` cannot mint one afterwards.
 
 ### Generate the token
 
@@ -123,23 +124,16 @@ The token also includes custom claims provided by Windmill. To see the full list
 - `workspace`: workspace_id the job is executed in
 - `fork_parent_workspace`: when the job runs in a [workspace fork](../../advanced/20_workspace_forks/index.mdx), the workspace_id of the parent workspace. This lets OIDC consumers such as Vault write policies scoped to the parent workspace that also apply to all its forks. The claim is omitted for non-fork workspaces, and workspace-level tokens (workspace object storage, SQS triggers) do not include it.
 - `end_user_email`: the email of the end user when the job runs on behalf of a different user (e.g. via approval flows or operator impersonation)
-- `job_kind`: the kind of job that requested the token, e.g. `script`, `preview`, `flow`, `flowscript` (an inline step of a deployed flow) or `aiagent`
-- `deployed`: `true` only when the job and every job it descends from run code and a path taken from a deployed version. It is `false` for anything run from the script, flow or app editor, and for a deployed script called from a flow preview. Bind it to `true` in any policy that trusts `path` or `flow_path`, since a preview can use any path its author can read.
-- `root_job_id`, `root_path`, `root_job_kind`: the job at the top of the chain, e.g. the flow that ran this step, or the job itself when it has no parent
-- `root_trigger_kind`: how the root job was started (e.g. `schedule`, `webhook`, `http`), absent when none was recorded, e.g. for runs started directly through the API
-
-### Trust only deployed code
-
-Code run from the editor (a preview) declares its own path, and only needs read access to it, so its token carries that `path` and the same `sub` as the deployed script would. A policy that trusts `path` or `sub` alone therefore also trusts previews by anyone who can read that path. On providers that check claims (e.g. Vault's `bound_claims`), require `deployed` to accept deployed code only, and pin `root_path` when a credential should only be used under a specific flow. For example, to issue a credential only to the tools of one deployed flow, bind:
-
-- `workspace` = `foobar`
-- `path` matching `f/infra_ro/*`
-- `root_path` = `f/infra_ro/agent`
-- `deployed` = `true`
-
-`deployed` is computed each time a token is requested, so it can turn `false` during a run: inline steps of a flow get `deployed: false` when the instance runs with `DISABLE_FLOW_SCRIPT`, or when the flow was deployed before flow nodes existed and never redeployed (redeploying it fixes this), because those steps then run as previews; a running job's later tokens do too once its script or flow is permanently deleted or its user folder is renamed.
-
-Providers that only check `sub` (e.g. AWS) cannot see `deployed`: restrict who can read the paths such a role trusts.
+- `job_kind`: the kind of job that requested the token, e.g. `script`, `preview`, `flow`, `flowscript` (an inline flow step), `appscript` or `aiagent`
+- `deployed`, `latest`: whether the job runs deployed code, and its current version. See [Trust only deployed code](#trust-only-deployed-code).
+- `version`: the script hash of a `script` job or the flow version id of a `flow` job, `null` for other kinds
+- `digest`: the SHA-256 of the job's code, `null` for kinds other than `script`, `flow` and `flowscript`. See [Pin code with digests](#pin-code-with-digests).
+- `root_job_id`, `root_path`, `root_job_kind`, `root_version`, `root_digest`: the same for the job at the top of the chain of parent jobs, e.g. the flow that ran this step, or the job itself when it has no parent. A flow restarted from a step is a new job, with a new `root_job_id`.
+- `root_trigger_kind`, `root_trigger`: how the root job was started (e.g. `schedule`, `webhook`, `http`) and by what, `null` when none was recorded, e.g. for a run started through the API. See [what `root_trigger` holds](#what-root_trigger-holds).
+- `tag`, `worker_group`: the job's [worker tag](../9_worker_groups/index.mdx) and the worker group of the worker running it. Windmill records them, the worker does not attest them: whoever can start a worker under a group name or deploy code with a tag sets them.
+- `run_as_type`: what `email` names: `user`, `service_account`, `group` or `non_member` (a superadmin outside the workspace, a built-in identity or a removed user)
+- `job_token_scopes`: the scopes of a [restricted job token](../59_user_tokens/index.mdx#restricted-job-tokens), e.g. `["oidc:write"]`, absent when the job token is unrestricted
+- `jti`: a unique id per token, to refuse a token presented twice
 
 The following example token was requested with the audience `sts.amazonaws.com` from the script `u/admin/ambitious_script` in the `foobar` workspace:
 
@@ -167,6 +161,70 @@ eyJhbGciOiJSUzI1NiIsImtpZCI6IndpbmRtaWxsIn0.eyJpc3MiOiJodHRwczovL215Y29tcGFueS5j
 }
 ```
 
+### Trust only deployed code
+
+`deployed` is `true` only when the job and every job above it in the chain run code at a path taken from a deployed version, or a published Hub script.
+It is `false` for anything run from the script, flow or app editor, and for a deployed script called from a flow preview.
+`latest` is `true` only when the token is `deployed` and every script and flow in the chain runs the version its path currently resolves to.
+It is always `false` under an app.
+
+`deployed` alone accepts every past version, which anyone who can run a script or flow can still run.
+Require `latest` so that redeploying over a bad version revokes it, or pin `version` and `root_version`.
+For example, to issue a credential only to the steps of one deployed flow, on a provider that checks custom claims (e.g. Vault's `bound_claims`), bind:
+
+- `workspace` = `foobar`
+- `path` matching `f/infra_ro/*` (in Vault, with `"bound_claims_type": "glob"` on the role)
+- `root_path` = `f/infra_ro/agent`
+- `deployed` = `true`
+- `latest` = `true`
+
+Both are computed each time a token is requested, and turn `false`, even during a run, when:
+
+- `latest`: a script or flow of the chain is redeployed
+- `deployed`: the job's script version is deleted, its script or flow is permanently deleted, or its user folder is renamed
+- `deployed`: for the inline steps of a flow, the instance runs with `DISABLE_FLOW_SCRIPT`, or the flow was last deployed before flow nodes existed (redeploy it)
+
+A preview declares its own path, so its token carries the `path` and `sub` of the item deployed there.
+Windmill therefore only issues a token to a job that is not `deployed` when its user has [write access](../16_roles_and_permissions/index.mdx#permissions-and-access-control) to the script, flow or app at every path the preview declares (its own, and any path set on a flow step that points outside the flow): otherwise the request fails with a 403.
+That includes deployed code that [runs as another user](../16_roles_and_permissions/index.mdx#run-on-behalf-of) when called from such a preview, and, unless the user is an admin, a job whose chain exceeds 100 parent jobs or leaves the workspace.
+A preview with no path, or under the user's own `u/<username>/` folder, always gets one.
+
+Providers that only match `sub` (e.g. AWS) cannot see `deployed`, `latest` or `version`, and `sub` is the same for a preview and for every version: such a role trusts everyone who can write or run the paths it names, so restrict both.
+
+### Pin code with digests
+
+`version` identifies code inside one instance only.
+`digest` and `root_digest` are the lowercase hex SHA-256 of the [RFC 8785](https://www.rfc-editor.org/rfc/rfc8785) canonical JSON of the item, with `null` members left out, so a policy can accept only code reviewed in git.
+Compute them with [`wmill digest`](../../advanced/3_cli/index.mdx#wmill-digest) from the root of a [`wmill sync`](../../advanced/11_git_sync/index.mdx) checkout:
+
+```bash
+wmill digest f/infra/agent__flow f/infra/tool.ts
+# 762edbbcb8c0e84744206f8efa707f10945540e3a00cb454f0dbd31520b18ddd  f/infra/agent
+# abf4646174c8d6984ea9f6d9c6746b61c3d95cd0cb91a4ca89b884b0f61600ae  f/infra/agent/a
+# fcf85b60c3d9aef073e6911f417fdd19bedeb6d9e0f36b2589df07900997f29d  f/infra/tool
+```
+
+- a script: `{"content", "lock", "codebase", "modules"}`, where `modules` is `{"<relative path>": {"content", "lock"}}` for a multi-file script
+- an inline flow step: `{"content", "lock"}`, listed as `<flow path>/<step id>`, the `path` of its `flowscript` job
+- a flow: its `value`, as `flow.yaml` holds it once the `!inline` files are read back in
+
+A digest covers code and lockfiles, not the language, the settings and metadata (tag, schema) or the scripts it imports.
+Compare against a checkout pulled with `wmill sync pull` after the deployment's dependency jobs completed, not the files you pushed: those jobs write the lockfiles and fill in the default settings of a flow's loops and branches.
+
+### What `root_trigger` holds
+
+`root_trigger` depends on `root_trigger_kind`:
+
+- `schedule`: the schedule's path, `null` for its success and recovery handlers
+- `http`, `websocket`, `kafka`, `nats`, `mqtt`, `amqp`, `sqs`, `postgres`, `gcp`, `azure`: the trigger's path, not its route, topic or queue
+- `email`: the email trigger's path, `null` for an email sent to a script's or flow's own address
+- `app`: the app's path
+- `asset`: the path of the script that produced the asset
+- `nextcloud`, `google`, `github`: an external id supplied by whoever calls the run endpoint, as is the kind itself: do not trust them
+- `webhook`: `null`
+
+A job started by an [HTTP route](../../triggers/2_http_routing/index.mdx) runs as the identity configured on the route: `sub`, `email`, `username` and `groups` never describe the caller.
+
 ## Settings discovery
 
 Windmill's OIDC settings are available at the following discovery URL:
@@ -180,6 +238,36 @@ Jwks are available directly at:
 ```
 <base_url>/api/oidc/jwks
 ```
+
+## Signing key
+
+By default, Windmill signs OIDC tokens with a 2048-bit RSA key that it generates and stores in the database, with the `kid` `windmill`.
+The same key signs the tokens Windmill presents to Vault, object storage, SQS and the AI proxy.
+
+To keep the key out of the database, set `OIDC_SIGNING_KEY_FILE` on every server and worker to the path of the same PEM RSA private key (PKCS#1 or PKCS#8, 2048 to 4096 bits):
+
+```bash
+openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out oidc-signing-key.pem
+```
+
+A file key's `kid` is its [RFC 7638](https://www.rfc-editor.org/rfc/rfc7638) thumbprint, so it changes with the key.
+Verifiers that fetch `<base_url>/api/oidc/jwks` follow on their own, while one configured with a static copy of the key has to be updated at every change.
+
+Switching from the database key to a file invalidates the tokens signed with the database key at once: it cannot stay published as `kid: windmill`.
+Then delete it, so that a copy of the database or a backup can no longer sign tokens:
+
+```sql
+DELETE FROM global_settings WHERE name = 'rsa_keys';
+```
+
+### Rotate the key
+
+The key file is re-read at every signature, and the JWKS also serves every `*.pem` file (private or public key) of the `OIDC_SIGNING_KEY_PUBLISH_DIR` directory, listed on every request.
+With the current public key in that directory, a rotation needs no restart:
+
+1. Add the new public key to the directory, and wait until every server and worker sees it (a mounted Kubernetes secret can take a minute or more) and verifiers that cache the JWKS have refetched it.
+2. Write the new private key to the signing key file, atomically (write a temporary file without the `.pem` extension, then rename it).
+3. Once the tokens signed with the old key have expired, delete its file from the directory. `OIDC_TOKEN_MAX_EXPIRY_SECS` bounds that wait.
 
 ## Use OIDC with AWS
 
