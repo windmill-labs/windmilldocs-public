@@ -570,17 +570,21 @@ For Helm deployments, set the appropriate values to enable privileged mode and t
 - Reduce number of concurrent jobs
 - Use `DISABLE_NSJAIL=true` and rely on PID isolation only
 
-### AWS EKS with Bottlerocket AMI
+### AWS EKS with Bottlerocket AMI (including EKS Auto Mode)
 
-**Cause**: Bottlerocket AMI sets `user.max_user_namespaces=0` by default, which prevents user namespace creation required for PID isolation and NSJAIL.
+**Cause**: Bottlerocket sets `user.max_user_namespaces=0` by default. The default PID isolation flags and nsjail's default configuration both create a user namespace, so the worker fails its unshare test at startup, or nsjail jobs fail with `Couldn't launch the child process`. EKS Auto Mode nodes run Bottlerocket and their kernel settings cannot be changed.
 
 **Solutions**:
 
-1. **Switch to a different AMI** (recommended): Use Amazon Linux 2023 or Amazon Linux 2 instead of Bottlerocket for your EKS node groups.
+1. **Run nsjail without a user namespace** (works on EKS Auto Mode): set `DISABLE_NUSER=true` and run the worker as root, either with `privileged: true` or with [the `SYS_ADMIN` capability](#with-the-sys_admin-capability) only. With the Helm chart, that is `isolationSecurity: capabilities` on the worker group. The `Localhost` profiles are optional: without them use `seccompProfile: Unconfined`, since `RuntimeDefault` blocks `pivot_root`. Bottlerocket's SELinux policy does not block nsjail. The [user namespace setup](#with-kubernetes-user-namespaces-no-added-capability) cannot work here.
 
-2. **Disable PID isolation**: Set `disableUnsharePid: true` in Helm values (global or per-worker-group). Note: This reduces security isolation.
+   Verified on EKS Auto Mode (Kubernetes 1.36) with bash, python3 and bun jobs, each in its own PID namespace with no capabilities.
 
-3. **Configure Bottlerocket kernel parameters**: Use a custom launch template with user data to increase `max_user_namespaces`:
+2. **Keep PID isolation only**: in a privileged worker, drop the user namespace from the flags with `UNSHARE_ISOLATION_FLAGS="--pid --fork --mount-proc"`.
+
+3. **Disable PID isolation**: Set `disableUnsharePid: true` in Helm values (global or per-worker-group). Note: This reduces security isolation.
+
+4. **Configure Bottlerocket kernel parameters** (node groups you manage, not EKS Auto Mode): Use a custom launch template with user data to increase `max_user_namespaces`:
    ```toml
    [settings.kernel.sysctl]
    "user.max_user_namespaces" = "65536"
