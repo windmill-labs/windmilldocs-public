@@ -231,31 +231,226 @@ See the [CLI datatable reference](../../advanced/3_cli/datatable.md#managing-mig
 
 ## Database types
 
-Windmill currently supports two backend database types for Data Tables:
+Windmill supports three backend database types for Data Tables:
 
-### 1. Custom instance database
+### 1. Internal managed Postgres
 
 - Uses the **Windmill instance database**.
 - Zero-setup, one-click provisioning.
 - Requires **superadmin** to configure.
 - Although the database exists at the _instance level_, it is only accessible to workspaces that define a data table pointing to it.
+- Supports [roles and permissions](#permissions).
 - See [Custom instance database](/docs/core_concepts/custom_instance_database) for more details.
 
-### 2. Postgres resource
+### 2. External managed Postgres
+
+- Connect an **external Postgres instance** managed by Windmill at the instance level.
+- Configure from **Instance Settings > Managed Postgres**.
+- Supports [roles and permissions](#permissions), just like the custom instance database.
+- Use this when you want to keep data on your own infrastructure while still benefiting from Windmill's role-based access control.
+- Ideal for organizations that require data to stay in a specific region, need a dedicated database cluster, or want to use managed Postgres services (AWS RDS, Google Cloud SQL, etc.).
+
+### 3. Postgres resource
 
 - Attach a **workspace Postgres resource** to the data table.
-- Ideal when you want full control over database hosting, but still benefit from Windmill's credential management and workspace scoping.
+- Does **not** support roles and permissions - all workspace members have full access.
 
 ---
 
 ## Permissions
 
-Currently, Windmill does **not** enforce database-level permissions in data tables.
+Data table roles let you control who can access which schemas and tables within a data table.
+Roles are Postgres login roles created at the instance level and assigned to users, groups or folders at the data table level.
+When a script or app connects as a specific role, Postgres enforces access according to the privileges you grant.
 
-- Any workspace member can execute **full CRUD** operations.
-- Table/row-level permissions may be introduced in a later version.
+This feature is available in [Enterprise Edition](/pricing) only.
+It applies to data tables backed by managed Postgres (instance database or external managed instance), not to data tables backed by Postgres resources.
 
-Windmill ensures secure access by handling database credentials internally.
+### Example: setting up schema-level access control
+
+Say you have a data table with three schemas:
+- `public` - accessible to everyone in the workspace
+- `analytics` - accessible only to members of the `analytics_f` folder (a [folder](../16_roles_and_permissions/index.mdx) acting as a project boundary)
+- `company_data` - accessible only to workspace admins
+
+Here's how to set this up.
+
+#### Step 1: enable roles
+
+Go to **Workspace settings > Data Tables**, click **Manage** on your data table to open the Database Manager, then click the menu on the data table in the left pane and select **Roles**.
+
+![Roles menu](./datatable_images/roles_menu.png 'Roles menu')
+
+Check 'Put this data table under roles'.	
+By default, only the `admin` role exists with no tenants assigned.
+This means only workspace admins and superadmins can use it.
+
+![Roles drawer with admin only](./datatable_images/roles_admin_only.png 'Roles drawer with admin only')
+
+#### Step 2: create a role for the analytics team
+
+Click **Add role** and create a role called `analytics`.
+Assign the folder `f/analytics_f` to it.
+
+![Analytics role](./datatable_images/roles_analytics.png 'Analytics role')
+
+Now anyone with permissions on `analytics_f` can use the `analytics` role, but it has no privileges yet.
+
+#### Step 3: grant privileges on the analytics schema
+
+Exit the Roles drawer.
+Click the menu on the `analytics` schema and select **Access**.
+
+![Schema access menu](./datatable_images/schema_access_menu.png 'Schema access menu')
+
+Grant `SELECT` on all tables in the schema, and enable the same grant for tables created in the future (default privileges).
+`USAGE` on the schema is granted automatically since it's required to access tables.
+
+![ACL editor with SELECT grant](./datatable_images/acl_select_grant.png 'ACL editor with SELECT grant')
+
+#### Step 4: test access from scripts
+
+The `admin` role is still set as the instance default.
+If a user in `analytics_f` calls `wmill.datatable('your_datatable')` without specifying a role, it errors out because they aren't assigned to `admin`.
+
+They must explicitly use the `analytics` role:
+
+<Tabs className="unique-tabs">
+<TabItem value="typescript" label="Typescript" attributes={{className: "text-xs p-4 !mt-0 !ml-0"}}>
+
+```ts
+import * as wmill from 'windmill-client';
+
+export async function main() {
+	let sql = wmill.datatable('main', { role: 'analytics' });
+
+	// WORKS - analytics role has SELECT on analytics schema
+	let data = await sql`SELECT * FROM analytics.reports`.fetch();
+
+	// FAILS - analytics role has no access to company_data schema
+	let secret = await sql`SELECT * FROM company_data.salaries`.fetch();
+
+	return data;
+}
+```
+
+</TabItem>
+<TabItem value="python" label="Python" attributes={{className: "text-xs p-4 !mt-0 !ml-0"}}>
+
+```python
+import wmill
+
+def main():
+    db = wmill.datatable("main", role="analytics")
+
+    # WORKS - analytics role has SELECT on analytics schema
+    data = db.query("SELECT * FROM analytics.reports").fetch()
+
+    # FAILS - analytics role has no access to company_data schema
+    secret = db.query("SELECT * FROM company_data.salaries").fetch()
+
+    return data
+```
+
+</TabItem>
+<TabItem value="duckdb" label="DuckDB" attributes={{className: "text-xs p-4 !mt-0 !ml-0"}}>
+
+```sql
+ATTACH 'datatable://main?role=analytics' AS dt;
+USE dt;
+
+-- WORKS - analytics role has SELECT on analytics schema
+SELECT * FROM analytics.reports;
+
+-- FAILS - analytics role has no access to company_data schema
+SELECT * FROM company_data.salaries;
+```
+
+</TabItem>
+</Tabs>
+
+#### Step 5: create a role for everyone else
+
+A user who is neither a workspace admin nor in `analytics_f` cannot open the Database Manager at all - they have no role assigned.
+
+![Database Manager error](./datatable_images/dbm_no_role_error.png 'Database Manager error')
+
+Create a role called `everyone`, assign `*` (everyone in the workspace) as tenant, and make it the default role.
+
+![Everyone role](./datatable_images/roles_everyone.png 'Everyone role')
+
+Grant `SELECT` on the `public` schema.
+
+Now all users can access the `public` schema in the Database Manager.
+
+![Restricted user view](./datatable_images/dbm_restricted_view.png 'Restricted user view')
+
+Because `everyone` is now the default role, any call to `wmill.datatable('your_datatable')` without an explicit role connects as `everyone`.
+
+#### Step 6: let users create their own schemas
+
+Users may want to create schemas for their apps.
+Grant `CREATE` on the database to the `everyone` role so they can create new schemas.
+
+![ACL editor with CREATE grant](./datatable_images/acl_create_grant.png 'ACL editor with CREATE grant')
+
+### Tenant patterns
+
+When assigning tenants to roles, use these patterns:
+
+- `u/<username>` - a specific user
+- `g/<group>` - all members of a group
+- `f/<folder>` - anyone with permissions on the folder
+- `*` - everyone in the workspace
+
+Workspace admins and superadmins can always use any role regardless of tenant assignments.
+
+### Available privileges
+
+Privileges depend on the target object:
+
+- Database: `CONNECT`, `CREATE`
+- Schema: `USAGE`, `CREATE`
+- Table: `SELECT`, `INSERT`, `UPDATE`, `DELETE`, `TRUNCATE`, `REFERENCES`, `TRIGGER`
+
+The ACL editor also supports:
+- Granting privileges on all tables, sequences or functions in a schema
+- Setting default privileges for objects created in the future
+- Transferring ownership of schemas or tables
+
+### Instance role catalog
+
+Superadmins manage the instance-wide role catalog from **Instance Settings > Data Table settings > Role Catalog**.
+Each role is a real Postgres login with an auto-generated password stored encrypted at the instance level.
+
+Role names must be 1-63 characters, alphanumeric plus `_` and `-` only.
+Reserved names are not allowed: `admin`, `postgres`, `public`, or names starting with `pg_`, `windmill_`, or `custom_instance_`.
+
+### Migrations with roles
+
+The migration editor includes a role picker.
+The selected role is stored as a `-- role <name>` annotation in the migration SQL file.
+Down migrations inherit the same role.
+Migrations without a role annotation run as `admin`.
+
+### Raw apps with roles
+
+When creating a [full-code app](../../full_code_apps/4_data_tables/index.mdx) backed by a data table, the template picker includes a role selector.
+The selected role applies to all data table queries, including those generated by the copilot.
+
+### Limitations
+
+[Postgres triggers](../../triggers/4_postgres_triggers/index.mdx) are not compatible with permissioned data tables.
+Replication streams read every row regardless of role privileges.
+If you need both triggers and row-level security, use separate data tables: one with roles for apps and scripts, one without for triggers.
+
+### Workspace forks
+
+When a [forked workspace](../../advanced/20_workspace_forks/index.mdx) references a permissioned data table from its parent, the role assignments are governed by the parent workspace.
+The child workspace cannot change role assignments.
+Fork admins can access data through the roles assigned in the parent.
+
+Clone forks replay the parent's grants onto the copied data, preserving the permission structure.
 
 ## Use on agent workers
 
