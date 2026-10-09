@@ -58,7 +58,9 @@ Suspend a flow until it's approved. An Approval Script will interact with the Wi
 
 ## Error handlers
 
-Handle errors for Flows after all retries attempts have been exhausted. If it does not return an exception itself, the Flow is considered to be "recovered" and will have a success status. So in most cases, you will have to rethrow an error to have it be listed as a failed flow.
+Handle errors for Flows after all retries attempts have been exhausted.
+The Flow keeps its failed status, unless the error handler returns an object with `recover: true`: the Flow is then considered "recovered" and gets a success status.
+See [Mark the flow as successful](../flows/7_flow_error_handler.md#mark-the-flow-as-successful).
 
 <div className="grid grid-cols-2 gap-6 mb-4">
 	<DocCard

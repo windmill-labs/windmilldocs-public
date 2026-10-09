@@ -21,6 +21,28 @@ If defined, the error handler will take as input the result of the step that err
 
 Steps are retried until they succeed, or until the maximum number of retries defined for that spec is reached, at which point the error handler is called.
 
+## Mark the flow as successful
+
+A flow whose error handler ran still ends as failed, even when the error handler itself succeeds.
+When the error handler is the intended recovery path, have it return an object with `recover: true`:
+
+```ts
+export async function main(message: string, name: string, step_id: string) {
+	// e.g. reassign the ticket to a human and log the outcome
+	return { message, step_id, recover: true };
+}
+```
+
+The flow then ends as a success instead of a failure.
+This also holds when the failing step is inside a [loop](./12_flow_loops.md), a [branch](./13_flow_branches.md) or a [subflow](./1_flow_editor.mdx#subflows).
+
+`recover` only changes the final status: the same steps run as without it.
+A sequential loop still stops at the failed iteration, while a loop that [skips failures](./12_flow_loops.md#skip-failure) or a step with ["Continue on error"](./14_retries.md#continue-on-error-with-error-as-steps-return) still carries on.
+One exception keeps the flow failed: a failure nested deeper inside an iteration of a [parallel loop](./12_flow_loops.md#run-in-parallel), such as a sequential loop inside a parallel loop, still fails that parallel loop.
+
+The Python and TypeScript error handler templates return `recover: false`.
+Change it to `true`, or compute it, to decide per run whether the flow counts as recovered.
+
 You can write error handler scripts in:
 
 - [Python](../getting_started/0_scripts_quickstart/2_python_quickstart/index.mdx)
