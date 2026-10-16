@@ -330,13 +330,28 @@ Some providers accept additional fields on their [resource](../3_resources_and_t
 
 #### AWS Bedrock
 
-Bedrock accepts any of three authentication modes on the resource — the worker picks the first one that is fully provided:
+Bedrock accepts four authentication modes on the resource, in this order of precedence:
 
-1. **Long-term IAM user keys**: set `awsAccessKeyId` and `awsSecretAccessKey`, plus an optional `awsSessionToken` when you are using temporary credentials (e.g. from AWS STS).
-2. **Bedrock bearer API key**: set the resource's `apiKey` to an [Amazon Bedrock API key](https://docs.aws.amazon.com/bedrock/latest/userguide/api-keys.html). This takes precedence over the IAM key pair when both are set.
-3. **Ambient IAM role**: leave `apiKey` and the access keys empty. The worker falls back to the default AWS credential chain (IRSA / EKS Pod Identity / EC2 instance profile / `AWS_*` environment variables) resolved against the configured `region`.
+1. **Bedrock bearer API key**: set the resource's `apiKey` to an [Amazon Bedrock API key](https://docs.aws.amazon.com/bedrock/latest/userguide/api-keys.html).
+2. **Long-term IAM user keys**: set `awsAccessKeyId` and `awsSecretAccessKey`, plus an optional `awsSessionToken` when you are using temporary credentials (e.g. from AWS STS).
+3. **OIDC role assumption**: set `oidcRoleArn` to the ARN of an IAM role that trusts Windmill's [OIDC](../29_oidc/index.mdx#use-oidc-with-aws) identity provider, so CloudTrail attributes each call to the job or user.
+   This mode requires [Enterprise Edition](/pricing) and an explicit `region`.
+4. **Ambient IAM role**: leave `apiKey`, the access keys and `oidcRoleArn` empty. The worker falls back to the default AWS credential chain (IRSA / EKS Pod Identity / EC2 instance profile / `AWS_*` environment variables) resolved against the configured `region`.
 
-The `region` field is required in all cases. Bedrock requests use the AWS SDK's native Converse API, so models are referenced by their native Bedrock model id (e.g. `anthropic.claude-3-5-sonnet-20241022-v2:0`).
+The token subject depends on the caller: AI agent steps use the [job subject](../29_oidc/index.mdx#token-payload-reference), the AI chat uses `<email>::<workspace>`.
+If the role's trust policy conditions on `sub`, it must admit both:
+
+```json
+"Condition": {
+  "StringEquals": { "<base_url>/api/oidc/:aud": "sts.amazonaws.com" },
+  "StringLike": {
+    "<base_url>/api/oidc/:sub": ["<email>::<workspace>", "<email>::*::*::<workspace>"]
+  }
+}
+```
+
+Set `region` on the resource: only the ambient IAM role mode can fall back to the region of the AWS environment.
+Bedrock requests use the AWS SDK's native Converse API, so models are referenced by their native Bedrock model id (e.g. `anthropic.claude-3-5-sonnet-20241022-v2:0`).
 
 #### Anthropic
 
