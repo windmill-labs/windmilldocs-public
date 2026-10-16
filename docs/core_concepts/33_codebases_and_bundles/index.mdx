@@ -60,6 +60,8 @@ codebases:
 
 Windmill keeps track of the hash of the codebase and will only rebuild the bundle if the codebase or script has changed.
 
+If scripts import files outside `relative_path` (for example shared packages in a monorepo), list them in [`extra_digest_paths`](../../advanced/3_cli/wmill-yaml-reference.mdx#extra_digest_paths) so that edits to them also trigger a rebuild.
+
 ## Instance object storage
 
 The bundles requires [instance-wide object storage](../38_object_storage_in_windmill/index.mdx#instance-object-storage) which is where the bundle resides.

@@ -412,6 +412,7 @@ for background.
 | Field | Type | Description |
 | --- | --- | --- |
 | `relative_path` | `string` *(required)* | Path to the codebase directory (relative to `wmill.yaml`) |
+| [`extra_digest_paths`](#extra_digest_paths) | `string[]` | Files or directories outside `relative_path` that scripts import, hashed into the codebase digest |
 | `includes` | `string[]` | Glob patterns of files to bundle |
 | `excludes` | `string[]` | Glob patterns of files to exclude |
 | `format` | `"cjs" \| "esm"` | Output module format |
@@ -426,6 +427,7 @@ for background.
 ```yaml
 codebases:
   - relative_path: ./shared
+    extra_digest_paths: ["../packages/utils/src"]
     includes: ["**/*.ts"]
     excludes: ["**/*.test.ts", "node_modules/**"]
     format: esm
@@ -442,6 +444,12 @@ codebases:
       ".png": "dataurl"
     # customBundler: ./build.ts
 ```
+
+#### `extra_digest_paths`
+
+The codebase digest, which `wmill sync push` uses to detect changed scripts, only covers files under `relative_path`.
+List files or directories outside it that scripts import (for example shared packages in a monorepo) so edits to them are detected too.
+Paths are relative to `wmill.yaml` and directories are hashed recursively, so point at source folders rather than a package root containing `node_modules` or `dist`.
 
 ## Workspaces
 
