@@ -15,6 +15,8 @@ The default OAuth scopes are:
 - `https://www.googleapis.com/auth/admin.directory.user.security`
 - `https://www.googleapis.com/auth/admin.directory.orgunit`
 
+The connect dialog also offers `https://www.googleapis.com/auth/admin.reports.audit.readonly` to read audit logs from the Admin SDK Reports API.
+
 On [self-hosted instances](../advanced/1_self_host/index.mdx), integrating an OAuth API will require [Setup OAuth and SSO](../advanced/27_setup_oauth/index.mdx).
 
 Your resource can be used [passed as parameters](../core_concepts/3_resources_and_types/index.mdx#passing-resources-as-parameters-to-scripts-preferred) or [directly fetched](../core_concepts/3_resources_and_types/index.mdx#fetching-them-from-within-a-script-by-using-the-wmill-client-in-the-respective-language) within [scripts](../script_editor/index.mdx), [flows](../flows/1_flow_editor.mdx), [low-code apps](../apps/0_app_editor/index.mdx) and [full-code apps](../full_code_apps/index.mdx).
