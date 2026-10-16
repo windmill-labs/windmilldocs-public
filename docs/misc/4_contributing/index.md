@@ -66,6 +66,9 @@ Submit a Pull Request: Add your new OAuth provider configuration to the [backend
 Where `extra_params` is an escape hatch to deal with OAuth provider that need
 some extra fields to be passed along to the authorization URL.
 
+`scope_options` lists the scopes shown as checkboxes in the connect dialog, each a bare scope or `{ "value": "<scope>", "label": "<what it allows>" }`.
+Options also listed in `scopes` start ticked; the rest are opt-in.
+
 You can iterate without requiring a dev setup. The item accepts an extra optional field: `connect_config` or `login_config` of type OAuthConfig:
 
 ```
