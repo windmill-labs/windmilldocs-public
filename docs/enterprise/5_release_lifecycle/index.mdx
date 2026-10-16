@@ -1,0 +1,69 @@
+---
+description: How does Windmill version and support its releases? Release line, backward compatibility, version lifecycle, and security advisories.
+---
+
+import DocCard from '@site/src/components/DocCard';
+
+# Release and support lifecycle
+
+Windmill ships on a single, continuously maintained release line.
+This page describes how releases are published, how long a version is supported, and how security fixes reach you.
+
+## Release line
+
+Windmill follows semantic versioning on one `v1.x` line.
+A tagged release is published almost daily: roughly 440 tagged releases over the last 12 months.
+
+Each release is published on [GitHub Releases](https://github.com/windmill-labs/windmill/releases) with its release notes and the vulnerability scan results of its container images.
+
+Security fixes are delivered in the latest release of the line; there is no separate long-term support branch.
+Functional changes shipped between the version in use and the release carrying a fix are additive.
+
+## Backward compatibility
+
+Every release is backward compatible and contains no breaking changes.
+An upgrade therefore never requires a functional migration or a revalidation of existing [scripts](../../script_editor/index.mdx), [flows](../../flows/1_flow_editor.mdx) and [apps](../../apps/0_app_editor/index.mdx).
+
+To apply a fix, the deployed version is upgraded in place to the release that carries it.
+Self-hosted customers control their own upgrade schedule.
+
+## Version lifecycle
+
+Each major version is supported for 24 months after the next major version is released.
+Windmill gives 12 months of advance notice before any end of life.
+
+No end of life is currently scheduled.
+
+## Security advisories
+
+Security advisories are published as [GitHub Security Advisories](https://github.com/windmill-labs/windmill/security/advisories) on `windmill-labs/windmill`, with a CVE identifier where one is assigned.
+
+In addition, when a CVE affecting the product is found, Windmill notifies every [Enterprise Edition](/pricing) customer through their [dedicated support channel](../3_support_and_sla/index.mdx#contacting-support) and by email, with the fixed version to apply.
+P0 security vulnerabilities are fixed the same day for Enterprise customers.
+
+## Enterprise support
+
+Response times for Enterprise customers are 3 hours for P0 (critical, 24/7), 24 hours for P1, 48 hours for P2, and 72 hours for P3.
+L3 support is included in the Enterprise subscription.
+
+See [Support & SLA](../3_support_and_sla/index.mdx) for issue prioritization and support channels.
+
+## Validating an upgrade
+
+We recommend validating an upgrade on a non-production instance before applying it to production.
+Marking an instance as [Non-prod](../../advanced/18_instance_settings/index.mdx#non-prod-instance), or running it with a [development license key](../1_plans_details/index.mdx#license-keys), keeps its compute usage out of your [Compute Unit](../1_plans_details/index.mdx#setup-and-compute-units) billing.
+
+For the upgrade procedure itself, see [Update](../../advanced/1_self_host/index.mdx#update).
+
+<div className="grid grid-cols-2 gap-6 mb-4">
+	<DocCard
+		title="Support & SLA"
+		description="Support options, issue prioritization and response times."
+		href="/docs/enterprise/support_and_sla"
+	/>
+	<DocCard
+		title="Update a self-hosted instance"
+		description="How to upgrade a self-hosted Windmill instance to a newer version."
+		href="/docs/advanced/self_host#update"
+	/>
+</div>
