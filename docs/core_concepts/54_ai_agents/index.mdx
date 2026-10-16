@@ -85,6 +85,12 @@ When you leave it empty, Windmill resolves the description sent to the model in 
 2. Otherwise, the description auto-derived from the underlying runnable - a workspace [script](../../script_editor/index.mdx)'s description, or a Hub script's summary.
 3. Otherwise, the tool name, as a fallback.
 
+### Where tools run
+
+Each tool call runs as its own job, so other workers can run tools in parallel.
+Tools pick their worker group tag like [flow steps](../9_worker_groups/index.mdx#how-to-assign-a-custom-worker-group-to-a-script-or-flow).
+A tool tag using `$flow_expr[...]` is not resolved, and the tool runs on its default tag.
+
 ### Websearch tool
 
 AI Agents can be equipped with a built-in websearch tool to retrieve up-to-date information from the web during execution. Websearch is supported on OpenAI, Anthropic, and Google AI (Gemini) providers, and uses each provider's native web search capability (OpenAI's web search tool via the Responses API, Anthropic's web search tool, and Gemini's Google Search grounding). Add it from the tool picker of the AI Agent step — no additional configuration is required.

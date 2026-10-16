@@ -228,6 +228,10 @@ You can assign a worker group to an entire flow in the flow's settings:
 
 ![Flow's Worker Group](flow_wg.png.webp)
 
+A flow worker group tag overrides the tags of every step, including [AI agent tools](../54_ai_agents/index.mdx#where-tools-run) and sub-flows.
+Enable "Preserve step worker tags" below it to let steps that set their own tag run on it instead; steps without a tag still inherit the flow's.
+A worker must serve every tag an AI agent tool resolves to, or the agent step waits until it times out.
+
 ### Dynamic tag
 
 If a workspace tag contains the substring `$workspace`, it will be replaced by the workspace id the job routes to. This is especially useful to have the same script deployed to different workspace and have them run on different workers.
