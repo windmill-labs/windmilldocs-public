@@ -10,6 +10,11 @@ It is possible to define a node at which the flow will return at for [sync endpo
 
 Useful when some webhooks need to return extremely fast but not just the uuid (define first step as early return) or when the expected return from the webhook doesn't need the full flow to be computed.
 
+The early return step can be a top-level step or a step inside a [branch to one or branch to all](./13_flow_branches.md), nested to any depth.
+Steps inside [for loops](./12_flow_loops.md) and while loops can't be picked.
+If the step's branch is not taken, the sync endpoint waits for the flow to complete and returns the flow's final result.
+If the step fails, the endpoint returns that step's error, or the result of the flow's [error handler](./8_error_handling.mdx#error-handler) if it has one.
+
 Early return also affects [streaming](../core_concepts/58_streaming/index.mdx): when configured, the stream comes from the early return step rather than the last step of the flow.
 
 ![Set early return](../assets/flows/set_early_return.png.webp 'Set early return')
