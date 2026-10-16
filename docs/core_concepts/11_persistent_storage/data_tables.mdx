@@ -221,6 +221,7 @@ Migrations are stored as [workspace files](../../advanced/3_cli/sync.mdx) under 
 
 ```bash
 wmill datatable migrate new add_users_table   # scaffold .up.sql / .down.sql files
+wmill datatable migrate status                 # list migrations and whether they have run
 wmill datatable migrate up                     # apply all pending migrations
 wmill datatable migrate down                   # roll back the most recent migration
 ```

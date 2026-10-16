@@ -137,6 +137,36 @@ END;
 
 The `.down.sql` file is optional: leave it empty (or delete it) for migrations you never intend to roll back.
 
+### Checking migration status
+
+List every migration of a datatable with its status, to see what `migrate up` would run.
+
+```bash
+wmill datatable migrate status [options]
+```
+
+Each migration is shown with its timestamp, name and one of these statuses:
+
+| Status                 | Meaning                                                                 |
+| ---------------------- | ----------------------------------------------------------------------- |
+| `ran`                  | Already applied to the datatable                                        |
+| `pending`              | On the workspace but not applied yet                                    |
+| `pending (not pushed)` | Only in your local files; `migrate up` pushes and runs it as well       |
+| `unknown`              | The applied state could not be read                                     |
+
+#### Options
+
+| Option              | Parameters   | Description                                |
+| ------------------- | ------------ | ------------------------------------------ |
+| `-d, --datatable`   | `datatable`  | Target datatable (default: `main`)         |
+| `--json`            |              | Output as JSON (for piping to jq). Local-only migrations have `"status": "local"` and pending ones `"status": "not_run"` |
+
+#### Example
+
+```bash
+wmill datatable migrate status -d analytics
+```
+
 ### Applying migrations
 
 Apply every pending migration, in timestamp order, to a datatable.
@@ -288,6 +318,7 @@ wmill datatable psql -n analytics
 | `list`           | List all datatables in the workspace           |
 | `run`            | Execute a single SQL query                     |
 | `migrate new`    | Scaffold a new `.up.sql` / `.down.sql` migration |
+| `migrate status` | List migrations and whether they have run       |
 | `migrate up`     | Apply all pending migrations                    |
 | `migrate down`   | Roll back the most recent migration             |
 | `serve`          | Start a Postgres proxy for external clients    |
