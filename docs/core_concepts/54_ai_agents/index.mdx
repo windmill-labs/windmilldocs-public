@@ -71,7 +71,7 @@ AI Agents can be equipped with script tools that extend their capabilities beyon
 - **Workspace scripts** - Use existing scripts from your Windmill workspace
 - **Hub scripts** - Leverage pre-built tools from the Windmill Hub
 
-Each script tool must have a unique name within the AI agent step and contain only letters, numbers, and underscores. The name should be descriptive of the tool's function, and you can add a [tool description](#tool-description) to give the AI more guidance on when and how to use it.
+Each script tool must have a unique name within the AI agent step and contain only letters, numbers, and underscores. [`wmill lint`](../../advanced/3_cli/lint.md) reports flow files whose tool names break these rules. The name should be descriptive of the tool's function, and you can add a [tool description](#tool-description) to give the AI more guidance on when and how to use it.
 
 When script tools are configured, the AI agent can decide when and how to use them based on the user's request. It selects the most appropriate tool by name, and issues a tool call with JSON arguments that conform to the tool's input schema. Windmill executes the underlying `script` and returns a JSON result, which is surfaced back to the model as a tool response message and is included in `messages`.
 

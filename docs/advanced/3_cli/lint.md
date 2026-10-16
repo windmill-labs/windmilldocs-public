@@ -5,6 +5,7 @@ description: How do I lint and validate Windmill YAML files using the Windmill C
 # Lint
 
 The `wmill lint` command validates Windmill YAML files (flows, schedules, and triggers) against their schemas. It scans a directory tree, infers each file's type from its filename (`.flow.yaml`, `.schedule.yaml`, `.http_trigger.yaml`, etc.), and reports missing required fields, unknown properties, or invalid values.
+On flows, it also checks what the schema cannot express: AI agent tool names, flow groups and notes.
 
 ## Usage
 
