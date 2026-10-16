@@ -320,11 +320,27 @@ oauth_config:
       - chat:write
       - admin
       - channels:write
+      - channels:history
+      - groups:history
+      - im:history
+      - mpim:history
+      - search:read
+      - users:read
+      - users:read.email
+      - channels:read
+      - groups:read
+      - im:read
+      - mpim:read
+      - files:read
     bot:
       - chat:write
       - chat:write.public
       - channels:join
       - files:write
+      - users:read
+      - users:read.email
+      - channels:read
+      - channels:history
       - commands
       - app_mentions:read
       - im:history
@@ -349,7 +365,8 @@ settings:
 
 The workspace and instance "Connect to Slack" flows request the bot scopes listed above: `commands`, `chat:write`, `chat:write.public`, `channels:join`, `files:write`, `app_mentions:read`, `im:history` and `im:read`.
 Requested scopes must be a subset of the ones your app declares, so if you trim the manifest, set the `SLACK_OAUTH_SCOPES` [environment variable](../../core_concepts/47_environment_variables/index.mdx) on the server to the comma-separated list your app actually has.
-Connecting a `slack` [resource](../../core_concepts/3_resources_and_types/index.mdx) from the resources page uses the same app but is not affected by that variable: it always requests `chat:write`, `chat:write.public`, `channels:join` and `files:write`.
+Connecting a `slack` [resource](../../core_concepts/3_resources_and_types/index.mdx) from the resources page uses the same app but is not affected by that variable: connecting as the app or as [yourself](../../integrations/slack.mdx#action-on-slack-from-windmill) only requests scopes the manifest above declares, under `bot` or `user` respectively.
+Add any optional scope you tick in the connect dialog to the manifest too.
 
 :::
 

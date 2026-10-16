@@ -561,6 +561,8 @@ Select the `slack` Resource Type from the "OAuth APIs" list and by clicking
 Windmill access your Slack workspace. Once that's done, you will be redirected
 back to Windmill, where you can name your Slack Resource and Save it.
 
+Under "Connect as", a user token (`xoxp-`) acts as you, and can read private channel and DM history and call `search.messages`.
+
 :::note
 
 On [self-hosted instances](../advanced/1_self_host/index.mdx), integrating an OAuth API will require [Setup OAuth and SSO](../advanced/27_setup_oauth/index.mdx).
@@ -600,12 +602,12 @@ export async function main(text: string, channel: string, slack: Slack) {
 
 ### Which identity messages are published under
 
-Messages sent using the resource created above are published by the Slack app the OAuth connection went through, not under your own name, since the flow grants that app a bot token (`xoxb-`).
+The identity follows the token.
+A resource connected as the app publishes messages as the Slack app the OAuth connection went through, not under your own name.
 On Windmill cloud that app is the Windmill Slack app; on a self-hosted instance it is the app your administrator registered in the instance OAuth settings.
 The `chat:write.public` scope it requests lets it post to any public channel without being invited to it.
 
-The identity follows the token, so a resource holding a user token (`xoxp-`) still posts under that user's name: one you filled in by hand, or one issued by an OAuth connection made before Windmill moved to Slack's v2 flow.
-Slack tokens do not expire unless the app turns on [token rotation](https://docs.slack.dev/authentication/using-token-rotation/), so those resources keep working as they are; reconnect them to get a bot token.
+A resource connected as yourself, or holding a user token you filled in by hand, posts under your name.
 
 The Slack resource created in the [Action on Windmill from Slack](#action-on-windmill-from-slack) section publishes messages the same way, through the same instance-level app unless the workspace [configures its own](#workspace-level-slack-app-configuration).
 It also pairs the Slack workspace with the Windmill workspace, which is what enables slash commands, mention triggers and approvals.
