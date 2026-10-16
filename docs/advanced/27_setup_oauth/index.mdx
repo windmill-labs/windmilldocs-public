@@ -8,7 +8,7 @@ import DocCard from '@site/src/components/DocCard';
 
 Windmill supports Single Sign-On for [Google](#google-login), [Microsoft](#microsoft), [Okta](#okta), [GitHub](#github), [GitLab](#gitlab), [Jumpcloud](#jumpcloud), [Keycloak](#keycloak), [Authentik](#authentik), [Authelia](#authelia), [Kanidm](#kanidm), [Zitadel](#zitadel), [Nextcloud](#nextcloud), [PocketID](#pocketid) and domain restriction.
 
-Windmill supports [Slack](#slack), [GitHub](#github-1), [GitLab](#gitlab-1), [Bitbucket](#bitbucket), [Google Sheets](#google-sheets), [Google Drive](#google-drive-gdrive), [Gmail](#gmail), [Google Calendar](#google-calendar-gcal), [Google Forms](#google-forms-gforms), [Google Cloud](#google-cloud-gcloud), [Google Workspace](#google-workspace-gworkspace), [Basecamp](#basecamp), [LinkedIn](#linkedin), [QuickBooks](#quickbooks), [Visma](#visma), [Snowflake](#snowflake), and [Custom OAuth](#custom-oauth-1). Providers can be connected through the browser sign-in flow or, for server-to-server integrations, through the [client credentials](#client-credentials) grant.
+Windmill supports [Slack](#slack), [GitHub](#github-1), [GitLab](#gitlab-1), [Bitbucket](#bitbucket), [Google Sheets](#google-sheets), [Google Drive](#google-drive-gdrive), [Gmail](#gmail), [Google Calendar](#google-calendar-gcal), [Google Forms](#google-forms-gforms), [Google Cloud](#google-cloud-gcloud), [Google Workspace](#google-workspace-gworkspace), [Basecamp](#basecamp), [Notion](#notion), [LinkedIn](#linkedin), [QuickBooks](#quickbooks), [Visma](#visma), [Snowflake](#snowflake), and [Custom OAuth](#custom-oauth-1). Providers can be connected through the browser sign-in flow or, for server-to-server integrations, through the [client credentials](#client-credentials) grant.
 
 On [self-hosted instances](../../advanced/1_self_host/index.mdx), OAuth configuration are set in the [instance settings](../../advanced/18_instance_settings/index.mdx).
 
@@ -516,6 +516,15 @@ The same steps apply to enable more APIs (**Gmail**, **Gdrive**, etc.) on your G
   - Redirect URI: `https://<YOUR_INSTANCE>/oauth/callback/basecamp`
 - Copy the **Client ID** and **Client Secret** from the application details.
 - [Instance settings](../../advanced/18_instance_settings/index.mdx) -> Resources -> Add OAuth "basecamp" and set the client id and client secret.
+
+### Notion
+
+- Go to the [Notion developer portal](https://www.notion.so/profile/integrations) and create a new public connection using OAuth.
+- Set the redirect URI to `https://<YOUR_INSTANCE>/oauth/callback/notion`.
+- Copy the **Client ID** and **Client Secret**.
+- [Instance settings](../../advanced/18_instance_settings/index.mdx) -> OAuth -> Add OAuth client -> Notion and paste the client ID and client secret.
+
+Windmill requests no scopes from Notion: what the token can do is set by the capabilities you enable on the Notion connection, and users pick which pages to share during sign-in.
 
 ### LinkedIn
 

@@ -8,13 +8,15 @@ import ResourceUsage from './_resource_usage.mdx';
 
 [Notion](https://www.notion.so/) is a productivity and note-taking web application.
 
-To integrate Notion to Windmill, you need to save a [token](https://developers.notion.com/reference/create-a-token) within a Notion [resource](../core_concepts/3_resources_and_types/index.mdx).
+To integrate Notion to Windmill, save a [token](https://developers.notion.com/reference/create-a-token) within a Notion [resource](../core_concepts/3_resources_and_types/index.mdx).
 
 ![Add Notion Resource](../assets/integrations/add-notion.png "Add Notion Resource")
 
 To create a token, on Notion go to the [My integrations](https://www.notion.so/my-integrations) page, create a new integration and associate it with the proper workspace.
 
 Do not forget to "Connect to" Windmill the page (and therefore subpages) for which you want Windmill to have access to.
+
+Alternatively, if an instance admin has [set up Notion OAuth](../advanced/27_setup_oauth/index.mdx#notion), you can create the resource by signing in to Notion from the resource creation form.
 
 <iframe
 	style={{ aspectRatio: '16/9' }}
