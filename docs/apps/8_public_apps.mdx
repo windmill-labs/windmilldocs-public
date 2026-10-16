@@ -26,8 +26,8 @@ Widening an app to Guests or to Public can be reserved to workspace admins and b
 
 ![Log in to open the app](../assets/apps/5_public_apps/public_log.png "A visitor without read access is asked to log in")
 
-A public app runs in the browsers of people who may not be workspace members, and by default its code runs there with whatever Windmill session the viewer has.
-We recommend turning on [sandbox isolation](../full_code_apps/8_sandbox_isolation/index.mdx) (alpha) for public apps, which confines that code to an opaque-origin iframe instead.
+A public app runs in the browsers of people who may not be workspace members, and without isolation its code runs there with whatever Windmill session the viewer has.
+[Sandbox isolation](../full_code_apps/8_sandbox_isolation/index.mdx), on by default for new apps, confines that code to an opaque-origin iframe instead, and we recommend keeping it on for public apps.
 
 <div className="grid grid-cols-2 gap-6 mb-4">
 	<DocCard

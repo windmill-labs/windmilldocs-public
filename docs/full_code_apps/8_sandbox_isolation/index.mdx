@@ -11,8 +11,8 @@ It applies to both [low-code apps](../../apps/0_app_editor/index.mdx) and [full-
 
 This happens in the viewer's browser, and is unrelated to the [process isolation](../../advanced/27_security_isolation/index.mdx) that sandboxes job execution on a worker.
 
-Turn it on from the app editor's Deploy panel, under Sandbox isolation.
-It is off by default and currently in alpha, and is [being made the norm in stages](#rollout).
+It is set from the app editor's Deploy panel, under Sandbox isolation.
+It is on by default for new apps, and is [being made the norm in stages](#rollout).
 
 ![Sandbox isolation setting](./sandbox_toggle.webp 'Sandbox isolation setting')
 
@@ -39,14 +39,14 @@ The two are configured independently.
 
 Isolation is becoming the default in three stages:
 
-1. Now: optional, off by default, and in alpha.
-2. November 2026: on by default for newly created apps. Existing apps keep whatever they are set to.
+1. Previously: optional and off by default.
+2. Now: on by default for newly created apps. Existing apps keep whatever they are set to.
 3. January 2027: viewers see a warning when they load an app that is not sandboxed.
 
-Those dates are intentions, not commitments.
-Turning isolation on now means the later stages change nothing for your apps.
+That date is an intention, not a commitment.
+Turning isolation on now means the last stage changes nothing for your apps.
 
-While it is in alpha we are looking for feedback, particularly on apps it breaks.
+We are looking for feedback, particularly on apps it breaks.
 Tell us on [Discord](https://discord.com/invite/V7PM2YHsPB) or open a [GitHub issue](https://github.com/windmill-labs/windmill/issues).
 
 ## Limitations
@@ -59,9 +59,9 @@ Windmill shims them so apps that use them keep working, but they are not the bro
 - `document.cookie` is an in-memory jar, not the Windmill session cookie.
 
 Anything that needs a real origin does not work: IndexedDB, third-party authentication SDKs, and OAuth redirects that return to a named origin.
-Leave isolation off for apps that depend on those.
+Turn isolation off for apps that depend on those.
 
-The feature is in alpha, so after turning it on, open the app from its public URL and confirm it still behaves as expected.
+After turning it on, open the app from its public URL and confirm it still behaves as expected.
 
 ## Frontend API access
 
