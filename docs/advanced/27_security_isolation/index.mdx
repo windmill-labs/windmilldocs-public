@@ -455,6 +455,26 @@ The annotation is logged as "sandbox mode (nsjail)" in job execution logs.
 
 The `sandbox` annotation can be combined with [volume annotations](../../core_concepts/67_volumes/index.mdx) to run scripts with persistent file storage inside a sandbox.
 
+### No network annotation {#no-network-annotation}
+
+The `no_network` annotation runs a sandboxed script with no network at all: no internet, no DNS, and no access to the Windmill API, not even on localhost. It works for Python, Bash (including `# sandbox <image>`), R, and TypeScript (Bun), in scripts and in flow inline steps.
+
+```python
+# sandbox
+# no_network
+
+def main(x: int):
+    return x * 2
+```
+
+- **Requires sandboxing.** The network is removed by running the script's nsjail sandbox in its own network namespace, so the script must be sandboxed, either with the [`sandbox` annotation](#sandbox-annotation) or with [instance-wide sandboxing](#force-sandboxing). If it would run without nsjail, the job fails instead of running with network. A [dedicated worker](../../core_concepts/25_dedicated_workers/index.mdx) does not run its script in nsjail, so it runs `no_network` scripts through the regular executor instead. `#ssh` scripts refuse the annotation.
+- **No `WM_TOKEN`.** The job token is not passed to the script. The Windmill SDK cannot reach the API, so calls such as `wmill.get_variable` fail. Pass whatever the script needs as arguments.
+- **Dependencies still install.** Resolving and installing dependencies run as separate steps with network, so third-party imports work. Only the script's own run loses its network. Bun resolves imports of other workspace scripts while bundling, so they work. Python fetches them while the script runs, as does Bun with `//nobundling` or `DISABLE_BUNDLING`, so a `no_network` script with such an import fails before running, with an error that names the import.
+
+On TypeScript `//native` scripts, `//no_network` keeps its own meaning: network operations are disabled inside the isolate, with no sandbox required.
+
+The annotation is logged as "no network" in job execution logs.
+
 ## Recommended configurations
 
 ### PID namespace isolation (recommended for production)
