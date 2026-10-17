@@ -269,6 +269,8 @@ With the current public key in that directory, a rotation needs no restart:
 2. Write the new private key to the signing key file, atomically (write a temporary file without the `.pem` extension, then rename it).
 3. Once the tokens signed with the old key have expired, delete its file from the directory. `OIDC_TOKEN_MAX_EXPIRY_SECS` bounds that wait.
 
+The key can also stay in an HSM or KMS that Windmill never reads, through an [external signer](#external-signer).
+
 ## Use OIDC with AWS
 
 ### Create an identity provider with AWS for OIDC
@@ -494,3 +496,57 @@ export async function main() {
 
 </TabItem>
 </Tabs>
+
+## External signer
+
+Most instances don't need this: it is for keeping the OIDC signing key in an HSM or KMS that Windmill can ask for a signature but never read.
+
+<details>
+<summary>Set up an external signer</summary>
+
+Set `OIDC_SIGNER_URL` on the servers. They then sign through a small HTTP service (an adapter in front of your KMS) over mTLS, and there is no fallback to a local key: with the signer down, token requests fail with `503` while the JWKS keeps being served.
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `OIDC_SIGNER_URL` | | Base URL of the signer (https). |
+| `OIDC_SIGNER_CLIENT_CERT_FILE`, `OIDC_SIGNER_CLIENT_KEY_FILE` | required | mTLS client certificate and key (PEM), re-read when they change. |
+| `OIDC_SIGNER_CA_FILE` | system roots | CA the signer's certificate must chain to. Unset, the system roots are trusted and a warning is logged at startup. |
+| `OIDC_SIGNER_MAX_RPS` | 5 | Signatures per second, per server: size it as the key's cap divided by the maximum number of servers. Above it, a job's token request gets `429` with `Retry-After`. Windmill's own signatures (object storage, Vault) go before job tokens; they are cached, so few. |
+| `OIDC_SIGNER_TIMEOUT_MS`, `OIDC_SIGNER_DEADLINE_MS` | 2000, 5000 | Per attempt, and for a whole signature with its retries. |
+| `OIDC_SIGNER_KEYS_REFRESH_SECS` | 60 | How often the key listing is refreshed. |
+
+Only servers sign. A job that needs an OIDC token must run on an [agent worker](../28_agent_workers/index.mdx), and a normal worker refuses to sign, which includes Vault JWT authentication and object storage with AWS OIDC used from that worker. `OIDC_SIGNER_URL` cannot be combined with `OIDC_SIGNING_KEY_FILE`, and once the instance signs externally a server without `OIDC_SIGNER_URL` refuses to start.
+
+Servers record in the database that the instance signs externally, so that no process falls back to a local key. To go back to a local key, stop every server that has the variables (they write the record back), delete it, then start them without the variables:
+
+```sql
+DELETE FROM global_settings WHERE name = 'oidc_external_signer';
+```
+
+When moving an existing instance, the database key (`kid: windmill`) stays in the JWKS until its row is deleted. Delete it once the tokens it signed have expired, as described [above](#signing-key).
+
+The signer implements two endpoints:
+
+- `GET /v1/keys` returns `{"keys": [{"key_ref", "state", "alg", "public_key_pem" | "public_key_jwk"}]}`. `state` is `pending` (published, does not sign), `active` (signs, at most one) or `retired` (published, no longer signs). `alg` is `RS256` (RSA 2048 to 4096 bits) or `ES256` (P-256). At most 16 keys.
+- `POST /v1/sign` takes `{"key_ref", "alg", "digest", "request_id"}`, where `digest` is the base64url SHA-256 of the JWS signing input, and returns `{"signature"}` in base64url: PKCS#1 v1.5 for RS256, raw `r || s` for ES256. Errors are `{"error", "message"}`: `409` with `key_not_active` or `unknown_key`, `429` with `rate_limited` and a `Retry-After` header in integer seconds.
+
+Each key's `kid` is its [RFC 7638](https://www.rfc-editor.org/rfc/rfc7638) thumbprint. Windmill verifies every signature against the listed key before returning a token, and logs the `request_id` with the token's `jti`, or with an error class when no token was issued. `request_id` identifies the mint, not the signature: a retry reuses it, possibly with a different digest, so the signer must log every signature and never deduplicate on it.
+
+Rotation is driven from the signer:
+
+1. List the new key as `pending`. Windmill publishes it in the JWKS within a refresh period. Wait until verifiers have it.
+2. Mark it `active` and the previous one `retired`.
+3. Remove the retired key from the listing once the tokens it signed have expired.
+
+The last accepted listing is stored in the database: a server that starts while the signer is down serves those keys in the JWKS, and signs nothing until the signer answers. Since anyone who can write to the database can change that stored listing, a verifier should pin the thumbprints it accepts rather than trust every key in the JWKS.
+
+Superadmins can see the keys Windmill serves, with their `kid` and state, in the instance settings under OIDC signing. That page is only listed on instances that use an external signer.
+
+The Windmill binary checks an adapter against the protocol, with the same variables as a server, and includes a file-backed signer to try it out (not for production keys):
+
+```bash
+windmill oidc-signer conformance --burst 30
+windmill oidc-signer test-signer --keys keys.json --cert server.pem --key server.key --client-ca ca.pem
+```
+
+</details>
