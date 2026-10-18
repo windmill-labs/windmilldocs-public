@@ -385,6 +385,29 @@ windmill_worker:
 
 A cache volume previously written by a root worker is not writable by UID 1000: recreate it or change its owner first.
 
+#### Under gVisor (GKE Sandbox)
+
+A worker pod under [gVisor](https://gvisor.dev) (`runtimeClassName: gvisor`, as on [GKE Sandbox](https://cloud.google.com/kubernetes-engine/docs/concepts/sandbox-pods)) cannot use the setups above, since privileged pods, seccomp/AppArmor profiles and `hostUsers: false` are unavailable there. From Windmill 1.841.0, set `NSJAIL_GVISOR_COMPAT=true` to run nsjail there as a non-root user with no capabilities:
+
+```yaml
+spec:
+  runtimeClassName: gvisor
+  containers:
+    - name: windmill-worker
+      env:
+        - { name: DISABLE_NSJAIL, value: "false" }
+        - { name: NSJAIL_GVISOR_COMPAT, value: "true" }
+      securityContext:
+        runAsUser: 1000
+        runAsNonRoot: true
+        capabilities:
+          drop: [ALL]
+```
+
+Jobs get the same sandbox as outside gVisor (namespaces, mounts, resource limits, no capabilities), except that there is no cgroup namespace and [`no_network`](#no-network-annotation) jobs get no loopback interface. It needs the nsjail of the official images. Without nsjail, use `ENABLE_UNSHARE_PID=true` with the [default flags](#default-isolation-flags), so jobs cannot read the worker's environment.
+
+At startup the worker runs a test jail; if it fails, the worker logs why and does not report nsjail as its job isolation.
+
 ## Recycling the worker process
 
 A deployment that cannot run nsjail can rely on the process lifetime instead: with `EXIT_AFTER_N_JOBS` set, the worker exits after that many jobs (`1` for one process per job) and its supervisor restarts it. In the official images the worker is PID 1 of its container, so its exit also ends every process a job left behind. Set it on a worker process (`MODE=worker`) running a single worker. Worker [init and periodic scripts](../../core_concepts/9_worker_groups/index.mdx#worker-scripts), flow orchestration, [cache](../../core_concepts/24_caching/index.md) hits and [dedicated worker](../../core_concepts/25_dedicated_workers/index.mdx) jobs do not count.
@@ -406,7 +429,7 @@ The worker name suffix, otherwise random, is then derived from the hostname so t
 
 When multiple isolation methods are available, Windmill uses them in this priority order:
 
-1. **NSJAIL** (if nsjail binary available and `DISABLE_NSJAIL=false`) - Provides comprehensive isolation
+1. **NSJAIL** (if nsjail can run a test jail at worker startup and `DISABLE_NSJAIL=false`) - Provides comprehensive isolation
 2. **PID Namespace** (if `ENABLE_UNSHARE_PID=true` and unshare available) - Provides process isolation
 3. **None** (if neither enabled or available) - No isolation
 
