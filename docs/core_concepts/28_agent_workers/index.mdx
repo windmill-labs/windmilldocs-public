@@ -77,3 +77,52 @@ It make sure that the worker can only pull and run jobs that are tagged with the
 An agent worker notices a [canceled job](../20_jobs/index.mdx#canceling-a-job) at its own check interval.
 
 In addition, agent workers have slightly less throughput than normal workers but you can have many more of them because the servers act as an connection pool to the Postgresql database. You can for instance have 1000 agent workers on a single server without having to worry about the database connection limit.
+
+## Workload identity tokens
+
+From Windmill 1.841.0, an agent worker can authenticate with a short-lived identity token issued by the platform it runs on (a Kubernetes projected service account token, a SPIFFE JWT-SVID, or any OIDC workload identity JWT) instead of an `AGENT_TOKEN`. Unlike a leaked agent token, such a token expires within minutes or hours, is bound to an audience, and is only issued to the workload the platform recognizes. Agent tokens keep working alongside it.
+
+The token is verified against an issuer the superadmin trusts, and the first matching rule decides the worker group and tags the agent serves; the agent cannot choose them. Configure issuers in the [instance settings](../../advanced/18_instance_settings/index.mdx) under **Authentication → Agent workers** (`agent_workload_identity_issuers`):
+
+```yaml
+agent_workload_identity_issuers:
+  - issuer: https://kubernetes.default.svc.cluster.local # must equal the token's iss
+    audience: windmill # must be one of the token's aud; use a dedicated value
+    jwks: '{"keys":[...]}' # optional: kubectl get --raw /openid/v1/jwks. Omit to use OIDC discovery, or set jwks_uri
+    rules: # first rule whose claims all match exactly wins; no match = refused
+      - claims:
+          sub: system:serviceaccount:windmill-agents:gpu-agent
+        worker_group: gpu
+        tags: [gpu]
+      - claims:
+          kubernetes.io.namespace: windmill-agents # dotted path; a dotted key is matched whole
+        worker_group: agents
+        tags: [dbt, etl]
+```
+
+Only RS*, PS* and ES* signatures are accepted, and `exp`, `nbf`, `iss` and `aud` are enforced. Refused tokens get a 401; the server log says why, and outcomes are recorded in the audit logs (`agent_workers.workload_identity_accepted` / `_refused`).
+
+On the agent, set `AGENT_IDENTITY_TOKEN_FILE` instead of `AGENT_TOKEN`. The file is re-read on every request, so a rotated token is picked up immediately. On Kubernetes, mount a projected token for the `windmill` audience:
+
+```yaml
+spec:
+  serviceAccountName: gpu-agent
+  containers:
+    - name: agent
+      env:
+        - name: MODE
+          value: agent
+        - name: AGENT_IDENTITY_TOKEN_FILE
+          value: /var/run/secrets/windmill/token
+      volumeMounts:
+        - { name: windmill-token, mountPath: /var/run/secrets/windmill, readOnly: true }
+  volumes:
+    - name: windmill-token
+      projected:
+        sources:
+          - serviceAccountToken: { path: token, audience: windmill, expirationSeconds: 3600 }
+```
+
+With SPIRE, write a JWT-SVID for the `windmill` audience to a file, use the SPIRE OIDC discovery provider as the issuer, match on `sub` (the SPIFFE ID), and set `jwt_issuer` on the SPIRE server, since a JWT-SVID without `iss` is refused.
+
+The identity is now what grants the tags, so restrict which images can run under that service account (for instance with an admission policy). Cluster admins can still mint such tokens, and unjailed job code can read the token file, so for untrusted code keep [nsjail](../../advanced/27_security_isolation/index.mdx) enabled.
