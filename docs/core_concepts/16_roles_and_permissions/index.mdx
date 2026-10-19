@@ -58,7 +58,15 @@ When a superadmin does an action in a workspace they are not a member of, they h
 
 ### Devops
 
-The devops role is also set at the instance level. Conceptually, it can be understood as a "readonly Superadmin". Devops users have read rights over what is usually only visible to [superadmins](#superadmin), such as [Service Logs](../36_service_logs/index.mdx) or [Critical Alerts](../37_critical_alerts/index.mdx) while keeping write operations to a minimum. Contrary to the superadmin, this role does not supersede other roles like [workspace admins](#admin).
+The devops role is also set at the instance level. It is meant for the people who operate a Windmill instance: they see how the instance itself is running, but not what runs on it. A devops user can:
+
+- See the [workers](../9_worker_groups/index.mdx), queue metrics and heaviest scripts, edit and delete [worker group](../9_worker_groups/index.mdx) configs (with object storage credentials masked) and restart worker groups.
+- Read the [Service Logs](../36_service_logs/index.mdx).
+- See and acknowledge instance-wide [Critical Alerts](../37_critical_alerts/index.mdx) (Enterprise Edition).
+
+The role grants no access to workspaces and their content (scripts, flows, apps, resources, variables, runs) and no access to the [instance settings](../../advanced/18_instance_settings/index.mdx) or the instance users list, which remain [superadmin](#superadmin)-only. Contrary to the superadmin, it does not supersede workspace roles: to work inside a workspace, a devops user must be added to it, and gets the role given there.
+
+A devops user who is not a member of any workspace reaches the Workers and Service Logs pages from the "Instance" section of the workspace selection page. Members of a workspace also find them in the workspace's sidebar.
 
 ### Instance-level roles via instance groups
 
