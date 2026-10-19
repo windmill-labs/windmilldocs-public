@@ -32,6 +32,11 @@ You can also click on "Scale down to zero" in the "Current runs" tab.
 
 ![Scale down to zero](../assets/script_editor/scale_down_to_zero.png 'Scale down to zero')
 
+## Deploying a new version
+
+When you deploy a new version while the script has runs queued or running, the script editor lets you restart them on the new version with their current arguments and, when the new version changed their arguments, scale down to 0 instead.
+[CLI](../advanced/3_cli/index.mdx) and API deploys restart them without asking.
+
 ## Tutorial
 
 To learn more about Perpetual Scripts, you can visit our tutorial on how to use a perpetual script to implement a service in Windmill leveraging [Apache Kafka](https://kafka.apache.org/):
