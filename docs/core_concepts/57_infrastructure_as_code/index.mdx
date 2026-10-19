@@ -433,6 +433,7 @@ This dumps the current global settings and worker configs as YAML via the API.
 | `critical_error_channels` | list | Alert channels (email, Slack, Teams) |
 | `indexer_settings` | object | Full-text search indexer config |
 | `hub_api_secret` | string / ref | Hub API secret |
+| `sync_hub_resource_types_daily` | bool | Sync the Admins workspace's resource types from the hub every day |
 | `scim_token` | string / ref | SCIM token (Enterprise) |
 
 For the complete list of fields, see the [Helm chart README](https://github.com/windmill-labs/windmill-helm-charts#available-global_settings-fields).

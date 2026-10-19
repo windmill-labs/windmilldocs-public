@@ -156,27 +156,16 @@ A resource type can also travel with a [Hub project](../../misc/1_share_on_hub/i
 
 ### Sync resource types with WindmillHub
 
-When creating a [self-hosted](../../advanced/1_self_host/index.mdx) instance, you are offered to set a [schedule](../1_scheduling/index.mdx) to regularly sync all resource types from [WindmillHub](https://hub.windmill.dev/). This will ensure that all the approved resource types are available in your instance. On Windmill cloud, it is done regularly by the Windmill team. Ask us if you need a specific [resource type from Hub](https://hub.windmill.dev/resource_types) to be added.
+Resource types from [WindmillHub](https://hub.windmill.dev/resource_types) (or your [Private Hub](../32_private_hub/index.mdx)) are synced into the [Admins workspace](../../advanced/18_instance_settings/index.mdx#admins-workspace), which shares them with all workspaces of the instance.
+On Windmill cloud, this is done by the Windmill team. Ask us if you need a specific resource type from the Hub to be added.
 
-The [Bun](../../getting_started/0_scripts_quickstart/1_typescript_quickstart/index.mdx) script executed from the admin workspace is:
+On a [self-hosted](../../advanced/1_self_host/index.mdx) instance, a [superadmin](../16_roles_and_permissions/index.mdx#superadmin) can sync them:
 
-```ts
-import * as wmill from 'windmill-cli@1.393.2';
+- On demand, with the "Sync resource types with Hub" button on the Resources page and in resource forms.
+- Every day, with the [Sync resource types from the hub daily](../../advanced/18_instance_settings/index.mdx#sync-resource-types-from-the-hub-daily) instance setting, also offered in the setup wizard. It is skipped while [Disable hub](../../advanced/18_instance_settings/index.mdx#disable-hub) is on.
 
-export async function main() {
-	await wmill.hubPull({
-		workspace: 'admins',
-		token: process.env['WM_TOKEN'],
-		baseUrl: globalThis.process.env['BASE_URL']
-	});
-}
-```
-
-You can find this script on [WindmillHub](https://hub.windmill.dev/scripts/windmillhub/9069/synchronize-hub-resource-types-with-instance-windmillhub#approved).
-
-This script is probably already on your [Admins workspace](../../advanced/18_instance_settings/index.mdx#admins-workspace), as it was suggested during Windmill [self-hosting setup](../../advanced/1_self_host/index.mdx). Having this script run on your Admins workspace will sync resources across all workspaces of your instance.
-
-To avoid running it manually, we recommend [scheduling](../1_scheduling/index.mdx) this script regularly.
+Each sync overwrites local edits to the resource types the Hub also defines.
+This replaces the `u/admin/hub_sync` script and schedule that older versions created in the Admins workspace during setup.
 
 ## States
 

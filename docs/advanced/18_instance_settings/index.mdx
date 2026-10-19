@@ -16,7 +16,8 @@ This is from the Instance settings that you can see on which Windmill [version](
 
 ## Admins workspace
 
-The Admins workspace is for [superadmins](../../core_concepts/16_roles_and_permissions/index.mdx#superadmin) only and contains scripts whose purpose is to manage your Windmill instance, such as [keeping resource types up to date](../../core_concepts/3_resources_and_types/index.mdx#sync-resource-types-with-windmillhub) or the New User Setup App.
+The Admins workspace is for [superadmins](../../core_concepts/16_roles_and_permissions/index.mdx#superadmin) only and contains scripts whose purpose is to manage your Windmill instance, such as the New User Setup App.
+[Resource types synced from the Hub](../../core_concepts/3_resources_and_types/index.mdx#sync-resource-types-with-windmillhub) land in this workspace.
 
 The [resources types](../../core_concepts/3_resources_and_types/index.mdx) created from the Admins workspace are shared across all workspaces.
 
@@ -279,6 +280,11 @@ This setting is only available on [Enterprise Edition](/pricing).
 When enabled, Windmill stops making any request to `hub.windmill.dev` (or your [Private Hub](../../core_concepts/32_private_hub/index.mdx)) and hides the hub pickers in the flow, app, and script editors. This is intended for closed/air-gapped deployments where outbound access to the hub is unavailable.
 
 When the hub is reachable but returns errors, the hub pickers display a persistent warning alert with a direct link back to this setting (instead of a transient error toast), guiding superadmins to toggle "Disable hub" and remove the warning.
+
+### Sync resource types from the hub daily
+
+When enabled, the server syncs the resource types of the [Admins workspace](#admins-workspace) from the hub once a day, overwriting local edits to the types the hub also defines.
+See [Sync resource types with WindmillHub](../../core_concepts/3_resources_and_types/index.mdx#sync-resource-types-with-windmillhub).
 
 ## Auth/OAuth
 
