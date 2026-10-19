@@ -421,6 +421,11 @@ Once saved, the step shows a read-only card naming the agent, the version it is 
 Each host flow can override a linked agent's tool inputs for its own use: below the step's inputs, every tool gets a section with the standard input editors and a read-only view of its code.
 Those overrides belong to the flow, not to the agent.
 
+A linked step can also replace the agent's [model](#model-selection) and [reasoning effort](#reasoning-effort) for its own runs: add them from the Agent overrides group of its add-field menu, as a static value or an expression such as `flow_input.model`.
+Until an override is added, the step uses the saved value.
+An added model left empty keeps the saved one, but an added effort left empty, including an expression that resolves to nothing, sends no effort, which turns reasoning off on models that only reason when asked.
+The provider resource stays the agent's.
+
 Sharing works through the usual [folder permissions](../8_groups_and_folders/index.mdx) on the resource.
 Deploying a linked flow to another workspace pulls the agent resource in as a dependency, and from there its provider resource and its tools.
 
