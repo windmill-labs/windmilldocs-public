@@ -4,6 +4,17 @@ description: How do I manage users using the Windmill CLI?
 
 # Users management
 
+## Listing users
+
+The `wmill user list` command lists the users of the current workspace, with their username, email and role (`admin`, `operator` or `developer`).
+Add `--json` for machine-readable output.
+
+```bash
+wmill user list [--json]
+```
+
+Bare `wmill user` lists the users of the instance instead, and requires being a [superadmin](../../core_concepts/16_roles_and_permissions/index.mdx).
+
 ## Adding a user
 
 The `wmill user add` command is used to add a new user to the remote server.

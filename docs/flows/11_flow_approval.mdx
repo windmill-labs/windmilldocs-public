@@ -192,6 +192,7 @@ The `resumeButtonText` and `cancelButtonText` options of the TypeScript Slack he
 ### Continue on disapproval/timeout
 
 If set, instead of failing the flow and bubbling up the error, continue to the next step which would allow to put a [branchone](./13_flow_branches.md) right after to handle both cases separately. If any disapproval/timeout event is received, the resume payload will be similar to every error result in Windmill, an object containing an `error` field which you can use to distinguish between approvals and disapproval/timeouts.
+Its `name` is `SuspendedDisapproved` or `SuspendedTimedOut`.
 
 ![Continue on disapproval/timeout](../assets/flows/continue_on_disapproval.png 'Continue on disapproval/timeout')
 
@@ -563,7 +564,11 @@ You can also dynamically set the group by connecting it to another node's output
 
 ### Get the users who approved the flow
 
-The input `approvers` is an array of the users who approved the flow.
+The input `approvers` is an array of strings, one per resume event.
+Each entry is the `approver` passed to `getResumeUrls(approver)` when the flow was resumed through the `resume` or `cancel` URL it returned.
+Resumed another way, including through the `approvalPage` link, it is the resuming user's username.
+With no user, it is `"anonymous"`.
+The `resumes` input holds every resume payload in arrival order, and `resume` the last one.
 
 To get the list of users, just have the step after the approval step return the `approvers` key. For example by taking an input [connected](./16_architecture.mdx) to the `approvers` key.
 
