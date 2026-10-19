@@ -404,7 +404,7 @@ spec:
           drop: [ALL]
 ```
 
-Jobs get the same sandbox as outside gVisor (namespaces, mounts, resource limits, no capabilities), except that there is no cgroup namespace and [`no_network`](#no-network-annotation) jobs get no loopback interface. It needs the nsjail of the official images. Without nsjail, use `ENABLE_UNSHARE_PID=true` with the [default flags](#default-isolation-flags), so jobs cannot read the worker's environment.
+Jobs get the same sandbox as outside gVisor (namespaces, mounts, resource limits, no capabilities), except that there is no cgroup namespace, and [`no_network`](#no-network-annotation) jobs keep a loopback interface of their own: they can reach services they start on 127.0.0.1, but still not the worker's localhost, the Windmill API or any other network. It needs the nsjail of the official images. Without nsjail, use `ENABLE_UNSHARE_PID=true` with the [default flags](#default-isolation-flags), so jobs cannot read the worker's environment.
 
 At startup the worker runs a test jail; if it fails, the worker logs why and does not report nsjail as its job isolation.
 
