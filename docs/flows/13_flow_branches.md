@@ -35,6 +35,8 @@ Clicking on one branch will open the branch editor. You can configure the:
 
 _Example of branches to [handle a Slackbot](/blog/handler-slack-commands)_.
 
+To route on an AI classification, put a Branch one after an [AI decision](./27_ai_decision.mdx#branching-on-the-answers) step: the editor can create its branches from the decision's questions.
+
 All the predicates can also be configured in the `Run one branch` step (parent box). The predicates are evaluated in the order they are defined. The first predicate that evaluates to true will be executed. If no predicate evaluates to true, the default branch will be executed.
 
 ## Branch all

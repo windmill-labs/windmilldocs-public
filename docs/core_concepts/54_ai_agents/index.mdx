@@ -24,6 +24,8 @@ AI Agents steps allow you to integrate AI agents directly into your Windmill [fl
 
 Choose from [supported AI providers](../22_ai_generation/index.mdx#models) including OpenAI, Azure OpenAI, Azure AI Foundry, Anthropic, Mistral, DeepSeek, Google AI (Gemini), Groq, OpenRouter, Together AI, or Custom AI endpoints.
 
+TypeSafe and Cloudflare resources serve [AI decision](../../flows/27_ai_decision.mdx) steps only, and an AI agent step refuses them.
+
 Agent steps keep working even in a workspace that [hides the AI assistant](../22_ai_generation/index.mdx#hiding-the-ai-assistant-in-a-workspace).
 
 ### Resource configuration
@@ -100,6 +102,11 @@ AI Agents can be equipped with a built-in websearch tool to retrieve up-to-date 
 An AI Agent can be used as a tool inside another AI Agent step, enabling hierarchical or specialized sub-agents (for example, a coordinator agent that delegates to a research agent). When adding a tool to an AI Agent step, pick "AI Agent" as the tool type and configure the nested agent with its own provider, model, system prompt, tools, memory, and other input transforms — the full input transforms view is available, so the nested agent can be configured just like a regular AI Agent step.
 
 Only two levels of nesting are supported: `flow → AI agent → nested AI agent tool`. A nested AI agent cannot itself contain further AI agent tools; attempting deeper nesting is rejected at runtime.
+
+### AI decision tool
+
+An [AI decision](../../flows/27_ai_decision.mdx#as-an-ai-agent-tool) can be a tool of an AI agent step.
+Like a nested agent, it is offered only on a flow's own agent step, not inside a nested AI agent tool.
 
 ### MCP tools
 
