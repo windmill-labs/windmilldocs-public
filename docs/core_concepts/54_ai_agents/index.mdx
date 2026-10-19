@@ -44,13 +44,13 @@ For models that support extended thinking (chain of thought), a `reasoning effor
 
 - The dropdown is shown only once a model is selected. For models that do not support reasoning it displays "The selected model does not support reasoning effort".
 - The available effort levels adapt to the selected provider and model. Depending on the model you may see levels such as `low`, `medium`, and `high`, and on some models `minimal`, `xhigh`, or `max`.
-- An `off` option is available where the provider can genuinely disable reasoning. For models that only reason when asked (such as Claude), the default option is already labelled `off`. For models that reason by default (such as Gemini or OpenAI o-series / GPT-5), a `Model default` option keeps the provider's built-in behavior and a separate `off` option explicitly disables reasoning.
+- An `off` option is available where the provider can genuinely disable reasoning; some models always reason and offer no `off`. For models that only reason when asked, the default option is already labelled `off`. For models that reason by default, a `Model default` option keeps the provider's built-in behavior and a separate `off` option explicitly disables reasoning.
 - Reasoning effort is model-specific: changing the model resets the selected effort.
 
 Reasoning effort is supported on the following providers. Whether a given model supports it, and the exact set of levels offered, depends on the specific model:
 
 - Anthropic (Claude)
-- OpenAI (o-series and GPT-5 models)
+- OpenAI (o-series, GPT-5 and GPT-6 models)
 - Azure OpenAI
 - Google AI (Gemini 2.5 and 3.x)
 - AWS Bedrock (Claude)
