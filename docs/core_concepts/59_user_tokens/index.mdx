@@ -67,13 +67,14 @@ Examples:
 | `jobs:run:scripts:u/admin/my_script` | Run a specific script |
 | `jobs:run:flows` | Run any flow |
 | `jobs:read:f/production/*` | Read the runs of the scripts, flows and AI agents in the `f/production/` folder |
+| `jobs:run:dependencies:f/production/*` | Generate dependency locks for scripts, flows and apps in `f/production/` |
 | `resources:read:u/user/*` | Read resources owned by `u/user/` |
 
 A `write` scope automatically includes `read` access for the same domain and resource.
 
 ### Available scope domains
 
-All domains support `read` and `write` actions. The **Jobs** domain additionally supports `run:scripts` and `run:flows`.
+All domains support `read` and `write` actions. The **Jobs** domain additionally supports `run:scripts`, `run:flows` and `run:dependencies` (shown as **Generate dependency locks** in the selector).
 
 Domains with path restriction support: `scripts`, `flows`, `apps`, `raw_apps`, `resources`, `variables`, `schedules`, `folders`, `jobs` (for read and run), and all trigger types (`http_triggers`, `websocket_triggers`, `kafka_triggers`, `nats_triggers`, `mqtt_triggers`, `sqs_triggers`, `gcp_triggers`, `postgres_triggers`).
 
@@ -113,6 +114,9 @@ If you prefer a scoped token, sync needs `read` and `write` on every domain it t
 - `variables`, `schedules` — `read` and `write`, when those are not skipped in `wmill.yaml`.
 - All trigger domains (`http_triggers`, `websocket_triggers`, `kafka_triggers`, `nats_triggers`, `mqtt_triggers`, `sqs_triggers`, `gcp_triggers`, `azure_triggers`, `postgres_triggers`, `email_triggers`, `native_triggers`) — `read` and `write`, when `includeTriggers: true`.
 - `users:write`, `groups:read`, `groups:write` — only when syncing users or groups.
+
+Generating locks with [`wmill generate-metadata`](../../advanced/3_cli/generate-metadata.md) also needs `jobs:run:dependencies`.
+Treat this scope like a run scope: installing a package can run its build or install scripts on a worker.
 
 The `git_sync` scope governs the git-sync **trigger configuration** endpoints (the integration set up in the workspace UI), not the CLI sync operation itself.
 

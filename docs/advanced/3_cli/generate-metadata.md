@@ -6,6 +6,8 @@ description: How do I generate metadata and lockfiles for scripts, flows and app
 
 The `wmill generate-metadata` command generates metadata (locks, schemas) for all scripts, flows and apps. It replaces the previous separate commands (`wmill script generate-metadata`, `wmill flow generate-locks`, `wmill app generate-locks`).
 
+A [scoped token](../../core_concepts/59_user_tokens/index.mdx#cli-and-git-sync) running this command needs the `jobs:run:dependencies` scope.
+
 ## Usage
 
 ```bash
