@@ -20,6 +20,7 @@ Critical alerts are generated under the following conditions:
 - Number of running workers in a group falls below a specified threshold (has to be configured in the [worker group](../9_worker_groups/index.mdx) config).
 - Number of [jobs waiting in queue](../9_worker_groups/index.mdx#queue-metric-alerts) is above a threshold for more than a specified amount of time.
 - API token is about to expire (within 7 days) or has expired (requires ["Alert on token expiry"](../../advanced/18_instance_settings/index.mdx#alert-on-token-expiry) to be enabled in instance settings).
+- A [schedule skips occurrences](../1_scheduling/index.mdx#skipped-occurrences) because its last 3 runs in a row started or finished too late.
 - A disk used by a server or a worker is running low on space (see [Low disk alerts](#low-disk-alerts)).
 
 ## Token expiration notifications

@@ -370,6 +370,20 @@ Not only can you build scheduled jobs [from Windmill](../../getting_started/00_h
 
 If a scheduled job fails to re-schedule, it will trigger a [workspace error handler](../10_error_handling/index.mdx#workspace-error-handler).
 
+### Skipped occurrences
+
+A schedule keeps only one occurrence queued at a time.
+A run is late when it finishes after the next occurrence was due, for example because it runs longer than the interval or waited too long for a worker.
+The occurrences that fell due in the meantime are skipped, and the schedule resumes at the next one to come.
+Flows, and scripts with a [dynamic skip](#dynamic-skip-validation) handler, queue their next occurrence when they start, so for them a run is late only when it starts after the next occurrence was due.
+
+The schedules list flags schedules that missed occurrences.
+
+When a schedule has 3 late runs in a row, Windmill sends a [critical alert](../37_critical_alerts/index.mdx) for its workspace, once per streak.
+Critical alerts are an Enterprise Edition feature; the schedules list flag is available on every edition.
+
+Editing, enabling or disabling a schedule resets this state.
+
 ## Schedule to run later
 
 From a script or flow's page (after being [deployed](../0_draft_and_deploy/index.mdx)), you can "Schedule to run later" to schedule the execution to a given time without being recurring, therefore executing only once.
