@@ -52,12 +52,23 @@ The client provides both module-level convenience functions and a `Windmill` cla
 - `set_variable(path, value)` - Set a variable value
 - `run_script_by_path(path, args)` - Run a script synchronously by path
 - `run_script_by_hash(hash_, args)` - Run a script synchronously by hash
-- `run_script_by_path_async(path, args)` - Run a script asynchronously by path
+- `run_script_by_path_async(path, args, retry=None)` - Run a script asynchronously by path
+- `run_script_by_hash_async(hash_, args, retry=None)` - Run a script asynchronously by hash
 - `run_flow_async(path, args)` - Run a flow asynchronously
 - `get_result(job_id)` - Get the result of a completed job
 - `cancel_job(job_id, reason=None)` - Cancel a queued or running job
 - `get_state()` - Get the script's state
 - `set_state(value)` - Set the script's state
+
+`retry` is a [retry policy](../../core_concepts/20_jobs/index.mdx#retry-a-script-run) that re-runs the script when it fails:
+
+```python
+job_id = wmill.run_script_by_path_async(
+    'f/scripts/send',
+    args={'to': 'ops'},
+    retry={'exponential': {'attempts': 3, 'multiplier': 1, 'seconds': 2}},  # or {'constant': {'attempts': 3, 'seconds': 10}}
+)
+```
 
 #### Windmill class
 

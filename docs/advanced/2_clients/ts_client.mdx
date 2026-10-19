@@ -72,6 +72,21 @@ export async function main() {
 
 In the example above, the `getResource` function is used to retrieve a resource with the path `'u/user/name'` from the Windmill platform. The returned resource can be further processed or used as needed in your application.
 
+## Retry a script run
+
+`runScriptByPathAsync` and `runScriptByHashAsync` take an options object as third argument, `{ scheduledInSeconds?, tag?, retry? }`.
+`retry` is a [retry policy](../../core_concepts/20_jobs/index.mdx#retry-a-script-run) that re-runs the script when it fails.
+
+```ts
+import * as wmill from 'windmill-client';
+
+export async function main() {
+	return await wmill.runScriptByPathAsync('f/scripts/send', { to: 'ops' }, {
+		retry: { constant: { attempts: 3, seconds: 10 } }
+	});
+}
+```
+
 ## Cancel a job
 
 `cancelJob(jobId, reason?)` cancels a queued or running [job](../../core_concepts/20_jobs/index.mdx) and returns the message from the cancel endpoint. It is the TypeScript equivalent of the Python client's `cancel_job`.

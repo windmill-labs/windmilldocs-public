@@ -438,6 +438,15 @@ The worker then sends `SIGKILL` to the job's process group, except for Bash scri
 Once canceled, a job can no longer obtain an [OIDC token](../29_oidc/index.mdx).
 Workers report each stopped process to OpenTelemetry as a [`job.canceled` event](../../misc/9_guides/otel/index.mdx#job-cancellation-event).
 
+## Retry a script run
+
+A script run started from the API or the [TypeScript](../../advanced/2_clients/ts_client.mdx#retry-a-script-run) and [Python](../../advanced/2_clients/python_client.md) clients can carry a retry policy that re-runs it when it fails.
+The policy has the same shape as [flow step retries](../../flows/14_retries.md): `{"constant": {"attempts": 3, "seconds": 10}}` or `{"exponential": {"attempts": 3, "multiplier": 1, "seconds": 2}}`.
+
+- The returned job ID is the first attempt's. Each retry is a separate job, recorded as a child of the first attempt.
+- Once a retry is queued, [canceling](#canceling-a-job) the returned job no longer stops the chain; cancel the queued retry instead.
+- Retry is refused for [Hub](https://hub.windmill.dev/) scripts, for runs with `invisible_to_owner`, and for scripts with a [preprocessor](../43_preprocessors/index.mdx), unless an API call skips it with `skip_preprocessor=true`.
+
 ## High priority jobs
 
 High priority jobs are jobs that are given a `priority` value between 1 and 100. Jobs with a higher priority value will be given precedence over jobs with a lower priority value in the job queue.
