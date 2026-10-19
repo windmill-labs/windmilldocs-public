@@ -217,11 +217,14 @@ From the workspace settings, go to the "Error handler" tab and select your prefe
 
 ### Error handler execution
 
-- Error handlers are executed by the automatically created group `g/error_handler`
-- If your error handler requires variables or resources, add them to the `g/error_handler` group
-- Error handlers run as different users depending on type:
+- Workspace error handlers are executed by the automatically created group `g/error_handler`
+- If your workspace error handler requires variables or resources, add them to the `g/error_handler` group
+- Workspace error handlers run as different users depending on type:
   - Custom, Slack, Teams error handlers: `error_handler@windmill.dev`
   - Email error handlers: `email_error_handler@windmill.dev`
+- [Trigger](#trigger-error-handlers) error handlers, custom or pre-set, and custom [schedule](#schedules-error-handlers) error handlers run with the permissions of the trigger or schedule itself, not as `g/error_handler`.
+  Share the variables and resources they need with the trigger's or schedule's owner.
+  Only the Slack, Teams and email pre-set schedule handlers run as `g/error_handler`.
 - The system prevents infinite loops by not triggering error handlers for error handler jobs themselves
 
 ### Advanced configuration

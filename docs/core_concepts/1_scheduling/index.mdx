@@ -273,6 +273,11 @@ You can pick the Slack or Microsoft Teams pre-set schedule recovery handler.
 
 ![Schedule Recovery Handler](./15_schedule_recovery_handler.png.webp)
 
+### Handler permissions
+
+A custom error, recovery or success handler runs with the schedule's permissions, so it can only use the variables and resources the schedule's owner can access.
+The pre-set handlers run as `g/error_handler` ([details](../10_error_handling/index.mdx#error-handler-execution)).
+
 ### Dynamic skip validation
 
 Schedules can use a validation script to determine whether a scheduled run should execute. The validator receives the scheduled datetime and returns a boolean indicating whether to proceed.
