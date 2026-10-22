@@ -6,7 +6,7 @@ description: How do I manage users using the Windmill CLI?
 
 ## Listing users
 
-The `wmill user list` command lists the users of the current workspace, with their username, email and role (`admin`, `operator` or `developer`).
+The `wmill user list` command lists the users of the current workspace, with their username, email and role (`admin`, `operator` or `developer`). The CLI does not show custom [workspace roles](../../core_concepts/16_roles_and_permissions/index.mdx#workspace-roles): any role that cannot write code is listed as `operator`.
 Add `--json` for machine-readable output.
 
 ```bash

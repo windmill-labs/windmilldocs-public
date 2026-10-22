@@ -74,7 +74,7 @@ Items are called:
 
 A static page is created for each potential deployment to Staging/Prod.
 
-This can be useful for non-admin (for example, operators) to share a page to properly-permissioned users to have them review or do the deployment.
+This can be useful for non-admins (for example, members whose [role](../16_roles_and_permissions/index.mdx#workspace-roles) cannot author what is deployed) to share a page to properly-permissioned users to have them review or do the deployment.
 
 ![Shareable link](./shareable_link.png 'Shareable link')
 

@@ -37,9 +37,9 @@ Automatic username creation derives a stable, instance-wide username from each u
 
 A more common way to add users is to use [SSO/OAuth](#authoauth).
 
-For each user, you can see Email, Auth (manually-set password or Auth methods), Name, Kind ([Developer](../../core_concepts/16_roles_and_permissions/index.mdx#developer) or [Operator](../../core_concepts/16_roles_and_permissions/index.mdx#operator) where an operator at the instance level is an operator in all workspaces they are members of), and Role (User or [Superadmin](../../core_concepts/16_roles_and_permissions/index.mdx#superadmin)).
+For each user, you can see Email, Auth (manually-set password or Auth methods), Name, and Role (User or [Superadmin](../../core_concepts/16_roles_and_permissions/index.mdx#superadmin)).
 
-You can also toggle on 'Recently active only' to only show users who have performed at least one action in the last 30 days. Only those users are counted in our [Pricing](/pricing). When enabled, the table also displays each user's Kind (Developer or Operator), reflecting their highest permission level across all workspaces they belong to. 
+You can also toggle on 'Recently active only' to only show users who have performed at least one action in the last 30 days. Only those users are counted in our [Pricing](/pricing). When enabled, the table also displays each user's Kind: Admin, Developer, or Operator only when none of their [workspace roles](../../core_concepts/16_roles_and_permissions/index.mdx#workspace-roles) can write code. A role that composes flows or apps without writing code shows as Operator only but still consumes a full seat. 
 
 ![Global Users](./global_users.png "Global Users")
 
@@ -61,6 +61,15 @@ The tab also reports the instance's standing against the guest allowance: the fi
 		href="/docs/apps/guest_apps"
 	/>
 </div>
+
+## Workspace roles
+
+The Workspace roles tab defines the [workspace roles](../../core_concepts/16_roles_and_permissions/index.mdx#workspace-roles) members can hold in every workspace of the instance, and what each one may author, manage and see.
+Developer and Operator are the defaults.
+Add, remove and reorder roles from there: the first role ranks highest when several instance groups or settings name a role for the same user, and at least one role must remain.
+Workspaces can still override each role's capabilities from their own settings.
+
+Changing the roles is only available on [Enterprise Edition](/pricing). Without a license, the tab shows the two default roles read-only.
 
 ## Core
 
@@ -164,7 +173,7 @@ Override the retention period for specific workspaces, independently of the inst
 
 The overrides are stored as a JSON map of `workspace_id` to seconds in the `retention_period_secs_overrides` global setting, next to `retention_period_secs`. Configure them in the instance settings UI under the "Jobs" tab, right below the retention period field, by adding one row per workspace. Up to 10 workspaces can be overridden.
 
-This is a superadmin-controlled instance setting (not a workspace admin setting) since retention is an operator and cost concern. It is only available on [Enterprise Edition](/pricing).
+This is a superadmin-controlled instance setting (not a workspace admin setting) since retention is an infrastructure and cost concern. It is only available on [Enterprise Edition](/pricing).
 
 ### Audit log retention (days)
 
@@ -706,7 +715,7 @@ The following information is collected:
 - job usage (language, total duration, count)
 - login type usage (login type, count)
 - worker usage (worker, worker instance, vCPUs, memory)
-- user usage (author count, operator count, the distinct guests of the last 30 days, the seats they add past the free allowance, and the workspaces that allow guests)
+- user usage (builder count, non-builder count, the distinct guests of the last 30 days, the seats they add past the free allowance, and the workspaces that allow guests)
 - development instance status
 
 Telemetry can be fully disabled from the instance settings using the "Disable telemetry" toggle.
@@ -720,7 +729,7 @@ When minimal telemetry is enabled, the following is sent:
 - instance base URL
 - login type usage (login type, count)
 - worker usage (worker, worker instance, vCPUs, memory)
-- user usage (author count, operator count, the distinct guests of the last 30 days, the seats they add past the free allowance, and the workspaces that allow guests)
+- user usage (builder count, non-builder count, the distinct guests of the last 30 days, the seats they add past the free allowance, and the workspaces that allow guests)
 - superadmin email address (one per instance)
 - development instance status
 

@@ -22,7 +22,12 @@ Recap of how are permissioned items (scripts, flows, apps, resources, variables,
 
 Users are uniquely identified globally by their email. They also have a unique username with respect to each workspace they are members of.
 
-In terms of billing for Windmill [Enterprise Edition](/pricing), we only count active users, i.e. users who have at least logged in to the platform in the last 30 days according to the audit logs. [Operators](#operator) (i.e. users who are Operators in all workspaces they are members of) are counted as half of a regular seat. For [external JWT](../../advanced/16_external_auth_with_jwt/index.mdx) authentication, a unique JWT user is counted per (username/email, scope, instance) tuple used in the last 30 days - the same email with two different scopes, or on two different instances, counts as two JWT users. Each unique JWT user is billed as half a seat (same as an operator). Logging in once in 30 days is enough to be considered 'Active'.
+In terms of billing for Windmill [Enterprise Edition](/pricing), we only count active users, i.e. users who have at least logged in to the platform in the last 30 days according to the audit logs.
+Logging in once in 30 days is enough to be considered 'Active'.
+A user counts as a full seat when, in at least one workspace they are a member of, they are an [admin](#admin) or their [workspace role](#workspace-roles) can write code or build flows or apps.
+Every other user, whose roles only let them run, view and manage what others built, counts as half a seat.
+[Service accounts](#service-accounts) are the exception: they always count as half a seat.
+For [external JWT](../../advanced/16_external_auth_with_jwt/index.mdx) authentication, a unique JWT user is counted per (username/email, scope, instance) tuple used in the last 30 days - the same email with two different scopes, or on two different instances, counts as two JWT users. Each unique JWT user is billed as half a seat.
 
 [Guests](#guests) have no account at all and are not counted as users.
 They count against a separate [guest allowance](../../apps/13_guest_apps/index.mdx#seats-and-the-guest-allowance) instead.
@@ -87,65 +92,91 @@ At the [workspace](#workspace) level, admins have the ability to manage a specif
 
 At the [folder](../8_groups_and_folders/index.mdx#folders) level, an admin of a folder has read, write and archive access to all the elements inside the folders ([scripts](../../getting_started/0_scripts_quickstart/index.mdx), [flows](../../getting_started/6_flows_quickstart/index.mdx), [apps](../../getting_started/7_apps_quickstart/index.mdx), [resources](../3_resources_and_types/index.mdx), [schedules](../1_scheduling/index.mdx)) and can manage the permissions as well as add new admins.
 
-### Developer
+### Workspace roles
 
-Developers can execute and view scripts, flows, and apps within a workspace. Developers see the full interface of Windmill and contrary to the Operators, they have the ability to create and edit scripts, flows and apps. Developers have read and write access to the entities they create or have been [granted access to by others](../8_groups_and_folders/index.mdx).
+Every member of a workspace holds a workspace role, which decides what they can author, what they can manage and which pages they see.
+You pick it when [adding or inviting a member](../15_authentication/index.mdx#manually), for [auto-added users](../15_authentication/index.mdx#auto-add) and for [instance groups mapped to the workspace](../../advanced/28_saml_and_scim/index.mdx#workspace-auto-assignment).
+When several sources name a role for the same user, the highest-ranked one wins: admin first, then the order of the roles in the instance settings.
 
-### Operator
+Windmill ships with two default roles:
 
-Operators have limited access within a workspace. They can execute and view scripts, flows, and apps that they have visibility on, and only those that are within their allowed path or [folders](../8_groups_and_folders/index.mdx).
+- **Developer**: every capability below. New members get it by default.
+- **Operator**: runs and views what others built, without authoring scripts, flows or apps. It can still manage schedules and triggers and sees every page.
 
-What the Operator role restricts is **authoring and running code**. An operator cannot:
+Admin is not a workspace role: it is a flag on top of the member's role, and an admin holds every capability whatever role they have underneath.
 
-- create, edit, archive or delete [scripts](../../getting_started/0_scripts_quickstart/index.mdx), [flows](../../getting_started/6_flows_quickstart/index.mdx) and [apps](../../getting_started/7_apps_quickstart/index.mdx), unless a workspace grants them [builder rights](#builder-rights) for flows or full-code apps;
-- run previews (any code that is not an already-deployed script or flow) or dependency jobs;
-- [deploy to another workspace](../12_staging_prod/index.md): the deploy UI is closed to operators, and creating the script, flow or app on the target side is refused anyway.
+#### Capabilities
 
-Everything else follows the regular [permission model](#permissions-and-access-control). The Operator role is not, by itself, read-only. Within the paths and [folders](../8_groups_and_folders/index.mdx) they have been granted write access to, an operator can create and edit [variables](../2_variables_and_secrets/index.mdx), [resources](../3_resources_and_types/index.mdx), [schedules](../1_scheduling/index.mdx), [triggers](../../triggers/index.mdx), folders and [groups](../8_groups_and_folders/index.mdx#groups), exactly like any other member. If you need an operator to be strictly read-only, grant them read-only access to the folders and paths they need, and do not rely on the role for it. For schedules and triggers, admins can also withdraw operators' right to manage them in the workspace operator settings: operators can then still view schedules and triggers, but the server refuses any change, including through the API and the CLI.
+A role is a set of capabilities, edited from the role settings:
 
-The recommended way to share scripts and flows with operators is through [auto-generated apps](../6_auto_generated_uis/index.mdx).
-The second option is to share the script and the [variables](../2_variables_and_secrets/index.mdx) it depends on. An operator with read access to a variable can read its value, secrets included, through the API. The UI hides the "Load secret value" button for operators, but that is a UI convenience, not a permission boundary. Grant folder access accordingly.
+| Capability | Values | What it allows |
+|---|---|---|
+| Write code | On / Off | Author [scripts](../../getting_started/0_scripts_quickstart/index.mdx) and run code of one's own on a worker: script previews, dependency jobs, dynamic selects, resolving a job's code, [data table](../11_persistent_storage/data_tables.mdx) migrations and [AI agent eval](../70_ai_agent_evals/index.mdx) datasets. Required for full flow or app authoring. |
+| Flows | None / Compose / Full | Compose assembles already deployed scripts and flows into [flows](../../getting_started/6_flows_quickstart/index.mdx), without code of its own: the flow editor only offers workspace runnables as steps, and the server refuses inline scripts and Hub runnables. Full is the complete flow editor. |
+| Apps | None / Compose / Full | Compose builds [full-code apps](../../full_code_apps/index.mdx), frontend code included, whose backend runnables are existing workspace scripts or flows the member can read. Such an app is always deployed with [sandbox isolation](../../full_code_apps/8_sandbox_isolation/index.mdx). [Low-code apps](../../getting_started/7_apps_quickstart/index.mdx) need Full. |
+| Manage schedules | On / Off | Create, edit and delete [schedules](../1_scheduling/index.mdx) where folder permissions allow. Without it, members still see schedules but the server refuses any change, including through the API and the CLI. |
+| Manage triggers | On / Off | Create, edit and delete [triggers](../../triggers/index.mdx) where folder permissions allow. Without it, members still see triggers but the server refuses any change, including through the API and the CLI. |
+| Page visibility | On / Off per page | Show [Runs](../5_monitor_past_and_future_runs/index.mdx), [Schedules](../1_scheduling/index.mdx), [Resources](../3_resources_and_types/index.mdx), [Variables](../2_variables_and_secrets/index.mdx), [Assets](../52_assets/index.mdx), [Triggers](../../triggers/index.mdx), [Audit logs](../14_audit_logs/index.mdx), [Groups](../8_groups_and_folders/index.mdx#groups), [Folders](../8_groups_and_folders/index.mdx#folders) and [Workers](../9_worker_groups/index.mdx) in the UI. |
 
-From the workspace settings, you can configure the operator visibility settings for your workspace. These control which pages an operator sees; they do not change what an operator is allowed to write, and they are all enabled by default. You can allow/disallow operators to view:
+Full flows or apps require Write code, since both can carry inline code.
+Page visibility only hides pages: it does not stop an API call, and the enforced rights are the other capabilities.
+A role that cannot write code or build flows and apps cannot [deploy those items to another workspace](../12_staging_prod/index.md) either, and the integration pickers of [native triggers](../../triggers/index.mdx) need both Write code and Manage triggers.
 
-- [Runs](../5_monitor_past_and_future_runs/index.mdx)
-- [Schedules](../1_scheduling/index.mdx)
-- [Resources](../3_resources_and_types/index.mdx)
-- [Variables](../2_variables_and_secrets/index.mdx)
-- [Triggers](../../triggers/index.mdx)
-- [Audit logs](../14_audit_logs/index.mdx)
-- [Groups](../8_groups_and_folders/index.mdx#groups)
-- [Folders](../8_groups_and_folders/index.mdx#folders)
-- [Workers](../9_worker_groups/index.mdx)
+A role restricts authoring, not access to data.
+Everything else follows the regular [permission model](#permissions-and-access-control): within the paths and [folders](../8_groups_and_folders/index.mdx) they have write access to, members of any role can create and edit [variables](../2_variables_and_secrets/index.mdx), [resources](../3_resources_and_types/index.mdx), folders and [groups](../8_groups_and_folders/index.mdx#groups), exactly like any other member.
+If a member needs to be strictly read-only, grant them read-only access to the folders and paths they need, and do not rely on the role for it.
 
-Regarding to [Pricing](/pricing), operators are counted as half of a regular seat ([developers](#developer)) as long as they are operators in all workspaces they are members of and none of those workspaces grants [builder rights](#builder-rights). Operators are not set as the instance-level. On the billing side, 1 developer seat or 2 operator/[external JWT](../../advanced/16_external_auth_with_jwt/index.mdx) user seats count as 1 seat. Each unique external JWT user (counted per username/email + scope + instance, active in the last 30 days) also counts as half a seat. There is no need to differentiate between developers, operators and external JWT users when purchasing the license.
+The recommended way to share scripts and flows with members who do not author is through [auto-generated apps](../6_auto_generated_uis/index.mdx).
+The second option is to share the script and the [variables](../2_variables_and_secrets/index.mdx) it depends on.
+A member with read access to a variable can read its value, secrets included, through the API.
+The UI hides the "Load secret value" button for roles that cannot write code, but that is a UI convenience, not a permission boundary.
+Grant folder access accordingly.
 
-#### Builder rights
+#### Define the instance roles
 
-Under "Build flows and apps", the operator settings of the workspace carry two toggles, both off by default and granted independently. They let every operator of the workspace build on top of scripts and flows that are already deployed, wherever their [folder](../8_groups_and_folders/index.mdx) permissions already let them write. Operators still cannot write backend scripts, run previews of arbitrary code or [deploy to another workspace](../12_staging_prod/index.md).
+From [instance settings](../../advanced/18_instance_settings/index.mdx#workspace-roles) > Workspace roles, a superadmin can replace the two default roles with any list of roles, as long as one remains.
+Each role has a name, a label shown in the role pickers and its capabilities.
+The order of the list ranks the roles, the first one highest.
+A role still held by a member, an invite, the auto-add setting or an instance group mapping cannot be removed, and neither can a role that a workspace still overrides.
 
-- "Operators can build flows": operators can create, edit and delete [flows](../../getting_started/6_flows_quickstart/index.mdx) whose steps all reference existing workspace scripts or flows. Inline scripts and Hub runnables are refused.
-- "Operators can build full-code apps": operators can create, edit and delete [full-code apps](../../full_code_apps/index.mdx), writing the app's frontend code themselves. The app's backend runnables must be existing workspace scripts or flows the operator can read. Low-code apps stay closed. An app built by an operator always has sandbox isolation on, so its code runs isolated from each viewer's Windmill session.
+Custom instance roles require an [Enterprise Edition](/pricing) license.
+If the license lapses, the stored roles keep applying unchanged but can no longer be edited, apart from resetting the list to the default roles.
 
-Granting either right makes every operator of the workspace consume a full seat instead of half a seat. Granting both costs the same as granting one. The rights are part of the operator settings, so a [git sync](../../advanced/11_git_sync/index.mdx) pull can turn them on or off along with the rest of the workspace settings.
+#### Override roles in a workspace
+
+From [workspace settings](../44_workspace_settings/index.mdx) > Users > Workspace roles, a workspace admin can override what each role allows in that workspace.
+A capability that is not overridden keeps following the instance definition, and each one can be reset to it on its own.
+This is available on every edition, for the default roles as well.
+
+On Enterprise Edition, a workspace can also add roles of its own with "Add workspace role".
+Capabilities left unset on such a role default to those of the Operator role.
+
+Role overrides are not yet carried by [Git sync](../../advanced/11_git_sync/index.mdx) or workspace export.
+A role change can take up to two minutes to reach every server.
+
+#### Roles and seats
+
+A role that can write code or build flows or apps, at the Compose or Full level, consumes a full [seat](#users).
+Any other role consumes half a seat, unless the member is an admin, who always consumes a full seat.
+When a change to a role makes it author something, saving it asks you to confirm that the members holding it now consume a full seat.
 
 ### Service accounts
 
 Service accounts are workspace-scoped automation identities that cannot log in directly (no password, no SSO). They act through [tokens](../59_user_tokens/index.mdx) and are intended for CI/CD pipelines, scheduled jobs, or API integrations that need workspace-scoped permissions without a real user login.
 
-Service accounts are an [Enterprise](/pricing) feature. Create them from workspace settings under user management: in "Add new user", pick **Service Account** as the role. Only a username is required — the email is derived automatically, so there is nothing to invite or verify.
+Service accounts are an [Enterprise](/pricing) feature. Create them from workspace settings under user management: in "Add new user", turn on the "Service account" toggle. Only a username is required - the email is derived automatically, so there is nothing to invite or verify.
 
-A service account is **not** necessarily an [operator](#operator). You pick its role at creation time:
+You pick its role at creation time:
 
-- **Operator** (default): read/run only. Cannot be used for CLI sync or to author scripts, flows and apps.
-- **Developer**: can author and edit scripts, flows and apps within its path. This is the role to use for CLI sync tokens.
+- **Operator** (default): the default role that runs but does not author. Cannot be used for CLI sync or to author scripts, flows and apps.
+- **Developer**: the default role that can author and edit scripts, flows and apps within its path. This is the role to use for CLI sync tokens.
 - **Admin**: full workspace admin. Grant only when the service account needs to manage workspace settings.
 
 When you pick Developer, you can also add the service account to the **`wm_deployers`** group. This is recommended when the account is used as a `wmill sync push` / CI deploy identity, since members of `wm_deployers` can [deploy on behalf of](../12_staging_prod/index.md#run-on-behalf-of) other users in the target workspace.
 
 Admins can **impersonate** a service account to act as that identity and verify its permissions.
 
-Service accounts count toward [seats](#users) with the same weighting as regular members: an operator service account counts as half a seat, a developer or admin service account as a full seat.
+Unlike regular members, a service account counts as half a [seat](#users) whatever its role, Developer and Admin included.
 
 ### Anonymous app viewers
 
@@ -256,7 +287,7 @@ Also, [extra permission](#extra-permissions) was given to Ruben as viewer.
 
 Scripts and flows can be configured to run **on behalf of** a specific user. When set, that user's permissions are used during execution — the runnable can only access the resources, variables, and folders that user has rights to — and all runs are attributed to that user in the [audit logs](../14_audit_logs/index.mdx).
 
-The setting itself lives in the script or flow's advanced settings ("Run on behalf of"), but you don't need to open the editor to see it: the detail page header of a runnable that has it set shows an `On behalf of u/<user>` badge naming the identity every run is permissioned as, whoever starts it. [Operators](#operator), who have no access to the editor, see the badge too.
+The setting itself lives in the script or flow's advanced settings ("Run on behalf of"), but you don't need to open the editor to see it: the detail page header of a runnable that has it set shows an `On behalf of u/<user>` badge naming the identity every run is permissioned as, whoever starts it. Members whose [role](#workspace-roles) cannot open the editor see the badge too.
 
 For **apps**, run on behalf of is always enabled: app executions always use the permissions of the set user (usually the app's last editor).
 

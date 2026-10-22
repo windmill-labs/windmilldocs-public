@@ -12,5 +12,5 @@ features:
     'Operators only write where their folder permissions already allow it.',
     'Granting either right makes every operator of the workspace a full seat; granting both costs the same as granting one.',
   ]
-docs: /docs/core_concepts/roles_and_permissions#builder-rights
+docs: /docs/core_concepts/roles_and_permissions#capabilities
 ---

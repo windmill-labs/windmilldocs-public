@@ -116,7 +116,7 @@ You can generate a dedicated [app](../../full_code_apps/index.mdx) to execute yo
 
 <br />
 
-This is the recommended way to share scripts and flows with [operators](../16_roles_and_permissions/index.mdx), the second option being to share the script and the [variables](../2_variables_and_secrets/index.mdx) it depends on. Note that sharing a variable with an operator gives them read access to its value, secrets included (see [Operator](../16_roles_and_permissions/index.mdx#operator)).
+This is the recommended way to share scripts and flows with members whose [role](../16_roles_and_permissions/index.mdx#workspace-roles) does not author, the second option being to share the script and the [variables](../2_variables_and_secrets/index.mdx) it depends on. Note that sharing a variable with a member gives them read access to its value, secrets included, whatever their role.
 
 The apps will be permissioned on behalf of the [admin/author](../16_roles_and_permissions/index.mdx), the user is still identified at the time of execution from the [Runs](../5_monitor_past_and_future_runs/index.mdx) and [Audit logs](../14_audit_logs/index.mdx) menus.
 

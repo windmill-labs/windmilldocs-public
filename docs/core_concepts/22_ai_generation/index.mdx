@@ -54,7 +54,7 @@ When writing scripts or raw apps from the chat, the AI can search the npm regist
 
 For building whole projects with the AI chat, [AI sessions](../69_ai_sessions/index.mdx) provide a full-page environment where each chat is tied to a workspace or fork, with a live preview panel, a diff and deploy flow, background jobs and artifacts.
 AI sessions are enabled by default and replace this side panel chat.
-Operators do not have access to sessions and keep the side panel chat.
+Members whose [role](../16_roles_and_permissions/index.mdx#workspace-roles) cannot write code do not have access to sessions and keep the side panel chat.
 
 In its global mode, the chat footer has an assistant settings button that both accounts for what the chat carries into a turn - its tools, the AI skills and MCP servers turned on for it, the custom instructions in its system prompt and the files linked to it - and is where each of those is changed.
 It replaces the earlier context popover and the separate skills and MCP drawers: see [assistant settings](../69_ai_sessions/index.mdx#assistant-settings).

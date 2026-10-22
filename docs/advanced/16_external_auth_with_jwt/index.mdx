@@ -14,7 +14,7 @@ This feature is [Enterprise Edition](/pricing) only.
 To open a single app to people who have no Windmill account, without granting them anything else in the workspace, use a [guest JWT](../../apps/13_guest_apps/index.mdx#guest-jwt-for-embedded-apps) instead.
 It is verified against a key set per workspace rather than per instance, its claims can only ever produce a guest, and it is available on every plan.
 
-For [billing](/pricing), a unique external JWT user is counted per (username/email, scope, instance) tuple used in the last 30 days. The same email used with two different scopes, or on two different instances, counts as two JWT users. Each unique JWT user counts as half a [Seat](../../core_concepts/16_roles_and_permissions/index.mdx#users) - the same as an [operator](../../core_concepts/16_roles_and_permissions/index.mdx#operator). Operators and external JWT users are interchangeable in seat counting (e.g. 1 operator + 1 external JWT user = 1 Seat).
+For [billing](/pricing), a unique external JWT user is counted per (username/email, scope, instance) tuple used in the last 30 days. The same email used with two different scopes, or on two different instances, counts as two JWT users. Each unique JWT user counts as half a [Seat](../../core_concepts/16_roles_and_permissions/index.mdx#users), the same as a user whose [role](../../core_concepts/16_roles_and_permissions/index.mdx#workspace-roles) does not build. Half seats add up regardless of their origin (e.g. 1 such user + 1 external JWT user = 1 Seat).
 
 For JWT verification, the first option is to pass as an environment variable called `JWT_EXT_PUBLIC_KEY` the public key in PEM format (RS256).
 The second option is to pass as `JWT_EXT_JWKS_URL` the url of the JWKs endpoint to retrieve the public keys from which the JWTs will be matched on the `kid` field.
@@ -26,7 +26,7 @@ The JWT payload has to contain the following fields:
 - `username`: the username of the user (for logs)
 - `email`: the email of the user (for logs)
 - `is_admin`: a boolean indicating if the user is an admin
-- `is_operator`: a boolean indicating if the user is an operator (run-only)
+- `is_operator`: a boolean, `true` to restrict the user to running what others built, with no authoring
 - `workspace_id`: the workspace id. The token will be granted the configured permissions in the specified workspace.
 - `workspace_ids`: an array of workspace ids. When provided, the token will be granted the configured permissions in all specified workspaces. In that case, the `workspace_id` field is not required.
 - `folders`: an array of arrays containing 3 values: the name of the folder, a boolean indicating whether the user can write to the folder and a boolean indicating whether the user is the owner of the folder (can manage folder permissions)

@@ -81,7 +81,7 @@ Team plans work at the workspace-level.
 - To upgrade to the Team edition, open the <a href="https://app.windmill.dev/workspace_settings?tab=premium" rel="nofollow">Premium plans</a> tab of your workspace settings on Windmill cloud.
 - Click on "Upgrade to Team plan".
 - Follow the instructions to complete the upgrade process, which includes accessing the Stripe payment page.
-- The billing will be automatically adjusted based on the number of users/operators and computations.
+- The billing will be automatically adjusted based on the number of users and computations.
 
 ### Upgrading to Enterprise Edition
 
@@ -434,7 +434,7 @@ Subscriptions billed through the [AWS Marketplace](#aws-marketplace) link direct
 
 ### Usage and graphs
 
-For each subscription, the portal compares live usage against paid seats and Compute Units, with historical graphs covering Compute Units, seats, worker occupancy, and languages. Per-workspace graphs and the list of users counted as developers/operators (and external JWT users in use) are available when the relevant [telemetry controls](#telemetry-controls) are enabled.
+For each subscription, the portal compares live usage against paid seats and Compute Units, with historical graphs covering Compute Units, seats, worker occupancy, and languages. Per-workspace graphs and the list of users counted as full or half seats (and external JWT users in use) are available when the relevant [telemetry controls](#telemetry-controls) are enabled.
 
 To monitor usage in real time, click "Send usage" from your [Instance settings](../../advanced/18_instance_settings/index.mdx#telemetry) (do this on each instance if you have several) and refresh the portal.
 
@@ -448,7 +448,7 @@ When enabled, instances send per-workspace data — workspace names, job counts,
 
 #### Plain emails and external JWTs telemetry
 
-When enabled, instances send unhashed email addresses alongside usage telemetry — letting you see the actual users counted as developers and operators across all your instances (deduplicated) — and the [external JWT users](../../core_concepts/16_roles_and_permissions/index.mdx) (counted per username/email + scope + instance) seen in the last 30 days, with their owner, workspace, label, and scopes. This setting auto-disables 24 hours after being turned on.
+When enabled, instances send unhashed email addresses alongside usage telemetry — letting you see the actual users counted as full and half seats across all your instances (deduplicated) — and the [external JWT users](../../core_concepts/16_roles_and_permissions/index.mdx) (counted per username/email + scope + instance) seen in the last 30 days, with their owner, workspace, label, and scopes. This setting auto-disables 24 hours after being turned on.
 
 ### License keys
 
@@ -486,7 +486,7 @@ When minimal telemetry is enabled, only the following is sent:
 - instance base URL
 - login type usage (login type, count)
 - worker usage (worker, worker instance, vCPUs, memory)
-- user usage (author count, operator count)
+- user usage (builder count, non-builder count)
 - superadmin email address (one per instance)
 - development instance status
 
@@ -494,7 +494,7 @@ When minimal telemetry is disabled, the following is also collected:
 - job usage (language, total duration, count)
 
 How the data is calculated:
-- Seats: number of users (1 developer, or 2 operators) who are active (from logging in to running or deploying a script) on the platform in the last 30 days, according to the [audit logs](../../core_concepts/14_audit_logs/index.mdx). For [external JWT](../../advanced/16_external_auth_with_jwt/index.mdx) authentication, a unique JWT user is counted per (username/email, scope, instance) tuple used in the last 30 days - so the same email with two different scopes, or on two different instances, counts as two JWT users. Each unique JWT user counts as 1/2 seat (same as an operator). Regular and operator user counts are across all instances (dev, prod) but Windmill only counts once the same user; external JWT users are counted per instance. [Guests](../../apps/13_guest_apps/index.mdx) have no account and are not users: the first 100 distinct guest emails over a trailing 30 days are free, and past that every four guests count as one seat. Guests are counted per instance and are not attributed to a workspace.
+- Seats: number of users (1 admin or user whose [role](../../core_concepts/16_roles_and_permissions/index.mdx#workspace-roles) builds, or 2 who do not) who are active (from logging in to running or deploying a script) on the platform in the last 30 days, according to the [audit logs](../../core_concepts/14_audit_logs/index.mdx). For [external JWT](../../advanced/16_external_auth_with_jwt/index.mdx) authentication, a unique JWT user is counted per (username/email, scope, instance) tuple used in the last 30 days - so the same email with two different scopes, or on two different instances, counts as two JWT users. Each unique JWT user counts as 1/2 seat. User counts are across all instances (dev, prod) but Windmill only counts once the same user; external JWT users are counted per instance. [Guests](../../apps/13_guest_apps/index.mdx) have no account and are not users: the first 100 distinct guest emails over a trailing 30 days are free, and past that every four guests count as one seat. Guests are counted per instance and are not attributed to a workspace.
 - Memory: we aggregate the limits of all production containers. Workers come in different sizes: small (1GB), standard (2GB), and large (> 2GB). For each compute unit, you pay for, you get a quota of 2 worker-gb-month. [Non-prod instances](../../advanced/18_instance_settings/index.mdx#non-prod-instance) are not counted in the billing for computation usage. For development environments, a [dev license key](#license-keys) from the portal is an alternative to marking instances as non-prod manually.
 
 Using a number of seats, workers, or memory greater than the terms of your subscription is technically possible, but if you do not adjust your subscription accordingly (via the [Customer Portal](#windmill-customer-portal)), we will ask you to take steps to correct this, with 3 options:

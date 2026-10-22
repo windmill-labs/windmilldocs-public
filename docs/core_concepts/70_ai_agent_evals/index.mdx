@@ -193,7 +193,7 @@ If nothing serves it, the run dialog says so and the run queues rather than fail
 
 A dataset is permissioned like any other path-addressed object: who may see and change it follows its folder, its owner and its [extra permissions](../16_roles_and_permissions/index.mdx).
 Cases follow their dataset, so a read-only grant can list a dataset's cases but not edit them.
-[Operators](../16_roles_and_permissions/index.mdx#operator) cannot write datasets or cases at all.
+Members whose [role](../16_roles_and_permissions/index.mdx#workspace-roles) cannot write code cannot write datasets or cases at all.
 
 Deleting a dataset takes its cases, its runs and every score with it.
 The jobs those runs produced are left alone, under their own retention.

@@ -108,7 +108,7 @@ On [Windmill Cloud](https://app.windmill.dev/), creating a fork additionally req
 
 By default, a new fork's only member is its creator.
 To have every new fork start with the workspace's admins and developers, each with the role they hold in the workspace, a workspace admin can enable `Add admins and developers to new forks` in `Workspace settings` -> `Users` -> `Fork members`.
-Operators, disabled users and service accounts are not added.
+Members whose [role](../../core_concepts/16_roles_and_permissions/index.mdx#workspace-roles) cannot write code, disabled users and service accounts are not added.
 
 The setting is off by default and only applies when a fork is created: existing forks keep their members.
 Forks inherit the setting, so forks of a fork follow it too.
@@ -123,8 +123,8 @@ The creator of a fork can manage developers on it without being an admin of it. 
 
 Because a fork is a full copy of its parent - variables and secrets included - this right is deliberately narrow. As a fork creator, you cannot:
 
-- add anyone who is not already a developer or admin of the parent workspace (the picker only lists eligible parent members, so operators of the parent do not appear);
-- grant the admin or operator role, or change the role of an existing member;
+- add anyone who is not already an admin of the parent workspace or a member whose role there can write code (the picker only lists eligible parent members);
+- grant the admin role or any other role than developer, or change the role of an existing member;
 - invite someone by email;
 - remove an admin of the fork.
 

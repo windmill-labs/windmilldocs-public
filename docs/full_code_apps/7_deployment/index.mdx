@@ -58,7 +58,7 @@ Bad request: raw app bundling failed (job 019fcc07-...): Could not resolve: "./d
   App.tsx:1:22  import { nope } from "./does-not-exist"
 ```
 
-Deploying sources over a low-code app is refused unless `allow_kind_change: true` is set, so an app is never converted by accident. Operators cannot deploy apps, the workspace [protection rulesets](../../core_concepts/56_protection_rulesets/index.mdx) apply as for any other deploy, and a [token](../../core_concepts/59_user_tokens/index.mdx) needs both the `apps:write` and `jobs:run` scopes since the call makes a worker build the sources it was given.
+Deploying sources over a low-code app is refused unless `allow_kind_change: true` is set, so an app is never converted by accident. Deploying this way needs a [role](../../core_concepts/16_roles_and_permissions/index.mdx#workspace-roles) with full app authoring, the workspace [protection rulesets](../../core_concepts/56_protection_rulesets/index.mdx) apply as for any other deploy, and a [token](../../core_concepts/59_user_tokens/index.mdx) needs both the `apps:write` and `jobs:run` scopes since the call makes a worker build the sources it was given.
 
 Both endpoints are exposed over [MCP](../../core_concepts/51_mcp/index.mdx) as the `createApp` and `updateApp` tools, so an AI agent can read a full-code app, edit its sources and deploy them, getting compile errors back as the error of the call. For the same reason, an [MCP token](../../core_concepts/51_mcp/index.mdx#apps--workers) has to name those two tools rather than expose them through a blanket scope.
 
