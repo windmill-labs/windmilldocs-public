@@ -15,10 +15,12 @@ AI sessions are enabled by default and replace the [AI chat side panel](../22_ai
 Members whose [role](../16_roles_and_permissions/index.mdx#workspace-roles) cannot write code do not have access to sessions and keep the side panel chat.
 A workspace admin can [hide AI sessions](../22_ai_generation/index.mdx#hiding-the-ai-assistant-in-a-workspace) for a whole workspace.
 
+For an overview of AI sessions, watch the big picture:
+
 <iframe
 	style={{ aspectRatio: '16/9' }}
-	src="https://www.youtube.com/embed/yjNHwHBkbyE"
-	title="AI sessions"
+	src="https://www.youtube.com/embed/u8_Oau5UJgA"
+	title="AI Sessions in Windmill: the big picture"
 	frameBorder="0"
 	allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
 	allowFullScreen
@@ -47,6 +49,16 @@ The sidebar lists your sessions grouped by workspace family, meaning a root work
 
 Sessions running on a fork are marked with a fork icon. From the sidebar you can rename, archive or delete a session.
 
+<iframe
+	style={{ aspectRatio: '16/9' }}
+	src="https://www.youtube.com/embed/amHf7BXab_c"
+	title="[8/11] Resume a past session"
+	frameBorder="0"
+	allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+	allowFullScreen
+	className="border-2 rounded-lg object-cover w-full dark:border-gray-800"
+></iframe>
+
 ## Working with the AI
 
 The session chat is the [Windmill AI chat](../22_ai_generation/index.mdx#windmill-ai-chat) in its global mode, operating on the session's workspace. It can:
@@ -63,9 +75,29 @@ Sessions are the in-app counterpart to the [Model Context Protocol (MCP)](../51_
 
 The tokens a session spends are recorded per user and model, and priced in the workspace and user settings: see [AI usage and cost](../22_ai_generation/index.mdx#ai-usage-and-cost).
 
+<iframe
+	style={{ aspectRatio: '16/9' }}
+	src="https://www.youtube.com/embed/vg3W2AImtp0"
+	title="[1/11] Build internal software by chatting with the AI"
+	frameBorder="0"
+	allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+	allowFullScreen
+	className="border-2 rounded-lg object-cover w-full dark:border-gray-800"
+></iframe>
+
 ### Attachments
 
 You can attach images and text files to a message by dragging, pasting or picking files: useful to share a design, an error screenshot, a log file or a whiteboard photo. Images require a model with vision support and are downscaled client-side; up to 8 images can be attached per message. Text files (up to 8 per message, 1 MB each) are read by the AI on demand rather than inlined, so they never bloat the conversation history; see [attaching files](../22_ai_generation/index.mdx#attaching-files). A message can also consist of attachments alone, with no text. You can also link files and folders to the conversation so the AI keeps them in context for the whole session; what is linked, and whether the AI can actually read it, is listed under [Files & folders](#files-and-folders).
+
+<iframe
+	style={{ aspectRatio: '16/9' }}
+	src="https://www.youtube.com/embed/AiO4ybqBk2Y"
+	title="[5/11] Add files, @mentions and skills"
+	frameBorder="0"
+	allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+	allowFullScreen
+	className="border-2 rounded-lg object-cover w-full dark:border-gray-800"
+></iframe>
 
 ### Slash commands
 
@@ -85,6 +117,16 @@ The modal has five sections, four of them carrying a count of what they hold.
 Everything in it applies to the session's workspace, which is not necessarily the workspace you are navigating in.
 
 ![The assistant settings modal open on Tools, with its five sections listed on the left](./assistant_settings_tools.png.webp 'Assistant settings modal')
+
+<iframe
+	style={{ aspectRatio: '16/9' }}
+	src="https://www.youtube.com/embed/LxBjwFlCLX4"
+	title="[10/11] Configure AI Sessions as an admin"
+	frameBorder="0"
+	allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+	allowFullScreen
+	className="border-2 rounded-lg object-cover w-full dark:border-gray-800"
+></iframe>
 
 ### Tools
 
@@ -151,6 +193,16 @@ The picker in the chat footer sets how much the AI does without asking. A sessio
 - Ask permission: the default in a session chat. Every tool call that writes, runs or deploys waits for your confirmation.
 - Yolo (bypass permissions): tool confirmations are accepted automatically. Its tooltip lists the tools being bypassed in the current chat.
 
+<iframe
+	style={{ aspectRatio: '16/9' }}
+	src="https://www.youtube.com/embed/2hTl1KVSuyA"
+	title="[4/11] Plan, Ask or Yolo, pick a mode"
+	frameBorder="0"
+	allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+	allowFullScreen
+	className="border-2 rounded-lg object-cover w-full dark:border-gray-800"
+></iframe>
+
 ### Plan mode
 
 In plan mode the AI can only read, everything else is refused with a "Blocked in plan mode" row in the transcript. Then, nothing changes until you approve its plan.
@@ -179,6 +231,16 @@ When the AI creates, edits or previews an item, the tool call in the chat shows 
 A pending [run form](../22_ai_generation/index.mdx#running-scripts-and-flows) can be opened in the panel the same way, which is handy for an item with many arguments.
 Pressing Run there turns the tab into the run page for that job.
 
+<iframe
+	style={{ aspectRatio: '16/9' }}
+	src="https://www.youtube.com/embed/cqogr1f-u9o"
+	title="[7/11] Test drafts in the preview panel"
+	frameBorder="0"
+	allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+	allowFullScreen
+	className="border-2 rounded-lg object-cover w-full dark:border-gray-800"
+></iframe>
+
 ### Debugging full-code apps
 
 When a full-code app preview is open, the AI can inspect the running app to debug it: it reads the app's console logs and backend job runs, and can query the rendered DOM live with its `search_dom` and `read_dom` tools (by CSS selector, or the whole page body without one) to verify that an edit rendered, diagnose a blank page or answer questions about what is on screen. On Chromium-based browsers it can also take a screenshot of the preview to see the result of its own changes.
@@ -186,6 +248,16 @@ When a full-code app preview is open, the AI can inspect the running app to debu
 You can point the AI at specific elements with the preview inspector: click elements in the preview to attach them to your next message as selector chips. Chips and preview highlights stay in sync, several elements can be selected at once, and chips are cleared once the message is sent.
 
 ![An AI session with a full-code app preview open, an element selected via the inspector with its highlight in the preview and the matching selector chip in the chat input](./app_debugging_inspector.png 'Debugging an app preview with the inspector')
+
+<iframe
+	style={{ aspectRatio: '16/9' }}
+	src="https://www.youtube.com/embed/rgLAnJV1Ckc"
+	title="[3/11] Build an app with a backend"
+	frameBorder="0"
+	allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+	allowFullScreen
+	className="border-2 rounded-lg object-cover w-full dark:border-gray-800"
+></iframe>
 
 ## Reviewing and deploying changes
 
@@ -203,6 +275,16 @@ If someone deployed a newer version of an item after your draft began, the drawe
 
 ![The diff drawer with a file tree and a unified diff, with Discard draft and Deploy actions](./diff_drawer.png 'Unified diff drawer')
 
+<iframe
+	style={{ aspectRatio: '16/9' }}
+	src="https://www.youtube.com/embed/usuJ5LuMUHY"
+	title="[2/11] Deploy what the AI built"
+	frameBorder="0"
+	allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+	allowFullScreen
+	className="border-2 rounded-lg object-cover w-full dark:border-gray-800"
+></iframe>
+
 ## Background jobs
 
 Jobs the AI starts (script tests, flow previews, SQL) do not block the conversation. A job that takes longer than a short inline wait detaches and keeps running in the background while the chat continues; when it finishes, the result is reported back to the AI.
@@ -210,6 +292,16 @@ Jobs the AI starts (script tests, flow previews, SQL) do not block the conversat
 The jobs tray next to the edits bar shows every job of the session with its live status. From the tray you can cancel a running job, open it in the preview panel, or approve a job that is suspended waiting for approval: the real resume/reject form opens in place. Background jobs survive a page reload and resume polling to completion.
 
 ![The jobs tray popover with a running job, a job waiting for approval and completed jobs](./jobs_tray.png 'Background jobs tray')
+
+<iframe
+	style={{ aspectRatio: '16/9' }}
+	src="https://www.youtube.com/embed/6nuOQkRw3S8"
+	title="[11/11] Fix a failed run with AI"
+	frameBorder="0"
+	allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+	allowFullScreen
+	className="border-2 rounded-lg object-cover w-full dark:border-gray-800"
+></iframe>
 
 ## Artifacts
 
@@ -222,6 +314,16 @@ Ask for a change and the AI revises the artifact in place instead of creating a 
 ![A revised artifact showing the version picker in the viewer header, with the artifacts list open on the session's artifacts and their version numbers](./artifact_version_picker.png 'Version picker on a revised artifact')
 
 Artifacts are stored with the session and deleted with it. A single artifact is capped at 256 KB, so ask for a long document to be split rather than written as one file.
+
+<iframe
+	style={{ aspectRatio: '16/9' }}
+	src="https://www.youtube.com/embed/bbJ3fkzjdoI"
+	title="[9/11] Share an artifact by link"
+	frameBorder="0"
+	allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+	allowFullScreen
+	className="border-2 rounded-lg object-cover w-full dark:border-gray-800"
+></iframe>
 
 ## Sessions, workspaces and forks
 
@@ -236,6 +338,16 @@ Forks make sessions safe to experiment with: the AI works on an isolated copy, a
 :::tip One fork per session
 Creating a new fork for each session is a good default. Every conversation gets its own isolated copy to experiment in, and promoting its changes goes through the same [Compare & Deploy review](../../advanced/20_workspace_forks/index.mdx#merge-workspaces-from-the-ui-merge-ui) as the [dev to prod workflow](../../advanced/26_dev_workspaces/index.mdx), so nothing reaches the parent workspace without a review you already know.
 :::
+
+<iframe
+	style={{ aspectRatio: '16/9' }}
+	src="https://www.youtube.com/embed/rU95lHcvNu8"
+	title="[6/11] The AI acts with your permissions"
+	frameBorder="0"
+	allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+	allowFullScreen
+	className="border-2 rounded-lg object-cover w-full dark:border-gray-800"
+></iframe>
 
 Sessions are stored locally in your browser, per user. They are not synced across devices or browsers: the conversation, draft sessions, artifacts and attached images stay on the machine where you created them. The drafts the AI creates, however, are regular workspace drafts stored server-side.
 
