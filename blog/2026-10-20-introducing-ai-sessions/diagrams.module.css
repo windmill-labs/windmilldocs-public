@@ -1,0 +1,114 @@
+/* Diagrams of the "Introducing AI Sessions" post. Colours are tokens so the
+   drawings follow the site's light / dark theme; motion is decorative and
+   stops for readers who ask for reduced motion. */
+
+.figure {
+	--field: #f4f6fb;
+	--surface: #ffffff;
+	--ink: #0f172b;
+	--soft: #2b3a5c;
+	--muted: #5b6e93;
+	--rule: #c9d3e8;
+	--accent: #2563eb;
+	--accent-ink: #1d4ed8;
+	--snow: #0e7490;
+	margin: 2rem 0;
+}
+
+:global(html[data-theme='dark']) .figure {
+	--field: #0f172b;
+	--surface: #16213d;
+	--ink: #ffffff;
+	--soft: #c6d6ef;
+	--muted: #8fa9d3;
+	--rule: #2a4170;
+	--accent: #60a5fa;
+	--accent-ink: #93c5fd;
+	--snow: #67e8f9;
+}
+
+.figure svg {
+	display: block;
+	width: 100%;
+	height: auto;
+	border-radius: 12px;
+}
+
+.caption {
+	margin-top: 0.6rem;
+	font-size: 0.875rem;
+	color: var(--muted);
+	text-align: center;
+}
+
+.bg { fill: var(--field); }
+.box { fill: var(--surface); stroke: var(--rule); stroke-width: 1.5; }
+.boxField { fill: var(--field); stroke: var(--rule); stroke-width: 1.5; }
+.boxAccent { fill: var(--surface); stroke: var(--accent); stroke-width: 2; }
+.boxFieldAccent { fill: var(--field); stroke: var(--accent); stroke-width: 2; }
+.boxGhost { fill: none; stroke: var(--rule); stroke-width: 1.5; stroke-dasharray: 4 4; }
+.boxFieldSnow { fill: var(--field); stroke: var(--snow); stroke-width: 2; }
+.ink { fill: var(--ink); }
+.soft { fill: var(--soft); }
+.muted { fill: var(--muted); }
+.accent { fill: var(--accent); }
+.accentInk { fill: var(--accent-ink); }
+.snow { fill: var(--snow); }
+
+.sans { font-family: Inter, ui-sans-serif, system-ui, sans-serif; }
+.mono { font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace; }
+
+.line { stroke: var(--soft); stroke-width: 1.5; fill: none; }
+.lineAccent { stroke: var(--accent); stroke-width: 1.5; fill: none; }
+.rule { stroke: var(--rule); stroke-width: 2; }
+.head { fill: var(--soft); }
+.headAccent { fill: var(--accent); }
+
+/* Dashes moving along a path: where things go. */
+.flow {
+	stroke-dasharray: 6 5;
+	animation: flow 1.2s linear infinite;
+}
+@keyframes flow {
+	to { stroke-dashoffset: -22; }
+}
+
+/* The review door breathes: every team leaves through it. */
+.pulse { animation: pulse 3s ease-in-out infinite; }
+@keyframes pulse {
+	0%, 100% { stroke-opacity: 1; }
+	50% { stroke-opacity: 0.35; }
+}
+
+/* Snowflake appears in Wednesday's session. */
+.pop {
+	transform-box: fill-box;
+	transform-origin: center;
+	animation: pop 5s ease-in-out infinite;
+}
+@keyframes pop {
+	0%, 25% { opacity: 0; transform: scale(0.8); }
+	35%, 90% { opacity: 1; transform: scale(1); }
+	100% { opacity: 0; transform: scale(0.8); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.flow, .pulse, .pop { animation: none; }
+	.pop { opacity: 1; }
+}
+
+/* Embedded videos: same frame as the drawings, 16:9. */
+.video {
+	margin: 2rem 0;
+}
+.video iframe {
+	display: block;
+	width: 100%;
+	aspect-ratio: 16 / 9;
+	border: 0;
+	border-radius: 12px;
+	background: #0f172b;
+}
+.video .caption {
+	color: var(--ifm-color-emphasis-600);
+}

@@ -1,0 +1,90 @@
+---
+slug: introducing-ai-sessions
+image: ./thumbnail.png
+authors: [tristanlecuyer]
+tags: ['AI', 'AI sessions', 'Platform engineering', 'Internal tools']
+description: 'Platform teams are responsible for production. Every other team wants to build its own tools with AI. An AI Session builds internal software with your whole workspace as context, within your permissions, and ships it through your deployment pipeline.'
+title: 'Introducing AI Sessions: build internal software with your whole workspace as context'
+---
+
+import { Folders, Deploy, WorkspaceMoves, Video } from './diagrams';
+
+# Introducing AI Sessions: build internal software with your whole workspace as context
+
+Most companies we work with face the same tension.
+
+Platform teams are responsible for production. They know which database holds what, and when a script deletes the wrong rows or a token ends up in the wrong place, they are the ones called in. Meanwhile, the rest of the company wants its own internal tools: an on-call rotation for ops, a month-end dashboard for finance, ticket triage for support. With AI, these teams can describe precisely what they need, and waiting several sprints for it is increasingly hard to justify.
+
+Both positions are legitimate. Left unresolved, the tension usually ends one of two ways: teams build on their own machines with borrowed credentials and nobody knows what runs where, or the platform team refuses and becomes a bottleneck.
+
+AI Sessions are our answer. An AI Session builds internal software with your whole workspace as context, within your permissions, and ships it through the deployment pipeline your platform team already runs.
+
+{/* truncate */}
+
+<Video id="u8_Oau5UJgA" title="AI Sessions in Windmill: the big picture" />
+
+## Like a coding agent, inside Windmill
+
+If you use coding agents like Claude Code or Codex, the flow will feel familiar: the agent reads your project, edits files, runs things and shows you the result. [AI Sessions](/docs/core_concepts/ai_sessions) bring that experience into the Windmill frontend, where the workspace plays the role of the filesystem. The agent knows the scripts, flows and apps you already have, your integrations, databases and MCP connections, your skills and instructions, and it works on the whole workspace rather than on one item.
+
+One prompt is enough for a single session to build a script, the flow that runs it, its schedule and an app to follow it. The output is software: [scripts](/docs/getting_started/scripts_quickstart), flows, [AI agents](/docs/core_concepts/ai_agents) and [full-code apps](/docs/full_code_apps). [Data pipelines](/docs/core_concepts/pipelines) are still in alpha and have their own editor for now; a session will say so if you ask for one.
+
+Everything the AI builds is saved as a draft, and it tests its work by running it, after you confirm the inputs. You decide how much it does on its own: Plan is read-only and proposes a plan for approval, Ask permission (the default) waits for your confirmation before anything that writes, runs or deploys, and Yolo goes ahead without asking.
+
+<Video id="vg3W2AImtp0" title="[1/11] Build internal software by chatting with the AI" />
+
+Because the experience is the same everywhere, everyone works the same way. Engineers who already use an agent in their terminal and teams who have never opened one share the same loop, the same skills and the same habits, and what one team learns carries over to the others.
+
+## What a session can see
+
+A session sees the workspace the way the person who opens it sees it. It can only access what that person can access, and it ships through the deployment path your platform team set up. Everyone who builds internal tools gets one place to do it; the platform team decides what is in that place and gets production-grade code in return.
+
+<Folders />
+
+### Connect: what a session can reach
+
+Postgres, Snowflake, BigQuery, Stripe, Slack, GitHub, Salesforce. In Windmill these are [resources](/docs/core_concepts/resources_and_types), and a session can only use the ones that exist and that its user is allowed to read. External tools connected through [MCP](/docs/core_concepts/ai_sessions#mcp-connections) are resources too, and their tools run with the connection's own credentials. The AI never has more access than the account behind it.
+
+### Permission: who can touch what
+
+Permissions are set [per group and per folder](/docs/core_concepts/groups_and_folders): ops runs scripts under `f/ops` and reads `f/billing`, finance can use the Snowflake resource, and nobody outside engineering deploys to production. A session inherits these rules as they are, including the pages the AI opens for you.
+
+<Video id="rU95lHcvNu8" title="[6/11] The AI acts with your permissions" />
+
+Skills and instructions follow the same model. A [skill](/docs/core_concepts/ai_sessions#skills) is a `SKILL.md` file, in the same format Claude skills use, stored as a resource: a skill saved in a folder is shared with everyone who can read that folder, so the support team's `/triage` skill stays with support. Instructions work at three levels: [workspace instructions](/docs/core_concepts/ai_sessions#instructions) set by admins for every session, your personal instructions, and folder instructions. A folder instruction is the equivalent of an `AGENTS.md` for one folder: an `ai_instruction` resource at `f/billing/AGENTS` is given to the AI whenever it works on something under `f/billing/`, and only to the people who can read that folder.
+
+## How changes reach production
+
+This is what makes "every team ships" acceptable to an engineer. The AI never deploys on its own: everything it builds starts as a draft, and reaches production through one of two setups.
+
+<Deploy />
+
+In the simple setup, teams build in a [dev workspace](/docs/advanced/dev_workspaces): a persistent copy of the production workspace, with the same code and its own resources. Changes are promoted from dev to production after review. In the advanced setup, each session also runs in its own [fork](/docs/advanced/workspace_forks), a short-lived copy comparable to a Git branch: its changes are reviewed into the dev workspace, then reviewed again into production.
+
+Each review happens on the Compare & Deploy page in Windmill, or on [Enterprise Edition](/pricing) as pull requests on GitHub or GitLab through [Git sync](/docs/advanced/git_sync), with your [CI tests](/docs/advanced/ci_tests) running along the way.
+
+<Video id="usuJ5LuMUHY" title="[2/11] Deploy what the AI built" />
+
+On Enterprise Edition, the production workspace can be [locked](/docs/advanced/dev_workspaces#locking-the-prod-workspace) so that changes only land through promotion; a session opened there is redirected to the dev workspace. Without a lock, a session opened directly in a workspace deploys there like any other deploy, subject to your permissions. The same rules apply to every team, engineering included.
+
+## What happened, and at what cost
+
+Every run is [monitored](/docs/core_concepts/monitor_past_and_future_runs), with its logs, status, duration and retries. Every action with a side effect is recorded in the [audit logs](/docs/core_concepts/audit_logs), along with the user who performed it. Tokens spent by sessions are [tracked per user and per model](/docs/core_concepts/ai_generation#ai-usage-and-cost) and priced, so the cost of AI-assisted building is measured rather than estimated.
+
+## The workspace evolves, and sessions follow
+
+A workspace is never finished: teams change, tools change, and skills get rewritten as incidents teach new lessons. A session works with whatever the workspace holds when it runs, so the platform team changes the workspace once and every subsequent session picks it up, with no prompt to update and no setup to redo.
+
+<WorkspaceMoves />
+
+## Your infrastructure, your models
+
+AI Sessions are available on Windmill Cloud and on [self-hosted](/docs/advanced/self_host) instances. They are bring-your-own-key: sessions run with the AI provider credentials you configure, stored as a resource, and work with [any model](/docs/core_concepts/ai_generation#models) you choose, from OpenAI, Azure, Anthropic, Google Gemini, Mistral, DeepSeek, AWS Bedrock, Groq, OpenRouter or Together AI, or any OpenAI-compatible endpoint, including local models served with Ollama. On Community Edition, an instance is limited to three workspaces, forks included; Enterprise Edition lifts that limit.
+
+None of this changes how engineers work. Everything a session produces is regular code, in TypeScript, Python, SQL and the other supported languages, running on your workers, synced to Git, editable from your IDE with the [CLI](/docs/advanced/cli) and reviewed in pull requests like any other change. Windmill is [open source](https://github.com/windmill-labs/windmill). Teams that prefer their own AI client can use the [MCP server](/docs/core_concepts/mcp), which exposes the same workspace with the same permissions.
+
+## Get started
+
+Read the [AI sessions documentation](/docs/core_concepts/ai_sessions), or watch the eleven short tutorials in the [AI Sessions tutorials playlist](https://www.youtube.com/playlist?list=PLFRot5gSVdmU): admin setup, skills, preview, resuming a session, sharing an artifact, fixing a failed run and more.
+
+Setting up the workspace remains engineering work. AI Sessions extend it to every team. Give your team AI. Keep the keys.
