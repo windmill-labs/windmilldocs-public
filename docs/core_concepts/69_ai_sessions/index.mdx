@@ -337,6 +337,7 @@ Forks make sessions safe to experiment with: the AI works on an isolated copy, a
 
 :::tip One fork per session
 Creating a new fork for each session is a good default. Every conversation gets its own isolated copy to experiment in, and promoting its changes goes through the same [Compare & Deploy review](../../advanced/20_workspace_forks/index.mdx#merge-workspaces-from-the-ui-merge-ui) as the [dev to prod workflow](../../advanced/26_dev_workspaces/index.mdx), so nothing reaches the parent workspace without a review you already know.
+To combine forks with roles, review and dedicated workers for business teams, see [let business teams build with AI safely](../../advanced/29_ai_guardrails/index.mdx).
 :::
 
 <iframe
@@ -373,6 +374,11 @@ Sessions are stored locally in your browser, per user. They are not synced acros
 		title="Dev workspaces"
 		description="Pair a persistent dev workspace with a lockable prod workspace."
 		href="/docs/advanced/dev_workspaces"
+	/>
+	<DocCard
+		title="Let business teams build with AI safely"
+		description="Combine roles, forks, review, promotion and dedicated workers for AI-built code."
+		href="/docs/advanced/ai_guardrails"
 	/>
 	<DocCard
 		title="Model Context Protocol (MCP)"

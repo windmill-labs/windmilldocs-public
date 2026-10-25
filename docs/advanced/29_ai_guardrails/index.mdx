@@ -1,0 +1,132 @@
+---
+title: Let business teams build with AI safely
+description: How do I let business teams vibe-code internal tools on self-hosted Windmill without risking production? Combine roles, forks, review, promotion and isolated workers.
+---
+
+import DocCard from '@site/src/components/DocCard';
+
+# Let business teams build with AI safely
+
+Windmill lets business teams build scripts, flows and apps with AI, on the same platform and in the same workspaces as the engineers who run production.
+Engineers keep control of what ships: the AI builds in an isolated copy, a reviewer deploys, and the code runs on workers you chose for it.
+
+This page combines the guardrails Windmill already has into one setup for AI-assisted building, often called vibe coding.
+Each guardrail is documented on its own page, linked below.
+For an overview, see the [build with AI](/platform/build-with-ai) page.
+For the general progression from a shared workspace to multi-environment promotion, see [collaboration and deployment stages](../23_canonical_deployment_setups/index.mdx).
+
+| Guardrail | What it stops | Edition |
+|---|---|---|
+| [Workspace roles](#choose-what-each-team-can-author) | Authoring more than a team needs | Overriding the default roles on every edition, custom roles on [Enterprise Edition](/pricing) |
+| [Folders and scoped AI context](#scope-what-the-ai-can-reach) | The AI reaching resources, skills and MCP servers a team should not use | All editions |
+| [Forks and review](#build-in-a-fork-deploy-after-review) | Unreviewed changes reaching the shared workspace | Forks on all self-hosted editions, protection rulesets on Enterprise Edition |
+| [Dev and prod workspaces](#promote-between-environments) | Builders holding prod credentials or editing prod | Dev workspaces on all self-hosted editions, locking prod on Enterprise Edition |
+| [Dedicated workers](#run-their-jobs-on-separate-workers) | Unreviewed code running next to production jobs | Tags on all editions, worker group features on Enterprise Edition |
+| [A separate instance](#keep-builders-on-a-separate-instance) | Any shared control plane with production | Enterprise Edition |
+| [Audit logs](#audit-what-was-built-and-deployed) | Changes nobody can trace | Full audit logs on Enterprise Edition |
+
+You don't need all of them.
+Most teams start with roles, forks and review, then add dedicated workers or a separate instance when the code built by business teams touches sensitive systems.
+
+## Choose what each team can author
+
+A [workspace role](../../core_concepts/16_roles_and_permissions/index.mdx#workspace-roles) is a set of capabilities, and two of them suit business teams:
+
+- Members who assemble what engineers built get **Compose** for flows and apps, without **Write code**. They build flows only from deployed workspace scripts and flows, with no inline code and no Hub scripts, and their full-code apps call existing workspace runnables and always deploy with [sandbox isolation](../../full_code_apps/8_sandbox_isolation/index.mdx).
+- Members who write code with AI get **Write code**, and rely on the guardrails below instead of on the role. [AI sessions](../../core_concepts/69_ai_sessions/index.mdx) require Write code: members without it keep the AI chat side panel.
+
+A role restricts authoring, not access to data: what a member can read and use is set by [folders and groups](#scope-what-the-ai-can-reach).
+A role that can author, at the Compose or Full level, consumes a full seat.
+
+## Scope what the AI can reach
+
+The AI acts with the permissions of the person using it, so scoping a team scopes its AI.
+Give each team a [folder](../../core_concepts/8_groups_and_folders/index.mdx) and grant its group access only to the [resources](../../core_concepts/3_resources_and_types/index.mdx) and [variables](../../core_concepts/2_variables_and_secrets/index.mdx) it needs.
+
+The AI's context follows the same model:
+
+- [Skills](../../core_concepts/69_ai_sessions/index.mdx#skills) and [MCP connections](../../core_concepts/69_ai_sessions/index.mdx#mcp-connections) saved in a folder are available to everyone who can read that folder, and nobody else.
+- Workspace [instructions](../../core_concepts/69_ai_sessions/index.mdx#instructions), editable only by admins, are sent with every session in the workspace, for example to point the AI at the team's approved scripts and conventions.
+
+A member with read access to a variable can read its value, secrets included, through the API, whatever their role.
+Keep prod credentials out of the folders business teams can read, and give them their own values in a [dev workspace](#promote-between-environments).
+
+## Build in a fork, deploy after review
+
+An AI session runs in a workspace or in a [workspace fork](../20_workspace_forks/index.mdx), an isolated copy of the workspace.
+Creating a fork per session keeps every experiment out of the shared workspace until someone reviews it.
+
+To make review mandatory, add a [protection ruleset](../../core_concepts/56_protection_rulesets/index.mdx) that enables **Disable direct deployment** on the shared workspace, with a group of engineers on its bypass list.
+Changes made in a fork then reach the shared workspace only when one of them reviews the diff on the [Compare & Deploy](../20_workspace_forks/index.mdx#merge-workspaces-from-the-ui-merge-ui) page and deploys it.
+[CI tests](../24_ci_tests/index.mdx) run automatically when the tested script or flow is deployed.
+
+A fork is a full copy of its parent, variables and secrets included.
+If business teams should not hold prod credentials, have them build in a dev workspace instead.
+
+## Promote between environments
+
+A [dev workspace](../26_dev_workspaces/index.mdx) is a persistent fork paired with a prod workspace, with its own resource and variable values.
+Business teams build in dev, against dev databases and accounts, and prod can be [locked](../26_dev_workspaces/index.mdx#locking-the-prod-workspace) so changes only reach it through promotion.
+
+Promotion is never automatic: a member who can deploy to prod reviews the diff and deploys it from [Compare & Deploy](../26_dev_workspaces/index.mdx#promoting-changes-to-prod), or the change goes through a pull request with [Promote to prod via Git](../26_dev_workspaces/index.mdx#promote-to-prod-via-git).
+Resources and variables marked [workspace-specific](../../core_concepts/12_staging_prod/index.md#workspace-specific-resources-and-variables) keep their value in each environment, so promoting code never overwrites a prod credential.
+When deploying, [run on behalf of](../../core_concepts/12_staging_prod/index.md#run-on-behalf-of) decides which user the item executes as in prod, for example a service account rather than the person who built it.
+
+## Run their jobs on separate workers
+
+[Worker groups](../../core_concepts/9_worker_groups/index.mdx) decide where code runs, and can sit on different machines, clusters and networks.
+Route the jobs of business teams to their own workers:
+
+- [Restrict a tag to specific workspaces](../../core_concepts/9_worker_groups/index.mdx#restrict-tags-to-specific-workspaces), so only the dev workspace can use the workers that reach dev systems, and prod-only workers stay out of reach. A fork inherits a scoped tag only when you opt in with `*`.
+- Use [`$workspace` in a tag](../../core_concepts/9_worker_groups/index.mdx#dynamic-tag), so the same script runs on `normal-dev` workers in the dev workspace and on `normal-prod` workers once promoted. A dev workspace resolves `$workspace` to itself, so it can have its own workers.
+- Send all fork jobs to a [dedicated fork worker pool](../20_workspace_forks/index.mdx#dedicated-fork-workers-optional) with the `-fork` tag suffix.
+
+For code that has not been reviewed yet, add [process isolation](../27_security_isolation/index.mdx) on those workers, or run them as [agent workers](../../core_concepts/28_agent_workers/index.mdx) without direct database access.
+
+## Keep builders on a separate instance
+
+For the strictest separation, business teams build on their own Windmill instance, with its own database, workers and settings, and engineers promote reviewed changes to the production instance.
+[Deploying to a workspace on another instance](../../core_concepts/12_staging_prod/index.md#deploy-to-a-workspace-on-another-instance) from the deploy drawer runs as the deployer's own account on the prod instance, so its permissions, protection rules and audit logs apply.
+The [Git promotion workflow](../9_deploy_gh_gl/index.mdx) works across instances too.
+
+## Audit what was built and deployed
+
+Every action with side effects is recorded in the [audit logs](../../core_concepts/14_audit_logs/index.mdx) with the user who performed it, including deployments.
+Each script, flow and app keeps its [version history](../../core_concepts/34_versioning/index.mdx), so a promoted change can be compared or rolled back.
+On self-hosted Enterprise Edition, audit logs are kept for 365 days by default and can be forwarded to a SIEM.
+
+## Example setup
+
+A team of analysts building internal tools with AI, next to a platform team that runs production:
+
+1. Workspace `ops` is prod. A protection ruleset disables direct deployment, with the platform team on the bypass list.
+2. Dev workspace `ops-dev` is paired with it, with dev database credentials marked workspace-specific.
+3. Analysts have a role with Write code in `ops-dev`, and an operator role in `ops`.
+4. Scripts are tagged `normal-$workspace`: jobs run on `normal-ops-dev` workers in a network that only reaches dev systems, and on `normal-ops` workers once promoted.
+5. Analysts build in AI sessions, one fork of `ops-dev` per session, and deploy into `ops-dev` when it works.
+6. The platform team reviews the diff from `ops-dev` to `ops` in Compare & Deploy and deploys it.
+
+## Related documentation
+
+<div className="grid grid-cols-2 gap-6 mb-4">
+	<DocCard
+		title="AI sessions"
+		description="Build scripts, flows and apps with AI in a workspace or fork, review the diff and deploy."
+		href="/docs/core_concepts/ai_sessions"
+	/>
+	<DocCard
+		title="Collaboration and deployment stages"
+		description="A staged progression from a shared workspace to forks and multi-workspace promotion."
+		href="/docs/advanced/canonical_deployment_setups"
+	/>
+	<DocCard
+		title="Roles and permissions"
+		description="Control what each member can author and access, at instance and workspace level."
+		href="/docs/core_concepts/roles_and_permissions"
+	/>
+	<DocCard
+		title="Dev workspaces"
+		description="Pair a dev workspace with a lockable prod workspace and promote reviewed changes."
+		href="/docs/advanced/dev_workspaces"
+	/>
+</div>
