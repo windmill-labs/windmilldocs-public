@@ -1,5 +1,5 @@
 ---
-description: What is Windmill? An open-source workflow engine and developer platform to build endpoints, workflows, UIs and AI agents.
+description: What is Windmill? An open-source, self-hostable code-first platform for workflows, apps and AI agents, with AI building under engineering review.
 ---
 
 import DocCard from '@site/src/components/DocCard';
@@ -8,16 +8,18 @@ import { Book, Pen, Home, Cloud, Terminal, Play, Code, List, LayoutDashboard, Mo
 
 # What is Windmill?
 
-Windmill is a fast, **<a href="https://github.com/windmill-labs/windmill">open-source</a>** workflow engine and developer platform. It's an alternative to the likes of Retool, Superblocks, n8n, Airflow, Prefect, Kestra and Temporal, designed to **build comprehensive internal tools** (endpoints, workflows, UIs). It supports coding in TypeScript, Python, Go, PHP, Bash, C#, SQL, Rust, Ruby and R, or any Docker image, alongside intuitive low-code builders, featuring:
+Windmill is an **<a href="https://github.com/windmill-labs/windmill">open-source</a>**, self-hostable code-first platform for workflows, apps and AI agents, running on the [fastest self-hostable orchestrator](./misc/3_benchmarks/competitors/index.mdx).
+Engineers write code in TypeScript, Python, Go, PHP, Bash, C#, SQL, Rust, Ruby and R, or any Docker image.
+Business teams build on the same platform with [AI sessions](./core_concepts/69_ai_sessions/index.mdx), and engineers control what ships through review, promotion between environments and dedicated workers: see [let business teams build with AI safely](./advanced/29_ai_guardrails/index.mdx).
+It's an alternative to the likes of Lovable, Retool, n8n, Airflow, Prefect, Kestra and Temporal, and includes:
 
 - An [execution runtime](./script_editor/index.mdx) for scalable, low-latency function execution across a worker fleet.
-- An [orchestrator](./flows/1_flow_editor.mdx) for assembling these functions into efficient, low-latency flows, using either a low-code builder or YAML.
+- An [orchestrator](./flows/1_flow_editor.mdx) for assembling these functions into flows, built in a visual editor, as YAML or as [workflows as code](./core_concepts/31_workflows_as_code/index.mdx).
 - A [full-code app](./full_code_apps/index.mdx) builder for custom frontends in React or Svelte connected to Windmill backend runnables.
+- [Data tables](./core_concepts/11_persistent_storage/data_tables.mdx), [DuckDB](./integrations/duckdb.md) and [DuckLake](./core_concepts/11_persistent_storage/ducklake.mdx) for storing and transforming data, wired into [pipelines](./core_concepts/63_pipelines/index.mdx) (alpha).
 - A [low-code app editor](./apps/0_app_editor/index.mdx) (legacy) for creating data-centric dashboards with drag-and-drop components.
 
-Business teams can build with AI in the same workspaces as engineers, who keep control of what ships through review, promotion between environments and dedicated workers: see [let business teams build with AI safely](./advanced/29_ai_guardrails/index.mdx).
-
-Windmill supports both UI-based operations via its webIDE and low-code builders, as well as [CLI](./advanced/3_cli/index.mdx) deployments [from a Git repository](./advanced/11_git_sync/index.mdx), aligning with your preferred development style.
+You can build in the web IDE, with AI in the browser, or locally with the [CLI](./advanced/3_cli/index.mdx) and your coding agent, deploying [from a Git repository](./advanced/11_git_sync/index.mdx).
 
 Start your project today with our **<a href="https://app.windmill.dev/" rel="nofollow" >Cloud App</a>** (no credit card needed) or opt for **<a href="/docs/advanced/self_host" >self-hosting</a>**.
 
@@ -50,11 +52,11 @@ Boilerplate code is eliminated as Windmill takes care of the repetitive work of 
 
 **Smart dependency and input management**: automatically generate lockfiles and input specs from your code, ensuring consistent [dependency versions](./advanced/6_imports/index.mdx) and simplified [input handling](./core_concepts/13_json_schema_and_parsing/index.mdx).
 
-**Dynamic web IDE and low-code builders**: create [scripts](./script_editor/index.mdx) with advanced editing tools and [auto-generated UIs](./core_concepts/6_auto_generated_uis/index.mdx), build [flows](./flows/1_flow_editor.mdx) with a drag-and-drop interface, build [full-code apps](./full_code_apps/index.mdx) with React or Svelte, or design [low-code apps](./apps/0_app_editor/index.mdx) (legacy) without extensive coding.
+**Web IDE, visual builders and AI**: build with AI in [AI sessions](./core_concepts/69_ai_sessions/index.mdx), create [scripts](./script_editor/index.mdx) with advanced editing tools and [auto-generated UIs](./core_concepts/6_auto_generated_uis/index.mdx), build [flows](./flows/1_flow_editor.mdx) with a drag-and-drop interface, build [full-code apps](./full_code_apps/index.mdx) with React or Svelte, or design [low-code apps](./apps/0_app_editor/index.mdx) (legacy) without extensive coding.
 
-**Enterprise-ready**: Windmill offers robust [permissioning](./core_concepts/16_roles_and_permissions/index.mdx), [secret management](./core_concepts/2_variables_and_secrets/index.mdx), OAuth, and more, wrapped in an enterprise-grade platform.
+**Enterprise-ready**: Windmill offers [permissioning](./core_concepts/16_roles_and_permissions/index.mdx), [secret management](./core_concepts/2_variables_and_secrets/index.mdx), OAuth, and more, wrapped in an enterprise-grade platform.
 
-**Integrations and automations**: with [webhooks](./core_concepts/4_webhooks/index.mdx), an [open API](https://app.windmill.dev/openapi.html), and a [scheduler](./core_concepts/1_scheduling/index.mdx), Windmill fits seamlessly into your infrastructure, allowing for extensive automation capabilities.
+**Integrations and automations**: with [webhooks](./core_concepts/4_webhooks/index.mdx), an [open API](https://app.windmill.dev/openapi.html), and a [scheduler](./core_concepts/1_scheduling/index.mdx), Windmill connects to the rest of your infrastructure.
 
 **Local development**: develop scripts and flows locally using your favorite IDE with the [VS Code extension](./cli_local_dev/1_vscode-extension/index.mdx) and [CLI](./advanced/3_cli/index.mdx), then sync with [Git integration](./advanced/11_git_sync/index.mdx) for version control and deployment workflows.
 
@@ -73,9 +75,8 @@ Boilerplate code is eliminated as Windmill takes care of the repetitive work of 
 
 ## Compare
 
-While other frameworks offer pieces of what Windmill does, none combine its comprehensive feature set with full open-source accessibility. Whether compared to workflow engines like Temporal and Airflow or UI builders like Retool, Windmill stands out for its scalability, open APIs, and ease of use.
-
-Windmill is an open-source, self-hostable platform that marries the flexibility of code with the speed of low-code solutions, enabling seamless automation of repetitive tasks.
+Workflow engines like Temporal and Airflow, internal tool builders like Retool and AI app builders like Lovable each cover part of what Windmill does.
+Windmill runs workflows, apps, AI agents and data pipelines on one open-source platform you can self-host, with review and promotion for what business teams build with AI.
 
 Learn how Windmill compares to other products like [Retool](./compared_to/retool.mdx), [n8n](./compared_to/peers.mdx#n8n), [Airflow](./misc/3_benchmarks/competitors/airflow/index.mdx), [Prefect](./compared_to/prefect.mdx), [Kestra](./compared_to/kestra.mdx) and [Temporal](./misc/3_benchmarks/competitors/temporal/index.mdx).
 
