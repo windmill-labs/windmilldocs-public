@@ -1,8 +1,16 @@
 rubenfiszel:
   name: Ruben Fiszel
   title: Founder at Windmill
-  url: https://github.com/rubenfiszel
+  url: https://www.windmill.dev/blog/authors/rubenfiszel
   image_url: https://github.com/rubenfiszel.png
+  page: true
+  description: >-
+    Ruben Fiszel is the founder of Windmill, the open-source, self-hostable platform for workflows, apps and AI agents.
+    Before Windmill, he was a software engineer at Palantir, working on distributed systems and developer tooling.
+    He holds an MSc in computer science from EPFL and did his master's thesis research on compilers at Stanford.
+  socials:
+    github: rubenfiszel
+    linkedin: rubenfiszel
 adamkov:
   name: Adam Kovacs
   title: Front-end Developer at Windmill
