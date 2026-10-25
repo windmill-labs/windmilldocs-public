@@ -359,6 +359,29 @@ Bedrock requests use the AWS SDK's native Converse API, so models are referenced
 
 - **1M context window**: enable the `enable_1m_context` toggle on an Anthropic resource to send the `anthropic-beta: context-1m-2025-08-07` header with every request. This unlocks the 1M-token context window on compatible Claude models. The flag is ignored when the Anthropic resource is routed through Google Vertex AI.
 
+#### Anthropic with Workload Identity Federation
+
+An `anthropic_federated` resource authenticates to Anthropic through [Workload Identity Federation](https://platform.claude.com/docs/en/manage-claude/workload-identity-federation) instead of a stored API key.
+It works in Windmill AI and in [AI agent steps](../54_ai_agents/index.mdx), not in scripts, and requires [Enterprise Edition](/pricing) since it relies on Windmill's [OIDC](../29_oidc/index.mdx) provider.
+
+Windmill mints an OIDC token with audience `https://api.anthropic.com` and exchanges it with Anthropic for a short-lived access token, which is reused until it is close to expiring.
+The OIDC token carries `email` and `workspace` claims, so the Claude Console's authentication history shows which Windmill user made each exchange, and usage is billed to the rule's service account.
+
+To set it up:
+
+1. In the Claude Console, under Workload identity, register your Windmill instance as a federation issuer with the issuer URL `<base_url>/api/oidc/`.
+   Use JWKS discovery if the instance is reachable over HTTPS on port 443, otherwise paste the keys from `<base_url>/api/oidc/jwks`.
+2. Create a service account and a federation rule with audience `https://api.anthropic.com`, matching on the `email` or `workspace` claim.
+3. Create an `anthropic_federated` resource with the rule's `federation_rule_id`, your `organization_id` and the rule's `service_account_id`.
+   Set `workspace_id` only when the rule is enabled in more than one Anthropic workspace.
+   From an Anthropic resource picker, the `anthropic` form links to it with "Authenticate with Workload Identity Federation instead of an API key".
+4. Select the resource as the Anthropic resource in the Windmill AI settings, or in an AI agent step's provider picker.
+
+The token subject depends on the caller: Windmill AI uses `<email>::<workspace>`, AI agent steps use the [job subject](../29_oidc/index.mdx#token-payload-reference) `<email>::<script path>::<flow path>::<workspace>`.
+A rule matching on the `email` and `workspace` claims covers both, and a rule on the subject can restrict federation to specific flows.
+
+The resource has no base URL: requests always go to `api.anthropic.com`, so the identity token cannot be sent elsewhere.
+
 #### Google Gemini / Anthropic on Vertex AI
 
 Both the `googleai` and `anthropic` resources expose a `platform` field that switches between the provider's standard API and Google Vertex AI:
