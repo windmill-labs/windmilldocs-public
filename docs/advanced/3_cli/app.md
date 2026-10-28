@@ -100,6 +100,15 @@ Runs the same build `wmill app push` runs, but writes `bundle.js` and `bundle.cs
 
 This is also the build behind the [source-deploy API endpoints](/docs/full_code_apps/deployment#deploy-from-sources-via-the-api), so an app deployed from sources through the API is compiled exactly as the CLI and the editor compile it.
 
+### Lint an app
+
+```bash
+wmill app lint [app_folder]
+```
+
+Checks that `raw_app.yaml` is valid, that the app has backend runnables and that the frontend builds, and exits with code 1 on any error.
+Warnings, such as a SQL viewer filter that is not a [context field](../../full_code_apps/2_backend_runnables/index.mdx#context-fields), are printed without failing the command.
+
 ### Generate lock files
 
 Generate `.lock` files for backend runnables with dependencies using the [`wmill generate-metadata`](./generate-metadata.md) command:

@@ -97,8 +97,35 @@ Field types:
 | Type | Description |
 |------|-------------|
 | `static` | A fixed value, set in the YAML |
-| `ctx` | A value from the app context (e.g., user email) |
+| `ctx` | A value from the app context (e.g., user email), see [context fields](#context-fields) |
 | `user` | Provided by the frontend at call time |
+
+### Context fields
+
+A context field is filled by the server from the viewer's session, so the frontend cannot set or override it.
+Use one whenever a runnable needs to know who is viewing the app, for example to filter rows per viewer:
+
+```yaml
+# backend/my_orders.yaml
+type: inline
+fields:
+  username:
+    ctx: username
+```
+
+```sql
+-- backend/my_orders.duckdb.sql
+-- $username (text)
+ATTACH 'datatable' AS dt;
+SELECT * FROM dt.orders WHERE owner = $username;
+```
+
+The available properties are `username`, `email` and `groups` of the viewer, `workspace`, and `author` (the email the app runs on behalf of).
+The viewer properties are `null` for a viewer who is not logged in on a [public app](../7_deployment/index.mdx#public-and-guest-apps).
+
+An argument left as a frontend input takes whatever the browser sends, so a viewer filter declared that way lets any viewer read someone else's rows.
+[`wmill app lint`](../../advanced/3_cli/app.md#lint-an-app) and the Inputs tab of the [app editor](../6_ui_editor/index.mdx) warn when an inline SQL runnable has an argument named `username`, `email` or `groups` that is neither a context nor a static field.
+The check matches on those names only: it does not catch a filter named otherwise (`user_id`) or one in a non-SQL runnable.
 
 ## Read data as the viewer
 

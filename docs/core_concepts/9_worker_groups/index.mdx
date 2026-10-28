@@ -259,8 +259,19 @@ For example, with the tag `gpu-$flow_expr[results.a.region]`, if step `a` return
 A path that reaches nothing resolves to an empty string, and a tag left empty runs on the default tag.
 When you test the step on its own, there is no flow state to read, so it also runs on its default tag.
 
-To make such a tag assignable, add the template itself (e.g. `gpu-$flow_expr[results.a.region]`) to the assignable tags.
-Any value it resolves to is then allowed.
+A dynamic tag is checked on the tag it resolves to, not on its text, so it is allowed when that resolved tag is assignable.
+`$args[t]` with `t` set to `bun` runs when `bun` is assignable, even if `$args[t]` is not, and adding the template itself (e.g. `gpu-$flow_expr[results.a.region]`) still allows a tag written exactly like it.
+
+In an assignable tag, `$args[...]` and `$flow_expr[...]` stand for any text, and the fixed text around them must match as written:
+
+| Assignable tag             | Allows                   | Refuses    |
+| -------------------------- | ------------------------ | ---------- |
+| `gpu-$args[size]`          | `gpu-large`, `gpu-small` | `prod`     |
+| `$args[region]-gpu`        | `eu-gpu`                 | `eu-gpu-x` |
+| `team-$args[a]-x-$args[b]` | `team-1-x-2`             | `team-1-2` |
+
+`$workspace` is not a wildcard: it stands for the job's own workspace, so `tag-$workspace` allows no other workspace's tag.
+An entry with nothing fixed at its start and its end, such as `$args[x]`, confines nothing and lets anyone reach almost any tag, so give each one a fixed prefix or suffix, ideally both.
 
 See [Deploy to staging prod](../12_staging_prod/index.md) to see a full UI flow to deploy to staging and prod.
 
