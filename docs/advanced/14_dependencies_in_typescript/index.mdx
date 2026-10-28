@@ -7,7 +7,7 @@ import DocCard from '@site/src/components/DocCard';
 # Dependencies in TypeScript
 
 In Windmill [standard mode](#lockfile-per-script-inferred-from-imports-standard), dependencies in [TypeScript](../../getting_started/0_scripts_quickstart/1_typescript_quickstart/index.mdx) are handled directly within their scripts without the need to manage separate dependency files.
-For TypeScript, there are two runtime options available: [Bun](https://bun.sh/) and [Deno](https://deno.land/).
+For TypeScript, there are two runtimes: [Bun](https://bun.sh/), and [Deno](https://deno.land/), which is [kept for existing scripts only](../../getting_started/0_scripts_quickstart/1_typescript_quickstart/index.mdx#deno).
 Both of these runtimes allow you to include dependencies directly in the script, and Windmill automatically handles the resolution and caching of these dependencies to ensure fast and consistent execution (this is standard mode).
 
 There are however methods to have more control on your dependencies:

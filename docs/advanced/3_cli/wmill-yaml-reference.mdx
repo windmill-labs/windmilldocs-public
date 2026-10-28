@@ -48,7 +48,6 @@ A typical `wmill.yaml` for a single-workspace project:
 
 ```yaml
 # yaml-language-server: $schema=wmill.schema.json
-defaultTs: bun
 includes:
   - "f/**"
 excludes: []
@@ -115,8 +114,11 @@ Runtime used when a `.ts` file's language cannot be inferred from its filename
 [`wmill script bootstrap`](./script.md) and by lock/metadata generation to pick
 the right dependency resolver.
 
+`wmill init` does not write this option: a `wmill.yaml` without it uses `bun`.
+Set it only in a project whose plain `.ts` files are [Deno](../../getting_started/0_scripts_quickstart/1_typescript_quickstart/index.mdx#deno) scripts:
+
 ```yaml
-defaultTs: bun   # or: deno
+defaultTs: deno
 ```
 
 ### `includes`

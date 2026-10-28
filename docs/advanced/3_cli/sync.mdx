@@ -31,7 +31,6 @@ To specify the scopes of files, you should modify the includes and excludes (arr
 Those are the default ones:
 
 ```
-defaultTs: bun
 includes:
   - f/**
 excludes: []
@@ -198,8 +197,6 @@ Set `nonDottedPaths: false` to fall back to legacy `.flow`/`.app`/`.raw_app` fol
 ### Basic configuration
 
 ```yaml
-defaultTs: bun  # TypeScript runtime: 'bun' or 'deno'
-
 # File path filtering
 includes:
   - f/**  # Include patterns (glob format)   [Use - "**" to include everything]

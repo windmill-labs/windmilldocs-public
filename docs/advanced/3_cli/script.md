@@ -59,10 +59,10 @@ wmill script bootstrap [--summary <summary>] [--description <description>] <path
 wmill script bootstrap f/scripts/hallowed_script python3
 ```
 
-2. Create a new deno script `f/scripts/auspicious_script` with a summary and a description
+2. Create a new bun script `f/scripts/auspicious_script` with a summary and a description
 
 ```bash
-wmill script bootstrap --summary 'Great script' --description 'This script does this and that' f/scripts/auspicious_script deno
+wmill script bootstrap --summary 'Great script' --description 'This script does this and that' f/scripts/auspicious_script bun
 ```
 
 ## (Re-)Generating a script metadata file

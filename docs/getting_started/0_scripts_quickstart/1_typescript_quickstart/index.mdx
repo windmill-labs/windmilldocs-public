@@ -1,6 +1,6 @@
 ---
 title: TypeScript quickstart
-description: 'How do I write TypeScript scripts in Windmill? Create, test and deploy TypeScript with Bun, Node.js or Deno runtimes.'
+description: 'How do I write TypeScript scripts in Windmill? Create, test and deploy TypeScript with Bun or its Node.js mode, and keep existing Deno scripts running.'
 slug: '/getting_started/scripts_quickstart/typescript'
 ---
 
@@ -8,7 +8,8 @@ import DocCard from '@site/src/components/DocCard';
 
 # TypeScript quickstart
 
-In this quick start guide, we will write our first script in TypeScript. Windmill uses [Bun](https://bun.sh/), [Nodejs](#nodejs) and [Deno](https://deno.land/) as the available TypeScript runtimes.
+In this quick start guide, we will write our first script in TypeScript. Windmill runs TypeScript on [Bun](https://bun.sh/), with a [Nodejs](#nodejs) mode.
+[Deno](#deno) is still supported for existing scripts, but is no longer offered for new ones.
 
 <iframe
 	style={{ aspectRatio: '16/9' }}
@@ -130,11 +131,6 @@ Script. You can preview that UI, provide input values, and [test your script](#i
 	/>
 </div>
 
-There are two options for runtimes in TypeScript:
-
-- Bun (with a [Nodejs](#nodejs) mode if needed)
-- [Deno](#deno)
-
 As we picked `TypeScript (Bun)` for this example, Windmill provided some TypeScript boilerplate. Let's take a look:
 
 ```typescript
@@ -252,7 +248,7 @@ The only thing you need to do is to select `TypeScript (Bun)` as the runtime and
 
 ![Nodejs Compatibility](./nodejs_compatibility.png 'Nodejs Compatibility')
 
-This method is an escape hatch for using another runtime (NodeJS), but it is slower than Deno and Bun since it resorts to Bun under the hood.
+This method is an escape hatch for using another runtime (NodeJS), but it is slower than Bun's default mode since it resorts to Bun under the hood.
 
 This feature is exclusive to [Cloud plans and Self-Hosted Enterprise edition](/pricing).
 
@@ -268,7 +264,10 @@ This is also exclusive to [Cloud plans and Self-Hosted Enterprise edition](/pric
 
 ### Deno
 
-You can also pick `TypeScript (Deno)` as the language instead of `TypeScript (Bun)`. The walkthrough is the same as with Bun ([above](#code)): a `main` function as entrypoint, an [auto-generated UI](../../../core_concepts/6_auto_generated_uis/index.mdx) from its signature, and [dependencies](../../../advanced/14_dependencies_in_typescript/index.mdx) resolved directly from imports. The differences with Bun are:
+Deno is no longer offered for new scripts, flow steps or app inline scripts; existing Deno scripts keep it, and we recommend migrating them to Bun.
+When self-hosting, Deno ships only in the `windmill-full` and `windmill-ee-full` images: run one on every [worker](../../../core_concepts/9_worker_groups/index.mdx#default-worker-group) that accepts the `deno` tag, or install Deno and set [`DENO_PATH`](../../../core_concepts/47_environment_variables/index.mdx).
+
+A Deno script follows the same structure as a Bun one ([above](#code)): a `main` function as entrypoint, an [auto-generated UI](../../../core_concepts/6_auto_generated_uis/index.mdx) from its signature, and dependencies resolved directly from imports. The differences with Bun are:
 
 - The resolution of imports is done by [Deno](https://deno.com/runtime), so npm imports use the `npm:` prefix (e.g. `import * as wmill from "npm:windmill-client@1.525.0"`), and `https://` and `jsr:` imports are also supported.
 - The Bun-specific [modes](#modes) (`//nobundling`, `//native`, `//nodejs`, `//npm`) do not apply.
