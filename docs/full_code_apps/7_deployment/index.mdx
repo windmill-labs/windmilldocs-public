@@ -79,7 +79,6 @@ guests: true
 ```
 
 [Guest apps](../../apps/13_guest_apps/index.mdx) require an identity, through a sign-in with the identity provider or a [JWT your own backend signs](../../apps/13_guest_apps/index.mdx#guest-jwt-for-embedded-apps), but no Windmill account and no workspace membership.
-Pushing `guests: true` does not by itself let anyone in: the workspace and instance guest switches are checked on every guest request.
 
 The rest of the execution policy is auto-generated at deployment time.
 
@@ -100,7 +99,7 @@ The execution policy is auto-generated at deployment time. It controls how backe
 | Mode | Description |
 |------|-------------|
 | `publisher` | Requires login and read access on the app. Runnables execute as the app publisher (the user who deployed the app), so users don't need direct permissions on the underlying scripts. This is the default. |
-| `guest` | An identity required, workspace membership not. Anyone with no Windmill account whom the identity provider authenticates, or a [guest JWT](../../apps/13_guest_apps/index.mdx#guest-jwt-for-embedded-apps) names, can open the app, and runnables execute as the app publisher. Only honored where the workspace and the instance admit [guests](../../apps/13_guest_apps/index.mdx). |
+| `guest` | An identity required, workspace membership not. Anyone with no Windmill account whom the identity provider authenticates, or a [guest JWT](../../apps/13_guest_apps/index.mdx#guest-jwt-for-embedded-apps) names, can open the app, and runnables execute as the app publisher. |
 | `anonymous` | No login required. Runnables still execute as the app publisher; unauthenticated callers appear as `anonymous`. This is the mode used by public apps. |
 | `viewer` | Requires login. Runnables execute with the permissions of the viewer themselves, for per-user access control. |
 
@@ -110,8 +109,7 @@ The `triggerables` and `triggerables_v2` fields map each runnable to its executi
 
 The execution policy decides who the backend runnables run as.
 [Sandbox isolation](../8_sandbox_isolation/index.mdx) is the separate, browser-side question: with it on, the app's bundle runs in an opaque-origin iframe and cannot reach the viewer's Windmill session.
-It is turned on from the app editor's Deploy panel and stored in the app's policy, which `wmill sync pull` writes into `raw_app.yaml` and `push` sends back.
-Unlike the rest of the policy it is not regenerated at deploy time, so a `raw_app.yaml` written by hand without that policy block turns isolation back off on the next push.
+It is set from the app editor's Deploy panel, or with the `sandbox` and `frontend_api` keys of `raw_app.yaml` (see the [CLI reference](../../advanced/3_cli/app.md#app-sandbox-isolation-and-frontend-api-access)).
 
 ## Versioning
 

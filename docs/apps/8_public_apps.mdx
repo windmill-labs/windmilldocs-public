@@ -19,7 +19,7 @@ When deployed, an app automatically has a secret public URL.
 Who the URL lets in is set from the Access control in the Deploy menu of the app editor:
 
 - Members: workspace members with [read access](../core_concepts/16_roles_and_permissions/index.mdx) on the app. This is the default, and a visitor who is not one is asked to log in.
-- Guests: the above, plus anyone with no Windmill account whom your identity provider authenticates or a [guest JWT](./13_guest_apps/index.mdx#guest-jwt-for-embedded-apps) names. They join no workspace and take no seat. See [guest apps](./13_guest_apps/index.mdx).
+- Guests: the above, plus anyone with no Windmill account whom your identity provider authenticates or a [guest JWT](./13_guest_apps/index.mdx#guest-jwt-for-embedded-apps) names. They join no workspace and take no seat, and are not available on the multi-tenant [Windmill Cloud](/pricing). See [guest apps](./13_guest_apps/index.mdx).
 - Public: anyone holding the secret URL, with no login at all.
 
 Widening an app to Guests or to Public can be reserved to workspace admins and bypass users with a [protection ruleset](../core_concepts/56_protection_rulesets/index.mdx).

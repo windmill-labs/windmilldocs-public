@@ -55,6 +55,8 @@ Each [run](../5_monitor_past_and_future_runs/index.mdx) will have a Worker group
 	/>
 </div>
 
+A script or flow with a [restricted job token](../59_user_tokens/index.mdx#restricted-job-tokens) does not run on its dedicated worker, even with the option enabled: its jobs go to the regular workers of its language.
+
 ## Multiple dedicated workers per worker group
 
 A worker group can be configured with multiple dedicated workers, allowing a single worker to be dedicated to several scripts or flows across workspaces. Instead of configuring a single `worker:path`, use the `dedicated_workers` array in the worker group configuration:

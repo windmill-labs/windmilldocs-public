@@ -130,6 +130,8 @@ To limit which of the server's tools the agent gets, use the tool filtering sett
 
 **Note**: Only HTTP streamable MCP servers are supported.
 
+To limit what a prompt-injected agent can do through its tools, [restrict the job token](../59_user_tokens/index.mdx#restricted-job-tokens) of the AI agent step, with a `resources:read` scope for its provider resource.
+
 ## Enabled tools
 
 The `enabled_tools` step input narrows which of the step's tools the agent can call in a run, so it costs no more than it needs.

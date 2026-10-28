@@ -14,10 +14,11 @@ The app's [runnables](../3_app-runnable-panel.mdx) execute on behalf of the publ
 Guest access sits between the two modes an app already had: a [public app](../8_public_apps.mdx) is open to anyone holding the URL, while a guest app admits a named identity, authenticated but with no account.
 Because a guest leaves no user row behind, they do not take a [seat](../../core_concepts/16_roles_and_permissions/index.mdx#users); they count against a separate [guest allowance](#seats-and-the-guest-allowance) instead.
 
-Guest access is off by default and is gated by three independent switches, all of which must be on for a guest to get in.
+No app admits guests until it is [set to Guests](#opening-an-app-to-guests), and on [Enterprise Edition](/pricing) a [protection ruleset](#restricting-who-may-open-an-app-to-guests) can reserve that to workspace admins.
+Guests require a self-hosted instance, Community Edition included, or a dedicated Windmill Cloud deployment: they are not available on the multi-tenant [Windmill Cloud](/pricing) at app.windmill.dev.
 
 A guest gets in one of two ways: by [signing in](#how-a-guest-signs-in) through the identity provider, or with a [JWT your own backend signs](#guest-jwt-for-embedded-apps), which needs no identity-provider round trip and so works inside an iframe where popups and third-party cookies do not.
-Both resolve to the same identity, under the same switches and the same allowance.
+Both resolve to the same identity, under the same app mode and the same allowance.
 
 ## Opening an app to guests
 
@@ -42,27 +43,14 @@ Setting an app back to Members closes it to the guests already holding a session
 
 ### Restricting who may open an app to guests
 
-On [Enterprise Edition](/pricing), widening an app to guests can be reserved to workspace admins and bypass users with the "Restrict guest app access" [protection ruleset](../../core_concepts/56_protection_rulesets/index.mdx#restrict-guest-app-access) rule.
+On Enterprise Edition, widening an app to guests can be reserved to workspace admins and bypass users with the "Restrict guest app access" [protection ruleset](../../core_concepts/56_protection_rulesets/index.mdx#restrict-guest-app-access) rule.
 Apps that already admit guests can still be redeployed under it.
 
-## Allowing guests in a workspace
+The rule is enforced server-side when an app is created or updated, so it also applies to an app pushed with `guests: true` through the [CLI](../../advanced/3_cli/index.mdx) or [git sync](../../advanced/11_git_sync/index.mdx).
 
-An app's `guest` mode is inert until a workspace admin turns guests on, under workspace settings > Advanced > Apps.
+### Who has opened guest apps
 
-![Workspace guest access setting](./workspace_guest_access.webp "The Guests card in workspace settings")
-
-The switch is read where a guest session is created and again on every request a guest makes, so turning it off stops every guest of the workspace on their next request, including sessions already issued.
-It is checked server-side rather than at deploy time only, because an app carries its access mode in its definition and the [CLI](../../advanced/3_cli/index.mdx) and [git sync](../../advanced/11_git_sync/index.mdx) can push `guest` past the UI.
-
-## Allowing guests on the instance
-
-Above the workspace switch sits a [superadmin](../../core_concepts/16_roles_and_permissions/index.mdx#superadmin) one, under instance settings > Users > Guests.
-
-![Instance guest settings](./instance_guests.webp "The Guests tab in instance settings")
-
-Turned off, no guest can get in anywhere on the instance whatever a workspace or an app says, whether they sign in or carry a JWT: apps stop offering a guest sign-in, and guests already in stop on their next request.
-
-The same tab lists the distinct guest emails of the trailing 30 days with the workspaces they opened and when they were first and last seen.
+[Superadmins](../../core_concepts/16_roles_and_permissions/index.mdx#superadmin) see the distinct guest emails of the trailing 30 days, with the workspaces they opened and when they were first and last seen, under instance settings > Users > Guests.
 See [instance settings](../../advanced/18_instance_settings/index.mdx#guests).
 
 ## How a guest signs in
@@ -76,7 +64,7 @@ A signed-out visitor opening the app URL is offered a sign-in card that says the
 
 The result is a browser session pinned to that workspace and scoped to that one app.
 It expires after 8 hours by default, configurable with the `GUEST_SESSION_VALIDITY_SECONDS` [environment variable](../../core_concepts/47_environment_variables/index.mdx).
-Expiry is the main revocation for a guest, alongside the app's own access mode and the workspace and instance switches; logging out ends the session too.
+Expiry is the main revocation for a guest, alongside the app's own access mode; logging out ends the session too.
 
 A guest becomes a member by signing in from the ordinary login page with the same identity, which provisions the account as any first sign-in would.
 From then on they are counted like any other user.
@@ -89,12 +77,12 @@ A guest can also enter through a JWT your own backend mints and signs, carried o
 This is the entry for an app embedded in your own product, where your users are already authenticated on your side: there is no sign-in card and no round trip to an identity provider.
 The token is verified on every request against a key the workspace holds, and nothing is stored, so there is no session to expire or log out of.
 
-The three switches above gate a JWT guest exactly as they gate a signed-in one, and the workspace needs a verification key on top of them.
+The app's mode gates a JWT guest exactly as it gates a signed-in one, and the workspace needs a verification key on top of it.
 Everything else is unchanged: the same confinement to one app, the same [allowance](#seats-and-the-guest-allowance), and the same refusal of anyone who already has a Windmill account.
 
 ### Configuring the verification key
 
-A workspace admin sets the key next to the guest switch, under workspace settings > Advanced > Apps, as one of:
+A workspace admin sets the key on the Guests card, under workspace settings > Advanced > Apps, as one of:
 
 - a PEM public key (`-----BEGIN PUBLIC KEY-----`), RSA or EC;
 - a JWKS URL, which must be `https` and publicly reachable.
@@ -106,8 +94,7 @@ A URL resolving into a private address range is refused too, and redirects are n
 
 Point the key at an issuer you control: any token it signs carrying the claims below is admitted as a guest, so an issuer shared with other tenants is not a good fit.
 
-On a self-hosted instance, a workspace that sets no key falls back to the instance's [external JWT](../../advanced/16_external_auth_with_jwt/index.mdx) issuer (`JWT_EXT_JWKS_URL`) when one is configured, so an operator running a single issuer configures it once.
-On Windmill Cloud, the per-workspace key is the only source.
+A workspace that sets no key falls back to the instance's [external JWT](../../advanced/16_external_auth_with_jwt/index.mdx) issuer (`JWT_EXT_JWKS_URL`) when one is configured, so an operator running a single issuer configures it once.
 
 ### What a token carries
 
@@ -148,19 +135,19 @@ export async function guestJwt(email: string) {
 Append the token to the app URL as a last `guest.<jwt>` segment, either on the secret public URL:
 
 ```text
-https://app.windmill.dev/public/my_workspace/<secret>/guest.<jwt>
+https://windmill.example.com/public/my_workspace/<secret>/guest.<jwt>
 ```
 
 or on the app's [custom URL](../8_public_apps.mdx#custom-url):
 
 ```text
-https://app.windmill.dev/a/<custom-path>/guest.<jwt>
+https://windmill.example.com/a/<custom-path>/guest.<jwt>
 ```
 
 Embedding it is a plain iframe on that URL:
 
 ```html
-<iframe src="https://app.windmill.dev/public/my_workspace/<secret>/guest.<jwt>" title="Windmill app" width="100%" height="600"></iframe>
+<iframe src="https://windmill.example.com/public/my_workspace/<secret>/guest.<jwt>" title="Windmill app" width="100%" height="600"></iframe>
 ```
 
 The Deploy menu of an app set to Guests generates that snippet for you, pre-filled with the app's workspace and path.
@@ -169,13 +156,13 @@ To call the API directly rather than open the app, pass the token as a bearer pr
 
 ```bash
 curl -H "Authorization: Bearer jwt_guest_<jwt>" \
-  https://app.windmill.dev/api/w/my_workspace/apps/get/p/f/my_folder/my_app
+  https://windmill.example.com/api/w/my_workspace/apps/get/p/f/my_folder/my_app
 ```
 
 ### Expiry and revocation
 
 A JWT guest holds no session row, so `exp` is what ends their access: mint a short-lived token per user session.
-The workspace and instance switches are read on every request a guest makes, JWT or not, so turning either off stops a JWT guest on their next request, as it does a signed-in one.
+The app's mode is read on every request a guest makes, JWT or not, so setting the app back to Members stops a JWT guest on their next request, as it does a signed-in one.
 Rotating or clearing the key takes a few minutes longer: a token that verified is resolved from a cache for up to 5 minutes before it is verified again.
 A token an app derives for itself, such as the one a sandboxed [full-code app](../../full_code_apps/index.mdx) uses to call the API, never outlives the JWT it came from.
 
@@ -235,7 +222,7 @@ guests: true   # guest: an identity required, membership not
 
 A [pull](../../advanced/3_cli/sync.mdx) followed by a push round-trips the mode, so an app open to guests stays open to guests through git sync.
 
-Pushing `guests: true` does not by itself let anyone in: the workspace and instance switches are read every time a guest session is created and on every request a guest makes.
+Pushing `guests: true` opens the app to guests as it would from the editor, and is refused where a [protection ruleset](#restricting-who-may-open-an-app-to-guests) reserves that to admins.
 
 <div className="grid grid-cols-2 gap-6 mb-4">
 	<DocCard

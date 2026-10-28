@@ -132,7 +132,7 @@ The token also includes custom claims provided by Windmill. To see the full list
 - `root_trigger_kind`, `root_trigger`: how the root job was started (e.g. `schedule`, `webhook`, `http`) and by what, `null` when none was recorded, e.g. for a run started through the API. See [what `root_trigger` holds](#what-root_trigger-holds).
 - `tag`, `worker_group`: the job's [worker tag](../9_worker_groups/index.mdx) and the worker group of the worker running it. Windmill records them, the worker does not attest them: whoever can start a worker under a group name or deploy code with a tag sets them.
 - `run_as_type`: what `email` names: `user`, `service_account`, `group` or `non_member` (a superadmin outside the workspace, a built-in identity or a removed user)
-- `job_token_scopes`: the scopes of a [restricted job token](../59_user_tokens/index.mdx#restricted-job-tokens), e.g. `["oidc:write"]`, absent when the job token is unrestricted
+- `job_token_scopes`: the scopes of the [restricted job token](../59_user_tokens/index.mdx#restricted-job-tokens) that requested the token, e.g. `["oidc:write"]`, absent when it is unrestricted. It reflects the token the job holds, not the script or flow setting, so a policy requiring it rejects a job whose token was minted without the restriction.
 - `jti`: a unique id per token, to refuse a token presented twice
 
 The following example token was requested with the audience `sts.amazonaws.com` from the script `u/admin/ambitious_script` in the `foobar` workspace:

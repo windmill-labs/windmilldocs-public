@@ -185,6 +185,10 @@ Jobs within a same job queue can be given a [priority](../core_concepts/20_jobs/
 
 When this [option](../core_concepts/5_monitor_past_and_future_runs/index.mdx#invisible-runs) is enabled, manual [executions](../core_concepts/5_monitor_past_and_future_runs/index.mdx) of this script are invisible to users other than the user running it, including the [owner(s)](../core_concepts/16_roles_and_permissions/index.mdx). This setting can be overridden when this script is run manually from the advanced menu (available when the script is [deployed](../core_concepts/0_draft_and_deploy/index.mdx)).
 
+### Job token
+
+Limit what the script's `WM_TOKEN` can do through the API: see [restricted job tokens](../core_concepts/59_user_tokens/index.mdx#restricted-job-tokens).
+
 ## Generated UI
 
 main function's arguments can be given advanced settings that will affect the inputs' [auto-generated UI](../core_concepts/6_auto_generated_uis/index.mdx) and [JSON Schema](../core_concepts/13_json_schema_and_parsing/index.mdx).

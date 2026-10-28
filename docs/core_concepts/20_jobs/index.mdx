@@ -422,6 +422,7 @@ From the API, call `POST /api/w/{workspace}/jobs/queue/run_now/{id}`.
 ## Canceling a job
 
 A job can be canceled from its [run page](../5_monitor_past_and_future_runs/index.mdx#details-per-run), from the runs page, or with `POST /api/w/{workspace}/jobs_u/queue/cancel/{id}`.
+A [token](../59_user_tokens/index.mdx#resource-path-patterns) scoped to `jobs:cancel` can cancel jobs and do nothing else.
 
 - Queued job: it is completed as canceled without running.
 - Running job, cancel: it keeps running until its worker notices, then the worker stops its process and completes it as canceled.

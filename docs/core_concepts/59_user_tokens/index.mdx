@@ -44,7 +44,7 @@ By default, tokens inherit the full permissions of the user who created them. By
 
 ![Scope selector](./scope_selector.png 'Scope selector')
 
-Selected scopes appear as badges at the top of the selector. Each domain (Jobs, Scripts, Flows, etc.) can be expanded to configure `Read`, `Write`, or `Run` permissions. Use the **Restrict paths** button to limit a scope to specific resource paths.
+Selected scopes appear as badges at the top of the selector. Each domain (Jobs, Scripts, Flows, etc.) can be expanded to configure `Read`, `Write`, or `Run` permissions, and Jobs also has `Cancel`. Use the **Restrict paths** button to limit a scope to specific resource paths.
 
 ### Scope format
 
@@ -55,7 +55,7 @@ Scopes follow the format:
 ```
 
 - **domain**: the resource category (e.g. `scripts`, `flows`, `jobs`, `resources`)
-- **action**: `read`, `write`, or `run` (for jobs)
+- **action**: `read`, `write`, or, for jobs, `run` and `cancel`
 - **resource_path** (optional): restrict access to specific paths, with wildcard support
 
 Examples:
@@ -68,15 +68,16 @@ Examples:
 | `jobs:run:flows` | Run any flow |
 | `jobs:read:f/production/*` | Read the runs of the scripts, flows and AI agents in the `f/production/` folder |
 | `jobs:run:dependencies:f/production/*` | Generate dependency locks for scripts, flows and apps in `f/production/` |
+| `jobs:cancel:f/production/*` | Cancel the runs in the `f/production/` folder, and nothing else |
 | `resources:read:u/user/*` | Read resources owned by `u/user/` |
 
 A `write` scope automatically includes `read` access for the same domain and resource.
 
 ### Available scope domains
 
-All domains support `read` and `write` actions. The **Jobs** domain additionally supports `run:scripts`, `run:flows` and `run:dependencies` (shown as **Generate dependency locks** in the selector).
+All domains support `read` and `write` actions. The **Jobs** domain additionally supports `run:scripts`, `run:flows`, `run:dependencies` (shown as **Generate dependency locks** in the selector) and `cancel`.
 
-Domains with path restriction support: `scripts`, `flows`, `apps`, `raw_apps`, `resources`, `variables`, `schedules`, `folders`, `jobs` (for read and run), and all trigger types (`http_triggers`, `websocket_triggers`, `kafka_triggers`, `nats_triggers`, `mqtt_triggers`, `sqs_triggers`, `gcp_triggers`, `postgres_triggers`).
+Domains with path restriction support: `scripts`, `flows`, `apps`, `raw_apps`, `resources`, `variables`, `schedules`, `folders`, `jobs` (for read, run and cancel), and all trigger types (`http_triggers`, `websocket_triggers`, `kafka_triggers`, `nats_triggers`, `mqtt_triggers`, `sqs_triggers`, `gcp_triggers`, `postgres_triggers`).
 
 Domains without path restriction: `users`, `groups`, `workspaces`, `audit`, `workers`, `settings`, `service_logs`, `configs`, `oauth`, `ai`, `agent_workers`, `drafts`, `favorites`, `inputs`, `job_helpers`, `openapi`, `capture`, `concurrency_groups`, `oidc`, `acls`, `indexer`, `teams`, `git_sync`.
 
@@ -96,6 +97,8 @@ Multiple paths can be combined with commas: `scripts:read:f/production/*,f/stagi
 Since Windmill 1.825.0, a `jobs:read` scope with paths only reads the runs of the deployed scripts, flows and [AI agents](../54_ai_agents/index.mdx) at those paths and the jobs started under them, such as the steps of a flow; any other job answers `404`.
 The job lists return only the top-level script and flow runs at those paths, and the job routes that aggregate over the workspace or issue a link or token for a job are refused with a `403`.
 Previews are not readable, and a token that also holds `jobs:write` is not restricted.
+
+`jobs:cancel` grants [canceling jobs](../20_jobs/index.mdx#canceling-a-job), force cancel included, and no read or other job write; with paths it matches jobs the same way as `jobs:read`.
 
 ### HTTP triggers and tokens
 
@@ -149,11 +152,23 @@ Within Windmill scripts, an ephemeral token for the current job is available as 
 
 ### Restricted job tokens
 
-By default, `WM_TOKEN` has the full permissions of the identity the job runs as. A script, a flow or a flow step can restrict it instead: in its settings, under **Job token**, pick **Restrict the job token** and select the [scopes](#token-scopes) its jobs keep. With no scope selected, the token can only reach its own job (its result, logs and progress). A job started by a restricted job never gets a wider token than the job that started it.
+By default, `WM_TOKEN` has the full permissions of the identity the job runs as.
+For code that handles untrusted input, such as an [AI agent](../54_ai_agents/index.mdx), toggle **Restrict the job token** in the settings of the script, flow or flow step and select the [scopes](#token-scopes) its jobs keep.
+In `script.yaml`, `flow.yaml` or a flow step, this is the `job_token_scopes` key, e.g. `job_token_scopes: ["oidc:write"]` to only allow minting an [OIDC token](../29_oidc/index.mdx); with no scope (`[]`), the token can only reach its own job.
 
-Saving a restriction is refused while a worker older than 1.822.0 is connected, since such a worker ignores the setting and gives the job an unrestricted token. That check only counts workers that reported in the last few minutes: it does not see servers, nor a worker that connects later, so keep every worker and server of an instance that uses restricted job tokens on 1.822.0 or later.
+Jobs created by a restricted job (flow steps, AI agent tools, [workflow as code](../31_workflows_as_code/index.mdx) children, and jobs it starts through the API) keep only the scopes both it and their own setting allow, so a step setting can only narrow its flow's.
+Schedules, triggers and error handlers apply only the target's own setting.
 
-A consumer of [OIDC tokens](../29_oidc/index.mdx#token-payload-reference) can check the restriction with the `job_token_scopes` claim.
+Everything the job fetches through Windmill needs a scope: `variables:read` and `resources:read` for `$var:`/`$res:` inputs and an AI agent's provider resource, `scripts:read` for relative imports, `resources:write` for script state, `job_helpers:read`/`write` for [object storage](../38_object_storage_in_windmill/index.mdx).
+`mcp:` scopes are refused.
+
+:::warning
+
+A `write` scope on scripts, flows, schedules or triggers lets a job escape its restriction by deploying something that runs unrestricted.
+The editor's **Test** button does not apply the script or flow setting, and a restricted job never runs on a [dedicated worker](../25_dedicated_workers/index.mdx).
+Keep every worker and server on 1.822.0 or later: an older worker ignores the setting, which an OIDC consumer can detect with the [`job_token_scopes` claim](../29_oidc/index.mdx#token-payload-reference).
+
+:::
 
 ## Maximum token expiration
 

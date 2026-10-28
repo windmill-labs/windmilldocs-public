@@ -38,8 +38,8 @@ wmill app push ./my_app.json
 
 ## App access mode
 
-The access mode is the one policy field a tracked app file keeps: `app.yaml` for [low-code apps](../../apps/0_app_editor/index.mdx), `raw_app.yaml` for [full-code apps](../../full_code_apps/index.mdx).
-Everything else in the policy is regenerated on push.
+A tracked app file states who can open the app: `app.yaml` for [low-code apps](../../apps/0_app_editor/index.mdx), `raw_app.yaml` for [full-code apps](../../full_code_apps/index.mdx).
+It can also declare [sandbox isolation](#app-sandbox-isolation-and-frontend-api-access).
 
 It is a tri-state:
 
@@ -51,8 +51,22 @@ guests: true   # guest: an identity required, Windmill account not
 
 A pull followed by a push round-trips the mode, so an app open to [guests](../../apps/13_guest_apps/index.mdx) stays open to guests through [git sync](../11_git_sync/index.mdx).
 
-Pushing `guests: true` does not by itself let anyone in: guest access is also gated by a workspace switch and an instance switch, both read on every guest request.
 Opening an app to guests or to the public can additionally be restricted to workspace admins and bypass users by a [protection ruleset](../../core_concepts/56_protection_rulesets/index.mdx), which applies to the CLI as it does to the UI.
+
+## App sandbox isolation and frontend API access
+
+A tracked app file can declare [sandbox isolation](../../full_code_apps/8_sandbox_isolation/index.mdx) and, in `raw_app.yaml` only, the [frontend API scopes](../../full_code_apps/8_sandbox_isolation/index.mdx#frontend-api-access) viewers are asked to approve:
+
+```yaml
+sandbox: true
+frontend_api: [jobs:run, users:read]
+```
+
+The scopes are `jobs:run`, `jobs:read`, `users:read`, `resources:read`, `variables:read`, `flow_conversations:read` and `flow_conversations:write`, and `frontend_api` requires `sandbox: true`.
+
+With a `sandbox` key, the file wins on push: `sandbox: false` turns isolation off, and a missing `frontend_api` means no scopes.
+Without one, an existing app keeps the isolation and scopes it is deployed with, so deleting `sandbox: true` does not unsandbox an app.
+A pull writes both keys when they are on.
 
 ## Full-code app commands
 

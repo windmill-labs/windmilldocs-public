@@ -49,9 +49,6 @@ The Guests tab, next to Users, lists the [guests](../../core_concepts/16_roles_a
 For each one you see their email, the workspaces they opened and when they were first and last seen.
 One email is one guest, however many workspaces they opened.
 
-Above the list, 'Allow guests on this instance' is the superadmin switch every workspace switch sits under.
-Turned off, no guest can sign in anywhere on the instance whatever a workspace or an app says, apps stop offering a guest sign-in, and sessions already issued stop on their next request.
-
 The tab also reports the instance's standing against the guest allowance: the first 100 distinct guest emails over 30 days are free, and past that an instance holding an [Enterprise Edition](/pricing) license meters them at four guests to one seat while an instance without one admits no new guest email until the count drops back under 100.
 
 <div className="grid grid-cols-2 gap-6 mb-4">
@@ -715,7 +712,7 @@ The following information is collected:
 - job usage (language, total duration, count)
 - login type usage (login type, count)
 - worker usage (worker, worker instance, vCPUs, memory)
-- user usage (builder count, non-builder count, the distinct guests of the last 30 days, the seats they add past the free allowance, and the workspaces that allow guests)
+- user usage (builder count, non-builder count, the distinct guests of the last 30 days, the seats they add past the free allowance, and the workspaces with an app set to Guests)
 - development instance status
 
 Telemetry can be fully disabled from the instance settings using the "Disable telemetry" toggle.
@@ -729,7 +726,7 @@ When minimal telemetry is enabled, the following is sent:
 - instance base URL
 - login type usage (login type, count)
 - worker usage (worker, worker instance, vCPUs, memory)
-- user usage (builder count, non-builder count, the distinct guests of the last 30 days, the seats they add past the free allowance, and the workspaces that allow guests)
+- user usage (builder count, non-builder count, the distinct guests of the last 30 days, the seats they add past the free allowance, and the workspaces with an app set to Guests)
 - superadmin email address (one per instance)
 - development instance status
 
