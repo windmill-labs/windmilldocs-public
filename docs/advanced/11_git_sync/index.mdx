@@ -246,6 +246,43 @@ Merge queues are not supported: a merge group commit exists in no workspace, so 
 
 When a commit on the tracked branch is deployed by automatic sync, Windmill posts a "Windmill" check run on that commit that flips from "Deploying…" to "Deployed N changes", with a link back to the Windmill run. When several workspaces sync the same repository, each check is titled with its target workspace. Windmill posts no deploy status on GitLab.
 
+### AI review of pull requests
+
+Pull requests against the tracked branch can get the same [AI review](../20_workspace_forks/index.mdx#ai-review) as deployment requests, following the `ai_review_instruction` resources on the tracked branch: a pull request that edits one does not change its own review.
+Pull requests from forks of the repository are not reviewed.
+
+On the instance, turn on "Review pull requests with AI" under "Pull from Git (Git → Windmill)" on the repository card. This is an [Enterprise Edition](/pricing) feature.
+It needs the [GitHub App](../../integrations/git_repository.mdx#github-app) or a [GitLab project access token](../../integrations/git_repository.mdx#gitlab), [automatic sync from Git](#automatic-sync-from-git) over a webhook (not [polling](#polling)), and a default model in the workspace AI settings.
+Windmill reviews each pull request as a job on your workers whenever it is opened or pushed to, and posts findings on the diff lines on GitHub, or in a single merge request note on GitLab.
+
+From your own CI, run the [CLI](../3_cli/index.mdx) command `wmill review`. It needs no AI provider key, only a Windmill token of a workspace member:
+
+```yaml
+# .github/workflows/ai-review.yaml
+on: pull_request
+permissions:
+  contents: read
+  pull-requests: write
+jobs:
+  ai-review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - run: >
+          npx -y windmill-cli review --post github
+          --base-url ${{ vars.WMILL_URL }}
+          --workspace ${{ vars.WMILL_WORKSPACE }}
+          --token ${{ secrets.WMILL_TOKEN }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+```
+
+`--base-url`, `--workspace` and `--token` are required, since the command ignores `wmill.yaml` and local profiles.
+`--fail-on high|medium|low` exits with code 1 on a finding at least that severe, to make the review a gating check; `wmill review --help` lists the other options.
+With `--post github`, each head commit is reviewed once, even with the instance toggle also on.
+
 ## Setup - CI/CD from git repository
 
 As an alternative to [automatic sync from Git](#automatic-sync-from-git), CI/CD can be configured to sync back changes to Windmill anytime a commit is made. This is the way to go for git hosting platforms other than GitHub and GitLab, for repositories whose credential Windmill does not hold, or when you prefer running the sync from your own CI. Keep either the CI/CD action or automatic sync enabled, not both, so they don't fight over deploys.

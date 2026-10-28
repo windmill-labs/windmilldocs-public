@@ -64,7 +64,7 @@ Beyond repository contents (read and write), which powers the push direction of 
 | Permission (read and write) | What it enables |
 | --------------------------- | --------------- |
 | Repository webhooks | Register a webhook per synced repository so commits deploy to your Windmill workspace instantly ([automatic sync from Git](../advanced/11_git_sync/index.mdx#automatic-sync-from-git)) |
-| Pull requests | Open pull requests for branches Windmill pushes (promotion `wm_deploy/**` and fork `wm-fork/**` branches, see [in-app pull request creation](../advanced/11_git_sync/index.mdx#in-app-pull-request-creation)) and maintain a deploy-preview comment on your pull requests |
+| Pull requests | Open pull requests for branches Windmill pushes (promotion `wm_deploy/**` and fork `wm-fork/**` branches, see [in-app pull request creation](../advanced/11_git_sync/index.mdx#in-app-pull-request-creation)) maintain a deploy-preview comment on your pull requests, and post the [AI review](../advanced/11_git_sync/index.mdx#ai-review-of-pull-requests) of each pull request |
 | Checks | Post a "Windmill diff" check on pull requests showing what merging would deploy, a ["Windmill CI tests" check](../advanced/11_git_sync/index.mdx#ci-tests-check) reporting the CI test results of fork pull requests, and a [deploy status check](../advanced/11_git_sync/index.mdx#deploy-status-check) on synced commits |
 
 All of these features are opt-in from the workspace Git sync settings. If your organization has not approved the permissions yet, every feature degrades gracefully: automatic sync falls back to polling and upgrades to webhooks automatically once the webhooks permission is granted, and a failed pull request creation is surfaced on the repository card.
@@ -181,6 +181,7 @@ A group access token is always rejected without an expiry.
 | Instant pull | Maintainer, so Windmill can create the project hook, and a Windmill base URL GitLab can reach. Falls back to polling about every minute |
 | Merge requests on deploy | Developer, plus the `api` scope |
 | Diff preview on a merge request | The project hook, plus permission to post merge request notes |
+| AI review of a merge request | The project hook, plus permission to post merge request notes |
 
 ### Self-managed GitLab
 

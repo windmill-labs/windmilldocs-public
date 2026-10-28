@@ -232,6 +232,28 @@ An item that exists only in the target is listed as `Removes in target`: deployi
 
 {/* TODO: screenshot of the Compare & Deploy header with the destination badge open on the target picker, and the merge card showing "Diff computed <date>", the Recompute button and the one-way banner. */}
 
+#### AI review
+
+When [AI](../../core_concepts/22_ai_generation/index.mdx) is configured in the workspace, `Review with AI` has the workspace's model review the fork's changes before they reach the parent, and returns findings tagged `high`, `medium` or `low`, each naming the item it is about.
+When the workspace has more than one model, a picker next to the button chooses the one used for this review.
+
+The review is available:
+
+- Next to `Deploy`, on the items currently selected, without opening a request.
+- In the `Request deployment` form, before you send the request to its assignees (admins or members of `wm_deployers` in the parent).
+- On an open deployment request, where reviewers can `Post as comment` (or `Post all as comments`). A posted finding is a regular comment by you, anchored to the item it names, and is marked obsolete when that item changes.
+
+`Fix in AI session` opens an [AI session](../../core_concepts/69_ai_sessions/index.mdx) in the fork with the finding as its first prompt, and `Fix all in AI session` sends the whole list.
+Findings are not saved: they disappear when you leave the page.
+Variable and resource values are never sent to the model, and those items, like items too large to fit, are reviewed by name only.
+
+To give the review your own rules, create a [resource](../../core_concepts/3_resources_and_types/index.mdx) of type `ai_review_instruction` in the parent workspace, with the instructions as markdown.
+One at `f/billing/REVIEW` applies whenever the changes touch an item under `f/billing/`, and a nested folder's instructions take precedence over its parent's.
+Instructions are always read from the parent workspace, never the fork, and only those the user running the review can read are applied, so write access on a folder lets you steer the review of every change under it.
+They are a request to the model, not an enforced check.
+
+The same review can run on [git sync](../11_git_sync/index.mdx#ai-review-of-pull-requests) pull requests.
+
 ### Git sync based merging
 
 When git sync is properly setup, the workspace is synchronized with one of the branches in your repo, and the forks are also synchronized with their own branches. It is then possible your preferred git workflow to merge into or out of these branches to sync, so you can update the fork, or deploy changes into the parent workspace.

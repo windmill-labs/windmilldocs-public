@@ -75,6 +75,10 @@ wmill docs "what are resources?" --json | jq .answer
 
 Documentation search is an [Enterprise Edition](/pricing) feature — on a Community Edition instance, the command prints a message indicating EE is required.
 
+## `wmill review`
+
+`wmill review` runs the workspace's [AI review on a git sync pull request](../11_git_sync/index.mdx#ai-review-of-pull-requests) and can post its findings on GitHub.
+
 ## `wmill digest`
 
 `wmill digest` prints the content digest of local scripts and flows, the value job [OIDC tokens](../../core_concepts/29_oidc/index.mdx#pin-code-with-digests) carry in their `digest` and `root_digest` claims.
