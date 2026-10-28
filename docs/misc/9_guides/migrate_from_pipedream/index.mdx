@@ -1,0 +1,129 @@
+---
+title: Migrate from Pipedream
+description: Move your Pipedream workflows to Windmill before Workflows shuts down on March 31, 2027, by having your AI coding agent rebuild each one as a flow.
+---
+
+import DocCard from '@site/src/components/DocCard';
+
+# Migrate from Pipedream
+
+Pipedream [is shutting down Workflows on March 31, 2027](https://pipedream.com/docs/workflows), and deletes all Workflows data on April 30, 2027.
+This guide moves your workflows to Windmill.
+Your AI coding agent (Claude Code, Codex or Cursor) reads Pipedream's export and rebuilds each workflow as a Windmill [flow](../../../flows/1_flow_editor.mdx), with its [HTTP route](../../../triggers/2_http_routing/index.mdx) or [schedule](../../../core_concepts/1_scheduling/index.mdx).
+It works the same on Windmill Cloud and on a self-hosted instance.
+
+You don't need a Windmill account to start.
+The agent converts your export on your machine first, so you see your own workflows as Windmill flows before you sign up.
+It follows [`migrate-from-pipedream`](https://gist.github.com/alpetric/efdac7864d43526d52a4df0ca5f2de18), a skill the agent downloads into your project.
+The skill builds on the general [AI skills](../local_dev_with_ai/index.mdx) that the [Windmill CLI](../../../advanced/3_cli/index.mdx) installs.
+The skill maps each Pipedream concept to its Windmill equivalent, tracks what the export leaves out, and previews every flow before anything is deployed.
+
+## 1. Export your Pipedream projects
+
+Pipedream exports one project at a time:
+
+1. Open the project in the Pipedream dashboard and select **Settings**.
+2. Click **Export Workflows**.
+3. When the export finishes, download `project_export-<project_id>.zip` from the project's **File Store**.
+
+Your Pipedream plan must include File Stores.
+One export holds up to 500 workflows or 256 MB.
+See [Pipedream's export documentation](https://pipedream.com/docs/workflows/export-workflows) for details.
+
+## 2. Give your agent one prompt
+
+Put the export ZIP in an empty folder, open that folder in Claude Code, Codex or Cursor, and paste:
+
+```text
+Pipedream Workflows is shutting down. Migrate my Pipedream export to Windmill:
+1. Download https://gist.githubusercontent.com/alpetric/efdac7864d43526d52a4df0ca5f2de18/raw/SKILL.md
+   to .claude/skills/migrate-from-pipedream/SKILL.md and .agents/skills/migrate-from-pipedream/SKILL.md.
+2. If this folder has no wmill.yaml, run `npx -y windmill-cli@latest init --use-default`.
+3. Read that skill and follow it to migrate ./project_export-<project_id>.zip.
+Don't deploy anything until I've reviewed it.
+```
+
+All you need installed is [Node.js](https://nodejs.org), for `npx`.
+The agent then:
+
+1. Adds the migration skill and sets up a local Windmill project with the CLI, which needs no account.
+2. Reads the export's manifest and writes `pipedream_migration.md`, a checklist covering every workflow: its triggers, its steps, the accounts and secrets it needs, and anything that can't convert automatically.
+3. Asks you which folder to use, which workflows to migrate, and which credentials you'll connect.
+4. Rebuilds each workflow as a flow.
+   Code steps become plain Windmill scripts in the same language (TypeScript, Python, Go or Bash).
+   If/else, switch and parallel blocks become branches, and `$.flow.exit`, `$.respond` and pre-built actions get their Windmill equivalents.
+
+## 3. Connect a workspace and preview
+
+To run the converted flows, you need a Windmill workspace: [sign up for Windmill Cloud](https://app.windmill.dev/user/login), or [self-host Windmill](../../../advanced/1_self_host/index.mdx).
+The agent then asks you to connect it from your own terminal:
+
+```bash
+npx windmill-cli workspace add
+```
+
+Choose the browser login.
+The agent then previews each flow with a sample event and fixes what fails.
+A preview deploys nothing.
+
+If you already use Windmill, run the same prompt in your synced workspace folder.
+The agent then skips the setup and converts into your existing project.
+
+## 4. Fill in what the export leaves out
+
+The export holds the structure of your workflows, not their credentials or data.
+The checklist lists, for each workflow, what to bring over yourself:
+
+| Not in the export | Where it goes in Windmill |
+|---|---|
+| Connected accounts (only an internal Pipedream account id remains) | [Resources](../../../core_concepts/3_resources_and_types/index.mdx): connect the app again |
+| Secret props and environment variables | [Variables and secrets](../../../core_concepts/2_variables_and_secrets/index.mdx) |
+| Data store contents | Script state for a value one step keeps, such as a cursor, or a [data table](../../../core_concepts/11_persistent_storage/data_tables.mdx) for a store several workflows share. Either way, copy the data out of Pipedream |
+| File Store files | [Workspace object storage](../../../core_concepts/38_object_storage_in_windmill/index.mdx) |
+| Code of private components | Your own copy of the component source |
+
+Copy data and secrets out of Pipedream before April 30, 2027, when it deletes them.
+
+## 5. Review, deploy and switch over
+
+1. Review the flows in `f/<your folder>/` and the checklist.
+2. Deploy the folder with its routes and schedules: `wmill sync push --includes 'f/<your folder>/**' --include-triggers --include-schedules`.
+   Schedules are created disabled, so the migrated copy doesn't run alongside Pipedream.
+3. Repoint each caller of a Pipedream endpoint URL to the flow's new HTTP route, enable the schedules, and turn off the Pipedream workflow.
+
+## How Pipedream concepts map to Windmill
+
+| Pipedream | Windmill |
+|---|---|
+| Workflow | [Flow](../../../flows/1_flow_editor.mdx) |
+| Code step (Node.js, Python, Go, Bash) | Script step in the same language |
+| HTTP trigger | [HTTP route](../../../triggers/2_http_routing/index.mdx), with a [preprocessor](../../../core_concepts/43_preprocessors/index.mdx) that rebuilds `steps.trigger.event` |
+| Schedule trigger | [Schedule](../../../core_concepts/1_scheduling/index.mdx) |
+| Email trigger | [Email trigger](../../../triggers/1_email_triggers/index.mdx) |
+| `$.respond()` | A step returning a [custom status code, headers and body](../../../core_concepts/4_webhooks/index.mdx#custom-response-code), or the flow's early return when the workflow keeps running after responding |
+| `$.flow.exit()` / End workflow | [Early stop](../../../flows/2_early_stop.md) |
+| If/else, switch | [Branch one](../../../flows/13_flow_branches.md) |
+| Parallel | [Branch all](../../../flows/13_flow_branches.md), run in parallel |
+| Delay | [Sleep](../../../flows/15_sleep.md) |
+| Auto-retry | [Retries](../../../flows/14_retries.md) |
+| Concurrency and throttling | [Concurrency limits](../../../flows/6_concurrency_limit.mdx) |
+| Connected account | [Resource](../../../core_concepts/3_resources_and_types/index.mdx) |
+| Environment variable | [Variable](../../../core_concepts/2_variables_and_secrets/index.mdx) |
+
+## Getting help
+
+If part of your export doesn't convert, or a migrated flow behaves differently from its Pipedream original, ask us on [Discord](https://discord.com/invite/V7PM2YHsPB) or email [contact@windmill.dev](mailto:contact@windmill.dev).
+Include the workflow's entry from `pipedream_migration.md`.
+
+<div className="grid grid-cols-2 gap-6 mb-4">
+	<DocCard
+		title="Local development with AI"
+		description="Use Claude Code, Codex or Cursor with the Windmill CLI's skills."
+		href="/docs/misc/guides/local_dev_with_ai"
+	/>
+	<DocCard
+		title="Windmill CLI"
+		description="Install the CLI and sync a workspace to a local folder."
+		href="/docs/advanced/cli"
+	/>
+</div>
