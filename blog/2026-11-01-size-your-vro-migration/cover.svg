@@ -1,0 +1,95 @@
+<svg viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Deep navy gradient, top-left to bottom-right -->
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0b1220" />
+      <stop offset="35%" stop-color="#0f1c33" />
+      <stop offset="100%" stop-color="#1E3A8A" stop-opacity="0.55" />
+    </linearGradient>
+    <!-- Soft radial glow anchored bottom-left, large spread -->
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#1E3A8A" stop-opacity="0.55" />
+      <stop offset="60%" stop-color="#1E3A8A" stop-opacity="0.22" />
+      <stop offset="100%" stop-color="#1E3A8A" stop-opacity="0" />
+    </radialGradient>
+    <!-- Ring stroke gradient for depth -->
+    <linearGradient id="ring" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#60a5fa" />
+      <stop offset="100%" stop-color="#1E3A8A" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)" />
+
+  <!-- Faint grid for texture (very subtle, keep elegant) -->
+  <g stroke="#1E3A8A" stroke-width="0.5" opacity="0.10">
+    <line x1="0" y1="157" x2="1200" y2="157" />
+    <line x1="0" y1="315" x2="1200" y2="315" />
+    <line x1="0" y1="472" x2="1200" y2="472" />
+    <line x1="400" y1="0" x2="400" y2="630" />
+    <line x1="800" y1="0" x2="800" y2="630" />
+  </g>
+
+  <!-- Large light-blue glow sweeping from the bottom-left -->
+  <ellipse cx="220" cy="640" rx="720" ry="560" fill="url(#glow)" />
+  <!-- Glow behind illustration -->
+  <ellipse cx="905" cy="315" rx="320" ry="320" fill="url(#glow)" />
+
+  <!-- Tall stack of workflow cards shrinking to a short stack -->
+  <rect x="740" y="120" width="140" height="26" rx="6" fill="#1E3A8A" fill-opacity="0.18" stroke="url(#ring)" stroke-opacity="0.45" stroke-width="1.5"/>
+  <rect x="754" y="130" width="48" height="6" rx="3" fill="#60a5fa" fill-opacity="0.35"/>
+  <rect x="740" y="156" width="140" height="26" rx="6" fill="#1E3A8A" fill-opacity="0.20" stroke="url(#ring)" stroke-opacity="0.45" stroke-width="1.5"/>
+  <rect x="754" y="166" width="77" height="6" rx="3" fill="#60a5fa" fill-opacity="0.35"/>
+  <rect x="740" y="192" width="140" height="26" rx="6" fill="#1E3A8A" fill-opacity="0.22" stroke="url(#ring)" stroke-opacity="0.45" stroke-width="1.5"/>
+  <rect x="754" y="202" width="51" height="6" rx="3" fill="#60a5fa" fill-opacity="0.35"/>
+  <rect x="740" y="228" width="140" height="26" rx="6" fill="#1E3A8A" fill-opacity="0.24" stroke="url(#ring)" stroke-opacity="0.45" stroke-width="1.5"/>
+  <rect x="754" y="238" width="80" height="6" rx="3" fill="#60a5fa" fill-opacity="0.35"/>
+  <rect x="740" y="264" width="140" height="26" rx="6" fill="#1E3A8A" fill-opacity="0.26" stroke="url(#ring)" stroke-opacity="0.45" stroke-width="1.5"/>
+  <rect x="754" y="274" width="54" height="6" rx="3" fill="#60a5fa" fill-opacity="0.35"/>
+  <rect x="740" y="300" width="140" height="26" rx="6" fill="#1E3A8A" fill-opacity="0.28" stroke="url(#ring)" stroke-opacity="0.45" stroke-width="1.5"/>
+  <rect x="754" y="310" width="84" height="6" rx="3" fill="#60a5fa" fill-opacity="0.35"/>
+  <rect x="740" y="336" width="140" height="26" rx="6" fill="#1E3A8A" fill-opacity="0.30" stroke="url(#ring)" stroke-opacity="0.45" stroke-width="1.5"/>
+  <rect x="754" y="346" width="57" height="6" rx="3" fill="#60a5fa" fill-opacity="0.35"/>
+  <rect x="740" y="372" width="140" height="26" rx="6" fill="#1E3A8A" fill-opacity="0.32" stroke="url(#ring)" stroke-opacity="0.45" stroke-width="1.5"/>
+  <rect x="754" y="382" width="87" height="6" rx="3" fill="#60a5fa" fill-opacity="0.35"/>
+  <rect x="740" y="408" width="140" height="26" rx="6" fill="#1E3A8A" fill-opacity="0.34" stroke="url(#ring)" stroke-opacity="0.45" stroke-width="1.5"/>
+  <rect x="754" y="418" width="60" height="6" rx="3" fill="#60a5fa" fill-opacity="0.35"/>
+  <rect x="740" y="444" width="140" height="26" rx="6" fill="#1E3A8A" fill-opacity="0.36" stroke="url(#ring)" stroke-opacity="0.45" stroke-width="1.5"/>
+  <rect x="754" y="454" width="90" height="6" rx="3" fill="#60a5fa" fill-opacity="0.35"/>
+  <rect x="740" y="480" width="140" height="26" rx="6" fill="#1E3A8A" fill-opacity="0.38" stroke="url(#ring)" stroke-opacity="0.45" stroke-width="1.5"/>
+  <rect x="754" y="490" width="64" height="6" rx="3" fill="#60a5fa" fill-opacity="0.35"/>
+  <rect x="1020" y="270" width="140" height="26" rx="6" fill="#1E3A8A" fill-opacity="0.45" stroke="#60a5fa" stroke-width="1.8"/>
+  <rect x="1034" y="280" width="80" height="6" rx="3" fill="#93c5fd" fill-opacity="0.7"/>
+  <rect x="1020" y="306" width="140" height="26" rx="6" fill="#1E3A8A" fill-opacity="0.45" stroke="#60a5fa" stroke-width="1.8"/>
+  <rect x="1034" y="316" width="64" height="6" rx="3" fill="#93c5fd" fill-opacity="0.7"/>
+  <rect x="1020" y="342" width="140" height="26" rx="6" fill="#1E3A8A" fill-opacity="0.45" stroke="#60a5fa" stroke-width="1.8"/>
+  <rect x="1034" y="352" width="48" height="6" rx="3" fill="#93c5fd" fill-opacity="0.7"/>
+  <g fill="none" stroke="url(#ring)" stroke-width="1.5" stroke-opacity="0.35">
+    <path d="M 890 133 C 950 133, 950 283, 1010 283"/>
+    <path d="M 890 493 C 950 493, 950 355, 1010 355"/>
+  </g>
+  <line x1="895" y1="315" x2="995" y2="315" stroke="#60a5fa" stroke-opacity="0.6" stroke-width="2"/>
+  <path d="M 995 308 L 1008 315 L 995 322 Z" fill="#60a5fa" opacity="0.8"/>
+  <!-- ===================== END ILLUSTRATION SLOT ================ -->
+
+  <!-- Windmill logo -->
+  <g transform="translate(80, 120) scale(0.16)">
+    <polygon fill="#BCD4FC" points="134.78,14.22 114.31,48.21 101.33,69.75 158.22,69.75 177.97,36.95 191.67,14.22"/>
+    <polygon fill="#3B82F6" points="227.55,69.75 186.61,69.75 101.33,69.75 129.78,119.02 158.16,119.02 228.61,119.02 256,119.02"/>
+    <polygon fill="#3B82F6" points="136.93,132.47 116.46,167.93 73.82,241.78 130.71,241.78 144.9,217.2 180.13,156.18 193.82,132.46"/>
+    <polygon fill="#3B82F6" points="121.7,131.95 101.23,96.49 58.59,22.63 30.15,71.91 44.34,96.49 79.57,157.5 93.26,181.22"/>
+    <polygon fill="#BCD4FC" points="64.81,131.95 25.15,131.21 0,130.74 28.44,180.01 66.73,180.72 93.26,181.21"/>
+    <polygon fill="#BCD4FC" points="165.38,181.74 184.58,216.46 196.75,238.47 225.19,189.2 206.66,155.69 193.83,132.46"/>
+  </g>
+  <text x="130" y="151" font-family="Inter, -apple-system, BlinkMacSystemFont, sans-serif" font-size="30" font-weight="700" fill="#ffffff" letter-spacing="-0.01em">Windmill</text>
+
+  <!-- Thin accent rule above title -->
+  <rect x="82" y="278" width="56" height="3" rx="1.5" fill="#60a5fa" />
+
+  <!-- Title -->
+  <text x="80" y="345" font-family="Inter, -apple-system, BlinkMacSystemFont, sans-serif" font-size="62" font-weight="700" fill="#ffffff" letter-spacing="-0.03em">Size a vRO migration</text>
+
+  <!-- Subtitle -->
+  <text x="80" y="400" font-family="Inter, -apple-system, BlinkMacSystemFont, sans-serif" font-size="24" font-weight="400" fill="#94a3b8">Count what you migrate, not what you have</text>
+</svg>

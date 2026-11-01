@@ -151,7 +151,8 @@ This is available on every edition, for the default roles as well.
 On Enterprise Edition, a workspace can also add roles of its own with "Add workspace role".
 Capabilities left unset on such a role default to those of the Operator role.
 
-Role overrides are not yet carried by [Git sync](../../advanced/11_git_sync/index.mdx) or workspace export.
+Role overrides are carried by [Git sync](../../advanced/11_git_sync/index.mdx) and [`wmill sync`](../../advanced/3_cli/sync.mdx) as the `role_overrides` key of `settings.yaml`, stated as a whole: a role the map omits loses its override.
+The instance roles themselves are the `workspace_roles` [instance setting](../57_infrastructure_as_code/index.mdx#global-settings-fields).
 A role change can take up to two minutes to reach every server.
 
 #### Roles and seats

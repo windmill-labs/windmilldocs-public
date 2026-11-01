@@ -429,12 +429,15 @@ This dumps the current global settings and worker configs as YAML via the API.
 | `pip_index_url` | string | Custom pip index URL |
 | `pip_extra_index_url` | string | Extra pip index URL |
 | `npm_config_registry` | string | Custom npm registry |
+| `uv_exclude_newer` | int | Only resolve Python packages published at least this many seconds ago |
+| `bun_install_min_release_age` | int | Only install npm packages with Bun once published at least this many seconds ago |
 | `custom_tags` | list | Custom worker tags |
 | `critical_error_channels` | list | Alert channels (email, Slack, Teams) |
 | `indexer_settings` | object | Full-text search indexer config |
 | `hub_api_secret` | string / ref | Hub API secret |
 | `sync_hub_resource_types_daily` | bool | Sync the Admins workspace's resource types from the hub every day |
 | `scim_token` | string / ref | SCIM token (Enterprise) |
+| `workspace_roles` | list | [Workspace roles](../16_roles_and_permissions/index.mdx#define-the-instance-roles) in rank order, each with `name`, `label` and `capabilities`. Custom roles require Enterprise |
 
 For the complete list of fields, see the [Helm chart README](https://github.com/windmill-labs/windmill-helm-charts#available-global_settings-fields).
 

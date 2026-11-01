@@ -1,0 +1,117 @@
+<svg viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Deep navy gradient, top-left to bottom-right -->
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0b1220" />
+      <stop offset="35%" stop-color="#0f1c33" />
+      <stop offset="100%" stop-color="#1E3A8A" stop-opacity="0.55" />
+    </linearGradient>
+    <!-- Soft radial glow anchored bottom-left, large spread -->
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#1E3A8A" stop-opacity="0.55" />
+      <stop offset="60%" stop-color="#1E3A8A" stop-opacity="0.22" />
+      <stop offset="100%" stop-color="#1E3A8A" stop-opacity="0" />
+    </radialGradient>
+    <!-- Ring stroke gradient for depth -->
+    <linearGradient id="ring" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#60a5fa" />
+      <stop offset="100%" stop-color="#1E3A8A" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)" />
+
+  <!-- Faint grid for texture (very subtle, keep elegant) -->
+  <g stroke="#1E3A8A" stroke-width="0.5" opacity="0.10">
+    <line x1="0" y1="157" x2="1200" y2="157" />
+    <line x1="0" y1="315" x2="1200" y2="315" />
+    <line x1="0" y1="472" x2="1200" y2="472" />
+    <line x1="400" y1="0" x2="400" y2="630" />
+    <line x1="800" y1="0" x2="800" y2="630" />
+  </g>
+
+  <!-- Large light-blue glow sweeping from the bottom-left -->
+  <ellipse cx="220" cy="640" rx="720" ry="560" fill="url(#glow)" />
+  <!-- Glow behind illustration -->
+  <ellipse cx="905" cy="315" rx="320" ry="320" fill="url(#glow)" />
+
+  <!-- =========================================================== -->
+  <!-- ILLUSTRATION SLOT  -  REPLACE THIS BLOCK PER TOPIC          -->
+  <!-- Region: right half, centered ~cx=905 cy=315. Keep x>=580 so -->
+  <!-- it never overlaps the title/subtitle. Use only brand colors -->
+  <!-- and low opacities. See SKILL.md "Illustration" for recipes. -->
+  <!-- Default below = concentric rings (generic). Swap it out.    -->
+  <!-- =========================================================== -->
+  <!-- Application layer: a four-step flow -->
+  <g stroke="#60a5fa" stroke-width="1.6" stroke-opacity="0.5" fill="none">
+    <path d="M 828 196 L 868 196"/>
+    <path d="M 948 196 L 978 196 L 978 150 L 1008 150"/>
+    <path d="M 948 196 L 978 196 L 978 242 L 1008 242"/>
+  </g>
+  <g fill="#1E3A8A" fill-opacity="0.32" stroke="#60a5fa" stroke-width="1.5">
+    <rect x="748" y="172" width="80" height="48" rx="9"/>
+    <rect x="868" y="172" width="80" height="48" rx="9"/>
+    <rect x="1008" y="126" width="80" height="48" rx="9"/>
+    <rect x="1008" y="218" width="80" height="48" rx="9"/>
+  </g>
+  <g fill="#93c5fd" opacity="0.75">
+    <circle cx="768" cy="196" r="4"/>
+    <circle cx="888" cy="196" r="4"/>
+    <circle cx="1028" cy="150" r="4"/>
+    <circle cx="1028" cy="242" r="4"/>
+  </g>
+  <g stroke="#60a5fa" stroke-width="1.5" stroke-opacity="0.35" stroke-linecap="round">
+    <line x1="780" y1="196" x2="812" y2="196"/>
+    <line x1="900" y1="196" x2="932" y2="196"/>
+    <line x1="1040" y1="150" x2="1072" y2="150"/>
+    <line x1="1040" y1="242" x2="1072" y2="242"/>
+  </g>
+  <!-- Divider between layers -->
+  <line x1="740" y1="318" x2="1110" y2="318" stroke="#60a5fa" stroke-width="1" stroke-opacity="0.35" stroke-dasharray="4 6"/>
+  <!-- Jobs dropping down to worker pods -->
+  <g stroke="#60a5fa" stroke-width="1.3" stroke-opacity="0.35" fill="none" stroke-dasharray="3 5">
+    <path d="M 908 220 L 908 300"/>
+    <path d="M 1048 266 L 1048 300"/>
+  </g>
+  <!-- Execution layer: cluster with worker pods on two node pools -->
+  <rect x="740" y="340" width="370" height="170" rx="16" fill="#1E3A8A" fill-opacity="0.12" stroke="url(#ring)" stroke-width="1.5" stroke-opacity="0.4"/>
+  <g fill="#1E3A8A" fill-opacity="0.3" stroke="#60a5fa" stroke-width="1.4">
+    <rect x="766" y="368" width="64" height="44" rx="8"/>
+    <rect x="846" y="368" width="64" height="44" rx="8"/>
+    <rect x="926" y="368" width="64" height="44" rx="8" stroke-opacity="0.45" fill-opacity="0.12"/>
+    <rect x="1018" y="368" width="64" height="44" rx="8"/>
+    <rect x="766" y="438" width="64" height="44" rx="8"/>
+    <rect x="846" y="438" width="64" height="44" rx="8" stroke-opacity="0.45" fill-opacity="0.12"/>
+    <rect x="1018" y="438" width="64" height="44" rx="8"/>
+  </g>
+  <line x1="1004" y1="360" x2="1004" y2="492" stroke="#60a5fa" stroke-width="1" stroke-opacity="0.3"/>
+  <g fill="#60a5fa">
+    <circle cx="798" cy="390" r="4" opacity="0.8"/>
+    <circle cx="878" cy="390" r="4" opacity="0.8"/>
+    <circle cx="1050" cy="390" r="4" opacity="0.9"/>
+    <circle cx="798" cy="460" r="4" opacity="0.6"/>
+    <circle cx="1050" cy="460" r="4" opacity="0.9"/>
+  </g>
+  <!-- ===================== END ILLUSTRATION SLOT ================ -->
+
+  <!-- Windmill logo -->
+  <g transform="translate(80, 120) scale(0.16)">
+    <polygon fill="#BCD4FC" points="134.78,14.22 114.31,48.21 101.33,69.75 158.22,69.75 177.97,36.95 191.67,14.22"/>
+    <polygon fill="#3B82F6" points="227.55,69.75 186.61,69.75 101.33,69.75 129.78,119.02 158.16,119.02 228.61,119.02 256,119.02"/>
+    <polygon fill="#3B82F6" points="136.93,132.47 116.46,167.93 73.82,241.78 130.71,241.78 144.9,217.2 180.13,156.18 193.82,132.46"/>
+    <polygon fill="#3B82F6" points="121.7,131.95 101.23,96.49 58.59,22.63 30.15,71.91 44.34,96.49 79.57,157.5 93.26,181.22"/>
+    <polygon fill="#BCD4FC" points="64.81,131.95 25.15,131.21 0,130.74 28.44,180.01 66.73,180.72 93.26,181.21"/>
+    <polygon fill="#BCD4FC" points="165.38,181.74 184.58,216.46 196.75,238.47 225.19,189.2 206.66,155.69 193.83,132.46"/>
+  </g>
+  <text x="130" y="151" font-family="Inter, -apple-system, BlinkMacSystemFont, sans-serif" font-size="30" font-weight="700" fill="#ffffff" letter-spacing="-0.01em">Windmill</text>
+
+  <!-- Thin accent rule above title -->
+  <rect x="82" y="278" width="56" height="3" rx="1.5" fill="#60a5fa" />
+
+  <!-- Title -->
+  <text x="80" y="345" font-family="Inter, -apple-system, BlinkMacSystemFont, sans-serif" font-size="62" font-weight="700" fill="#ffffff" letter-spacing="-0.03em">After the CronJob</text>
+
+  <!-- Subtitle -->
+  <text x="80" y="400" font-family="Inter, -apple-system, BlinkMacSystemFont, sans-serif" font-size="24" font-weight="400" fill="#94a3b8">An application layer for batch work on Kubernetes</text>
+</svg>
