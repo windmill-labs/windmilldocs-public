@@ -156,7 +156,7 @@ extra_vars:
         type: number
   some_arr:
     type: array
-    objects:
+    items:
       type: string
 ```
 
@@ -676,6 +676,7 @@ This script is a minimal working example, but there's a few more steps that can 
 - Pass [variables and secrets](../../../core_concepts/2_variables_and_secrets/index.mdx)
   to a script.
 - Connect to [resources](../../../core_concepts/3_resources_and_types/index.mdx).
+- Chain the playbook with Terraform or OpenTofu, approvals and ServiceNow in a flow, as in the [infrastructure automation](/use-cases/infra-automation) example that provisions and configures vSphere VMs.
 - [Trigger that script](../../../triggers/index.mdx) in many ways.
 - Compose scripts in [Flows](../../../flows/1_flow_editor.mdx), [low-code apps](../../../apps/0_app_editor/index.mdx) or [full-code apps](../../../full_code_apps/index.mdx).
 - You can [share your scripts](../../../misc/1_share_on_hub/index.md) with the community on [Windmill Hub](https://hub.windmill.dev). Once

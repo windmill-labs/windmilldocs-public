@@ -24,6 +24,7 @@ A few cases worth calling out:
 
 - **Network devices** (switches, routers, firewalls) are driven from regular scripts using the ecosystem's standard tooling: [Ansible](../getting_started/0_scripts_quickstart/10_ansible_quickstart/index.mdx) (native step in Windmill), or Python libraries such as NAPALM, Netmiko or Scrapli imported in a [Python script](../getting_started/0_scripts_quickstart/2_python_quickstart/index.mdx). Device credentials live in a custom resource type.
 - **Terraform** has no native step in Windmill. Run it as a CLI from a [Bash script](../getting_started/0_scripts_quickstart/4_bash_quickstart/index.mdx) on a worker where the binary has been provisioned via [preinstall binaries](../advanced/8_preinstall_binaries/index.mdx) or a custom worker image.
+  The [infrastructure automation](/use-cases/infra-automation) page shows a full provisioning flow that runs OpenTofu on vSphere, then Ansible and ServiceNow.
 
 How resources and resource types work in Windmill:
 

@@ -155,6 +155,15 @@ What it does not cover is the internal tooling around the pipelines, which is wh
 
 For a detailed side-by-side, see the [Windmill vs Kestra comparison](/compare/kestra).
 
+## Infrastructure automation platforms
+
+VMware vRealize Orchestrator (vRO) and VCF Automation (formerly Aria Automation and vRealize Automation, vRA), Rundeck and AWX are what most infrastructure teams already run.
+vRO and vRA bundle a workflow engine with a request catalog, and are sold only as part of VMware Cloud Foundation.
+Rundeck runs operations jobs with option forms, and AWX runs Ansible playbooks with surveys, schedules and workflow templates.
+
+Windmill takes the orchestration role: Terraform or OpenTofu, Ansible, PowerShell and Python as steps of one flow, with approvals, triggers and audit logs, while vSphere and the tools those platforms called stay in place.
+See [infrastructure automation](/use-cases/infra-automation) for what that looks like, and the [open source alternative to VMware vRA and vRO](/use-cases/vmware-vra-replacement) guide for a migration off vRO.
+
 ## Interactive side-by-side comparisons
 
 <div className="grid grid-cols-2 gap-6 mb-4">
