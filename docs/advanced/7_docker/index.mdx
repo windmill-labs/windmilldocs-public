@@ -68,7 +68,7 @@ The runtime is daemonless and run-to-completion by design:
 - No `docker run -d` with later `exec`/`attach`/`logs -f`, no `docker build`, `compose`, swarm, or healthchecks.
 - No arbitrary `-v` host bind mounts, `--privileged`, `--cap-add`, `--device`, or host namespace sharing.
 - Images that drop to a non-root uid or chown to arbitrary uids inside need a subuid range in the jail (single-uid only today).
-- The script result is a completion message; capture output via stdout/logs or `./result.json`.
+- The script result follows the [Bash conventions](../../getting_started/0_scripts_quickstart/4_bash_quickstart/index.mdx): a non-empty `./result.json` (relative to the image's working directory) is the JSON result, otherwise the last line of stdout, otherwise a completion message.
 
 <div className="grid grid-cols-2 gap-6 mb-4">
 	<DocCard

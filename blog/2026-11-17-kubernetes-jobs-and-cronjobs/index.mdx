@@ -439,7 +439,7 @@ Pull policy, size caps and private registry credentials are instance settings ([
 ### Schedules, manual runs and permissions
 
 A [schedule](/docs/core_concepts/scheduling) runs the flow at `0 2 * * *` in the `Europe/Paris` timezone, with "no overlap of flows" turned on, the equivalent of `concurrencyPolicy: Forbid`.
-Schedules also take their own error handler; recovery handlers, and alerting only after N consecutive failures, are Enterprise features.
+Schedules can also take their own error, recovery and success handlers, on top of the flow's own error handler step above.
 
 The `schema` above is also a form.
 Opening the flow shows a date picker for `day` and a Run button ([auto-generated UIs](/docs/core_concepts/auto_generated_uis)), so rerunning November 16 means picking November 16.
