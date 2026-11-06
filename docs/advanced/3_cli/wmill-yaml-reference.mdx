@@ -415,6 +415,7 @@ for background.
 | --- | --- | --- |
 | `relative_path` | `string` *(required)* | Path to the codebase directory (relative to `wmill.yaml`) |
 | [`extra_digest_paths`](#extra_digest_paths) | `string[]` | Files or directories outside `relative_path` that scripts import, hashed into the codebase digest |
+| [`per_script_digest`](#per_script_digest) | `boolean` | Redeploy a script only when a file it bundles changes, instead of on any change under `relative_path` (default `false`) |
 | `includes` | `string[]` | Glob patterns of files to bundle |
 | `excludes` | `string[]` | Glob patterns of files to exclude |
 | `format` | `"cjs" \| "esm"` | Output module format |
@@ -452,6 +453,36 @@ codebases:
 The codebase digest, which `wmill sync push` uses to detect changed scripts, only covers files under `relative_path`.
 List files or directories outside it that scripts import (for example shared packages in a monorepo) so edits to them are detected too.
 Paths are relative to `wmill.yaml` and directories are hashed recursively, so point at source folders rather than a package root containing `node_modules` or `dist`.
+
+With [`per_script_digest`](#per_script_digest), imported files are already covered wherever they live, so use `extra_digest_paths` for files scripts read at runtime instead.
+
+#### `per_script_digest`
+
+By default, every script of a codebase shares one digest of the whole `relative_path` tree, so any change under it, even a comment in a test file, makes `wmill sync push` re-bundle and redeploy every script of the codebase.
+Set `per_script_digest: true` to give each script its own digest, so a script is redeployed only when the files its bundle is built from change:
+
+```yaml
+codebases:
+  - relative_path: f/app
+    per_script_digest: true
+```
+
+A script's digest covers:
+
+- its import closure as esbuild resolves it: every file it imports, directly or transitively, including files in `node_modules` and outside `relative_path`;
+- the `tsconfig.json` (or `jsconfig.json`) esbuild applies to those files, and its `extends` chain. When it extends a package, editing any file of that package redeploys the scripts it applies to;
+- the build fields of each file's nearest `package.json` (`sideEffects`, `type`, `main`, `module`, `browser`, `exports`, `imports`), so adding a dependency does not redeploy everything;
+- the codebase's `assets`, its `extra_digest_paths` and its configuration.
+
+Things to know before turning it on:
+
+- Files a script reads at runtime rather than imports (for example `fs.readFile("./data.json")`, a `require()` with a computed path, or a template loaded by path) are not covered, and editing them does not redeploy the script. List them in [`extra_digest_paths`](#extra_digest_paths).
+- Every push bundles all scripts of the codebase once to find their inputs, even when nothing changed, so every script must bundle: one script that fails to bundle stops the push, even if it did not change.
+- `node_modules` contents are hashed, so machines that install different files (platform-specific optional dependencies, a different lockfile resolution) compute different digests, and pushes alternating between them redeploy the affected scripts.
+- Turning the setting on or off changes every digest of the codebase, so the next push redeploys all its scripts once.
+- Codebases with a `customBundler` ignore the setting and keep the directory digest.
+
+The same per-script digest is used by `wmill script push`, [`wmill digest`](./index.mdx#wmill-digest) and previews.
 
 ## Workspaces
 
