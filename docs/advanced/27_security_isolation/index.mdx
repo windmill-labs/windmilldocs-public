@@ -28,7 +28,7 @@ Without proper isolation, user [scripts](../../script_editor/index.mdx) could:
 
 :::warning Important Security Notice
 
-**Job isolation is disabled by default** in Windmill. Both NSJAIL and PID namespace isolation must be manually configured. Without isolation, scripts can access sensitive data from the worker process memory and environment variables.
+**Job isolation is disabled by default** in the Windmill binary and must be configured. The official [docker-compose.yml](../1_self_host/index.mdx#docker) enables PID namespace isolation on its default workers, but not on its native worker. Without isolation, scripts can access sensitive data from the worker process memory and environment variables.
 
 **For production deployments, you should enable at least one isolation method** (PID namespace or NSJAIL) to protect your infrastructure. See the [Recommended Configurations](#recommended-configurations) section below.
 
@@ -51,52 +51,34 @@ With PID isolation, the job runs in its own namespace and cannot see the parent 
 
 ### Enabling PID namespace isolation
 
-To enable PID namespace isolation, you need to:
+PID namespace isolation is turned on in one of three ways, from strongest to weakest:
 
-1. **Set the environment variable** on your worker:
+1. **`ENABLE_UNSHARE_PID=true`** on the worker forces it, whatever the instance setting, and the worker refuses to start if `unshare` does not work (see [Failure behavior](#failure-behavior)).
+2. The **Job isolation** [instance setting](../18_instance_settings/index.mdx) set to **Unshare** applies it to every worker of the instance. Set to **None** or **Nsjail**, it turns PID namespace isolation off on workers that do not set `ENABLE_UNSHARE_PID`.
+3. **`FAVOR_UNSHARE_PID=true`** on the worker uses it only while the Job isolation instance setting is not set. If `unshare` does not work, the worker logs an error at startup and runs jobs without isolation.
 
-   ```bash
-   ENABLE_UNSHARE_PID=true
-   ```
+Both environment variables default to `false`.
+The default `--mount-proc` flag also needs **privileged mode** in Docker:
 
-2. **Enable privileged mode** in [docker-compose.yml](../1_self_host/index.mdx) (required for the default `--mount-proc` flag):
-   ```yaml
-   windmill_worker:
-     privileged: true
-   ```
+```yaml
+windmill_worker:
+  privileged: true
+```
 
-**Important**: PID isolation is **disabled by default** in the main docker-compose.yml (both settings are commented out). You must manually uncomment these settings to enable it.
-
-#### Step-by-step enablement
-
-In your `docker-compose.yml`, find the worker service and uncomment these lines:
+The official [docker-compose.yml](../1_self_host/index.mdx#docker) already does this for the default workers:
 
 ```yaml
 windmill_worker:
   image: ${WM_IMAGE}
-  # ... other settings ...
-
-  # Uncomment these two lines:
-  # privileged: true              # <- Uncomment this
+  privileged: true
   environment:
     - DATABASE_URL=${DATABASE_URL}
     - MODE=worker
     - WORKER_GROUP=default
-    # - ENABLE_UNSHARE_PID=true    # <- Uncomment this
+    - FAVOR_UNSHARE_PID=true
 ```
 
-After uncommenting:
-
-```yaml
-windmill_worker:
-  image: ${WM_IMAGE}
-  privileged: true # Now enabled
-  environment:
-    - DATABASE_URL=${DATABASE_URL}
-    - MODE=worker
-    - WORKER_GROUP=default
-    - ENABLE_UNSHARE_PID=true # Now enabled
-```
+To make isolation mandatory on a worker, so that it fails loudly rather than running jobs unisolated, replace `FAVOR_UNSHARE_PID=true` with `ENABLE_UNSHARE_PID=true`.
 
 ### Requirements
 
@@ -183,7 +165,7 @@ Solutions:
 
 | Platform                 | Supported | Notes                                               |
 | ------------------------ | --------- | --------------------------------------------------- |
-| Linux (docker-compose)   | ✅ Yes    | Requires manual configuration (disabled by default) |
+| Linux (docker-compose)   | ✅ Yes    | Enabled on the default workers of the official docker-compose |
 | Linux (bare metal)       | ✅ Yes    | Requires util-linux package                         |
 | Docker Desktop (Linux)   | ✅ Yes    | Works in Linux containers with privileged mode      |
 | Docker Desktop (Windows) | ⚠️ No     | Use agent workers without direct DB access          |
@@ -502,7 +484,7 @@ The annotation is logged as "no network" in job execution logs.
 
 ### PID namespace isolation (recommended for production)
 
-To enable PID namespace isolation, add to your docker-compose.yml:
+The official docker-compose.yml enables it on the default workers with `FAVOR_UNSHARE_PID=true`. To make it mandatory, so a worker refuses to start without it, use:
 
 ```yaml
 windmill_worker:

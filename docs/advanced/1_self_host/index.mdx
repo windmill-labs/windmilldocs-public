@@ -56,7 +56,7 @@ The rule of thumb is 1 worker per 1vCPU and 1-2 GB of RAM. Cloud providers have 
 
 Windmill is compatible with [AWS Aurora](https://aws.amazon.com/rds/aurora/), [GCP Cloud SQL](https://cloud.google.com/sql), [Azure](https://azure.microsoft.com/en-us) and [Neon](https://neon.tech/) serverless database.
 
-Use the managed load balancer to point to your instance on the port you have chosen to expose in the caddy section of the docker-compose (by default 80). We recommend doing TLS termination and associating your domain on your managed load balancer. Once the domain name is chosen, set BASE_URL accordingly in `.env`. That is it for a minimal setup. Read about [Worker groups](../../core_concepts/9_worker_groups/index.mdx) to configure more finely your workers on more nodes and with different resources. Once done, be sure to setup [SSO login](../../advanced/27_setup_oauth/index.mdx) with Azure AD, Google Workspace or GitHub if relevant.
+Use the managed load balancer to point to your instance on the port you have chosen to expose in the caddy section of the docker-compose (by default 80). We recommend doing TLS termination and associating your domain on your managed load balancer. Once the domain name is chosen, set the [Base URL](../18_instance_settings/index.mdx#base-url) in the instance settings accordingly. That is it for a minimal setup. Read about [Worker groups](../../core_concepts/9_worker_groups/index.mdx) to configure more finely your workers on more nodes and with different resources. Once done, be sure to setup [SSO login](../../advanced/27_setup_oauth/index.mdx) with Azure AD, Google Workspace or GitHub if relevant.
 
 :::tip AWS ECS
 
@@ -141,9 +141,9 @@ Self-host Windmill in less than a minute:
 Using [Docker](https://www.docker.com/) and [Caddy](https://caddyserver.com/), Windmill can be deployed using 3 files:
 ([`docker-compose.yml`][windmill-docker-compose], [`Caddyfile`][windmill-caddyfile]) and a [.env][windmill-env] in a single command.
 
-[Caddy][caddy] is the reverse proxy that will redirect traffic to both Windmill (port 8000) and the LSP (the monaco assistant) service (port 3001) and multiplayer service (port 3002).
+[Caddy][caddy] is the reverse proxy: it sends `/ws/*`, `/ws_mp/*` and `/ws_debug/*` to the `windmill_extra` container (port 3000), which serves the editor's language servers, multiplayer and the debugger, and everything else to Windmill (port 8000).
 It also redirects TCP traffic on port 25 to Windmill (port 2525) for [email triggers](../../triggers/1_email_triggers/index.mdx).
-Postgres holds the entire state of Windmill, the rest is fully stateless, Windmill-LSP provides editor intellisense.
+Postgres holds the entire state of Windmill, the rest is fully stateless.
 
 Make sure Docker is started:
 
@@ -213,7 +213,7 @@ In the docker-compose, set the number of windmill_worker and windmill_worker_nat
 
 To use the [Enterprise Edition](/pricing), you need pass the license key in the [instance settings](../18_instance_settings/index.mdx#license-key). A same license key can be used for multiple instances (for dev instances make sure to turn on the 'Non-prod instance' flag from the [instance settings](../18_instance_settings/index.mdx#non-prod-instance)).
 
-You can then set the number of replicas of the multiplayer container to 1 in the docker-compose.
+You can then enable multiplayer by setting `ENABLE_MULTIPLAYER=true` on the `windmill_extra` service in the docker-compose.
 
 You will be provided a license key when you purchase the enterprise edition or start a trial. Start a trial from the [Pricing](/pricing) page or contact us at contact@windmill.dev to get a trial license key. You will benefit from support, SLA and all the [additional features](/pricing) of the enterprise edition.
 
@@ -241,23 +241,15 @@ More details at:
 
 ### Security considerations
 
-The official Windmill docker-compose enables PID namespace isolation by default:
+The official Windmill docker-compose runs the default workers with [PID namespace isolation](../27_security_isolation/index.mdx#pid-namespace-isolation), which prevents jobs from reading the worker's memory and environment variables.
+They set `privileged: true` and `FAVOR_UNSHARE_PID=true`: jobs run under `unshare` unless the **Job isolation** [instance setting](../18_instance_settings/index.mdx) selects another mode.
+The native worker runs without isolation.
 
-- **PID namespace isolation** (`ENABLE_UNSHARE_PID=true`) prevents jobs from accessing parent worker process memory and environment variables
-
-For additional security, you can enable NSJAIL sandboxing:
-
-- **NSJAIL sandboxing** - Provides filesystem and resource isolation (set `DISABLE_NSJAIL=false` to enable)
+For additional security, you can enable NSJAIL sandboxing, which adds filesystem and resource isolation: set the **Job isolation** instance setting to **Nsjail**, or `DISABLE_NSJAIL=false` on the workers.
 
 #### Windows workers
 
-If you're running Windows workers, PID namespace isolation is Linux-only. Set `ENABLE_UNSHARE_PID=false` for Windows worker services:
-
-```yaml
-windmill_worker_windows:
-  environment:
-    - ENABLE_UNSHARE_PID=false
-```
+PID namespace isolation is Linux-only. Do not set `ENABLE_UNSHARE_PID` or `FAVOR_UNSHARE_PID` on Windows worker services.
 
 For complete security documentation, see [Security and Process Isolation](/docs/advanced/security_isolation).
 
@@ -265,25 +257,29 @@ For complete security documentation, see [Security and Process Isolation](/docs/
 
 To deploy Windmill to the `windmill.example.com` domain, make sure to set "Base Url" correctly in the [Instance settings](../18_instance_settings/index.mdx#base-url).
 
-You can use any reverse proxy as long as they behave mostly like the default provided following caddy configuration:
+You can use any reverse proxy as long as it routes like the HTTP part of the provided [Caddyfile][windmill-caddyfile], with WebSocket support on the `/ws*` paths:
 
 ```
-:80 {
-        bind {$ADDRESS}
-        reverse_proxy /ws/* http://lsp:3001
+{$BASE_URL} {
+        bind {$ADDRESS:0.0.0.0 ::}
+
+        @extra path /ws/* /ws_mp/* /ws_debug/*
+        reverse_proxy @extra http://windmill_extra:3000
+
         reverse_proxy /* http://windmill_server:8000
 }
 ```
 
-The default docker-compose file exposes the caddy reverse-proxy on port 80 above, configured by the [caddyfile](https://raw.githubusercontent.com/windmill-labs/windmill/main/Caddyfile) curled above. Configure both the caddyfile and the docker-compose file to fit your needs. The documentation for caddy is available [here](https://caddyserver.com/docs/caddyfile).
+The default docker-compose file exposes the Caddy reverse proxy on port 80, configured by the Caddyfile downloaded above. Configure both the Caddyfile and the docker-compose file to fit your needs. The documentation for Caddy is available [here](https://caddyserver.com/docs/caddyfile).
 
 #### Use provided Caddy to serve https
 
 For simplicity, we recommend using an external reverse proxy such as Cloudfront or Cloudflare and point to your instance on the port you have chosen (by default, :80).
 
-However, Caddy also supports HTTPS natively via its [tls](https://caddyserver.com/docs/caddyfile/directives/tls) directive. Multiple options are available. Caddy can obtain certificates automatically using the ACME protocol, a provided CA file, or even a custom HTTP endpoint. The simplest is to provide your own certificate and key files. You can do so by mounting an additional volume containing those two files to the Caddy container and adding a `tls /path/to/cert.pem /path/to/key.pem` directive to the Caddy file. Make sure to expose the port `:443` instead of `:80` and Caddy will take care of the rest.
+Caddy can also serve HTTPS itself. In both cases below, edit the caddy section of the docker-compose (its commented lines show each option), then run `docker compose up -d` and set the [Base URL](../18_instance_settings/index.mdx#base-url) in the instance settings to the `https://` address.
 
-For all the above, see the commented lines in the caddy section of the docker-compose.
+- **Automatic certificates.** Replace `BASE_URL=":80"` with `BASE_URL=mydomain.com` and uncomment `443:443` in `ports`. Caddy obtains and renews a Let's Encrypt certificate on its own, as long as the domain points at the server and ports 80 and 443 are reachable. Keep port 80 published: Caddy uses it to redirect HTTP to HTTPS and for one of its certificate challenges.
+- **Your own certificate files.** Set `BASE_URL=":443"`, uncomment `443:443`, mount a folder holding `cert.pem` and `key.pem` at `/certs` and uncomment the `tls /certs/cert.pem /certs/key.pem` line in the Caddyfile. See Caddy's [tls](https://caddyserver.com/docs/caddyfile/directives/tls) directive for other options.
 
 #### Traefik configuration
 
@@ -292,8 +288,15 @@ For all the above, see the commented lines in the caddy section of the docker-co
 
 You may need to adapt this depending on if you have Traefik running or on your configuration. This also assumes you have a `letsencryptresolver` or change the name to your certificate resolver if you want to use the `websecure` entrypoint.
 
+It follows the default [docker-compose.yml][windmill-docker-compose], with Traefik in place of Caddy: `/ws/*`, `/ws_mp/*` and `/ws_debug/*` go to `windmill_extra`, everything else to `windmill_server`. For [email triggers](../../triggers/1_email_triggers/index.mdx), uncomment the `tcp` labels and add an `smtp` entrypoint on port 25 to your Traefik static configuration.
+
 ```yaml
-version: '3.7'
+x-logging: &default-logging
+  driver: 'json-file'
+  options:
+    max-size: '${LOG_MAX_SIZE:-20m}'
+    max-file: '${LOG_MAX_FILE:-10}'
+    compress: 'true'
 
 services:
   db:
@@ -301,6 +304,7 @@ services:
       # To use an external database, set replicas to 0 and set DATABASE_URL to the external database url in the .env file
       replicas: 1
     image: postgres:18
+    shm_size: 1g
     restart: unless-stopped
     volumes:
       # From 18 on, the official image keeps the cluster in a major-version
@@ -310,8 +314,6 @@ services:
       - 5432
     networks:
       - windmill
-    ports:
-      - 5432:5432
     environment:
       POSTGRES_PASSWORD: changeme
       POSTGRES_DB: windmill
@@ -320,6 +322,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    logging: *default-logging
 
   windmill_server:
     image: ${WM_IMAGE}
@@ -329,6 +332,7 @@ services:
     restart: unless-stopped
     expose:
       - 8000
+      - 2525
     environment:
       - DATABASE_URL=${DATABASE_URL}
       - MODE=server
@@ -338,10 +342,13 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    volumes:
+      - worker_logs:/tmp/windmill/logs
     labels:
       - traefik.enable=true
+      - traefik.docker.network=traefik
       - traefik.http.services.windmill_server.loadbalancer.server.port=8000
-      #http
+      # http
       - traefik.http.routers.windmill_server_http.entrypoints=web
       - traefik.http.routers.windmill_server_http.rule=Host(`windmill.yourdomain.com`)
       - traefik.http.routers.windmill_server_http.service=windmill_server
@@ -351,6 +358,12 @@ services:
       - traefik.http.routers.windmill_server_https.service=windmill_server
       - traefik.http.routers.windmill_server_https.tls=true
       - traefik.http.routers.windmill_server_https.tls.certresolver=letsencryptresolver
+      # email triggers (needs an `smtp` entrypoint on :25 in the Traefik static configuration)
+      # - traefik.tcp.routers.windmill_smtp.entrypoints=smtp
+      # - traefik.tcp.routers.windmill_smtp.rule=HostSNI(`*`)
+      # - traefik.tcp.routers.windmill_smtp.service=windmill_smtp
+      # - traefik.tcp.services.windmill_smtp.loadbalancer.server.port=2525
+    logging: *default-logging
 
   windmill_worker:
     image: ${WM_IMAGE}
@@ -359,14 +372,16 @@ services:
       replicas: 3
       resources:
         limits:
-          cpus: '1'
           memory: 2048M
-        # for GB, use syntax '2Gi'
+          # for GB, use syntax '2Gi'
     restart: unless-stopped
+    # PID namespace isolation for jobs, see https://www.windmill.dev/docs/advanced/security_isolation
+    privileged: true
     environment:
       - DATABASE_URL=${DATABASE_URL}
       - MODE=worker
       - WORKER_GROUP=default
+      - FAVOR_UNSHARE_PID=true
     networks:
       - windmill
     depends_on:
@@ -374,9 +389,9 @@ services:
         condition: service_healthy
     # to mount the worker folder to debug, KEEP_JOB_DIR=true and mount /tmp/windmill
     volumes:
-      # mount the docker socket to allow to run docker containers from within the workers
-      - /var/run/docker.sock:/var/run/docker.sock
       - worker_dependency_cache:/tmp/windmill/cache
+      - worker_logs:/tmp/windmill/logs
+    logging: *default-logging
 
   ## This worker is specialized for "native" jobs. Native jobs run in-process and thus are much more lightweight than other jobs
   windmill_worker_native:
@@ -384,87 +399,66 @@ services:
     image: ${WM_IMAGE}
     pull_policy: always
     deploy:
-      replicas: 2
+      replicas: 1
       resources:
         limits:
-          cpus: '0.1'
-          memory: 128M
+          memory: 2048M
     restart: unless-stopped
     environment:
       - DATABASE_URL=${DATABASE_URL}
       - MODE=worker
       - WORKER_GROUP=native
       - NATIVE_MODE=true
+      - SLEEP_QUEUE=200
     networks:
       - windmill
     depends_on:
       db:
         condition: service_healthy
+    volumes:
+      - worker_logs:/tmp/windmill/logs
+    logging: *default-logging
 
-  ## This worker is specialized for reports or scraping jobs. It is assigned the "reports" worker group which has an init script that installs chromium and can be targeted by using the "chromium" worker tag.
-  #  windmill_worker_reports:
-  #    image: ${WM_IMAGE}
-  #    pull_policy: always
-  #    deploy:
-  #      replicas: 1
-  #      resources:
-  #        limits:
-  #          cpus: "1"
-  #          memory: 2048M
-  #    restart: unless-stopped
-  #    environment:
-  #      - DATABASE_URL=${DATABASE_URL}
-  #      - MODE=worker
-  #      - WORKER_GROUP=reports
-  #    networks:
-  #      - windmill
-  #    depends_on:
-  #      db:
-  #        condition: service_healthy
-  #    # to mount the worker folder to debug, KEEP_JOB_DIR=true and mount /tmp/windmill
-  #    volumes:
-  #      # mount the docker socket to allow to run docker containers from within the workers
-  #      - /var/run/docker.sock:/var/run/docker.sock
-  #      - worker_dependency_cache:/tmp/windmill/cache
-
-  lsp:
-    image: ghcr.io/windmill-labs/windmill-lsp:latest
+  # Language servers, multiplayer (Enterprise Edition) and debugger
+  windmill_extra:
+    image: ghcr.io/windmill-labs/windmill-extra:latest
     pull_policy: always
     restart: unless-stopped
+    expose:
+      - 3000
+    environment:
+      - ENABLE_LSP=true
+      - ENABLE_MULTIPLAYER=false # Set to true to enable multiplayer (Enterprise Edition)
+      - ENABLE_DEBUGGER=true
+      - DEBUGGER_PORT=3003
+      - ENABLE_NSJAIL=false
+      - REQUIRE_SIGNED_DEBUG_REQUESTS=true # Do NOT set to false on any internet-reachable deployment
+      - WINDMILL_BASE_URL=http://windmill_server:8000
     networks:
       - windmill
       - traefik
-    expose:
-      - 3001
     volumes:
-      - lsp_cache:/root/.cache
+      - lsp_cache:/pyls/.cache
     labels:
       - traefik.enable=true
-      - traefik.http.services.windmill_lsp.loadbalancer.server.port=3001
-      #http
-      - traefik.http.routers.windmill_lsp_http.entrypoints=web
-      - traefik.http.routers.windmill_lsp_http.rule=Host(`windmill.yourdomain.com`) && PathPrefix(`/ws/`)
-      - traefik.http.routers.windmill_lsp_http.service=windmill_lsp
+      - traefik.docker.network=traefik
+      - traefik.http.services.windmill_extra.loadbalancer.server.port=3000
+      # http
+      - traefik.http.routers.windmill_extra_http.entrypoints=web
+      - traefik.http.routers.windmill_extra_http.rule=Host(`windmill.yourdomain.com`) && (PathPrefix(`/ws/`) || PathPrefix(`/ws_mp/`) || PathPrefix(`/ws_debug/`))
+      - traefik.http.routers.windmill_extra_http.service=windmill_extra
       # https
-      - traefik.http.routers.windmill_lsp_https.entrypoints=websecure
-      - traefik.http.routers.windmill_lsp_https.rule=Host(`windmill.yourdomain.com`) && PathPrefix(`/ws/`)
-      - traefik.http.routers.windmill_lsp_https.service=windmill_lsp
-      - traefik.http.routers.windmill_lsp_https.tls=true
-      - traefik.http.routers.windmill_lsp_https.tls.certresolver=letsencryptresolver
-
-  multiplayer:
-    image: ghcr.io/windmill-labs/windmill-multiplayer:latest
-    deploy:
-      replicas: 0 # Set to 1 to enable multiplayer, only available on Enterprise Edition
-    restart: unless-stopped
-    networks:
-      - windmill
-    expose:
-      - 3002
+      - traefik.http.routers.windmill_extra_https.entrypoints=websecure
+      - traefik.http.routers.windmill_extra_https.rule=Host(`windmill.yourdomain.com`) && (PathPrefix(`/ws/`) || PathPrefix(`/ws_mp/`) || PathPrefix(`/ws_debug/`))
+      - traefik.http.routers.windmill_extra_https.service=windmill_extra
+      - traefik.http.routers.windmill_extra_https.tls=true
+      - traefik.http.routers.windmill_extra_https.tls.certresolver=letsencryptresolver
+    logging: *default-logging
 
 volumes:
   db_data: null
   worker_dependency_cache: null
+  worker_logs: null
   lsp_cache: null
 
 networks:
@@ -497,7 +491,8 @@ docker compose up -d
 
 ### Set up limits for workers and memory
 
-From your docker-compose, you can set limits for consumption of [workers](https://github.com/windmill-labs/windmill/blob/main/docker-compose.yml#L51) and [memory](https://github.com/windmill-labs/windmill/blob/main/docker-compose.yml#L52):
+In the `deploy` section of each worker service of the [docker-compose][windmill-docker-compose], `replicas` sets the number of workers and `resources.limits` caps each one.
+The default workers ship with a 2048M memory limit and no CPU limit:
 
 ```yaml
 windmill_worker:
@@ -507,26 +502,27 @@ windmill_worker:
     replicas: 3
     resources:
       limits:
-        cpus: "1"
         memory: 2048M
+        # cpus: "1" # optional
 ```
 
-It is useful on [Enterprise Edition](/pricing) to avoid exceeding the terms of your subscription.
+A job that goes over its worker's memory limit is killed and fails with exit code 137, while the worker keeps running.
+Memory limits also matter on [Enterprise Edition](/pricing), where [compute units](../../core_concepts/9_worker_groups/index.mdx#workers-and-compute-units) are based on them.
 
 ### Update
 
-To update to a newer version of Windmill, all you have to do is run:
+To update to a newer version of Windmill, run:
 
 ```bash
-docker compose stop windmill_worker
-docker compose pull windmill_server
+docker compose pull
 docker compose up -d
 ```
 
+Pull first: the download can take several minutes, and the running containers keep processing jobs meanwhile. `up -d` then recreates the containers in a few seconds and database migrations run on their own at startup.
+
 Database volume is persistent, so updating the database image within the same PostgreSQL major version is safe too. Moving to a new major version is not, and needs the steps in [Upgrade PostgreSQL to 18](#upgrade-postgresql-to-18). Windmill provides graceful exit for jobs in workers so it will not interrupt current jobs unless they are longer than docker stop hard kill timeout (30 seconds).
 
-It is sufficient to run `docker compose up -d` again if your Docker is already running detached, since it will pull the latest `:main` version and restart the containers.
-NOTE: The previous images are not removed automatically, you should also run `docker builder prune` to clear old versions.
+The previous images are not removed automatically. To reclaim the disk space, run `docker image prune -a`: it removes every image not used by a container on the host, including other projects' images.
 
 ### Upgrade PostgreSQL to 18
 
@@ -545,6 +541,35 @@ both the image and the mount.
 		href="/docs/advanced/self_host/postgres_18_upgrade"
 	/>
 </div>
+
+### Back up and restore
+
+Postgres holds the entire state of Windmill, so backing up the instance means backing up the database.
+Dump the whole cluster with `pg_dumpall`, not the `windmill` database alone: Windmill keeps datatable, DuckLake and [workspace fork](../20_workspace_forks/index.mdx) databases beside it and grants its policies to cluster-level roles, and a single-database dump [silently loses both](./postgres_18_upgrade.mdx#dump-the-whole-cluster-not-the-windmill-database).
+
+The dump can run while the stack keeps processing jobs:
+
+```bash
+(umask 077; docker compose exec -T db pg_dumpall -U postgres > windmill-$(date +%F).sql)
+```
+
+The dump holds every user's password hash and the secret that signs session tokens.
+`umask 077` makes it readable by you only; keep it that way and copy it off the host.
+Each database is dumped from its own snapshot, so a datatable or fork database can be a few seconds out of step with `windmill`; for an exact point in time, [stop the stack first](./postgres_18_upgrade.mdx#dump-while-still-on-the-old-version).
+
+To run it daily at 03:00 from cron (cron needs `%` escaped):
+
+```
+0 3 * * * cd /path/to/windmill && (umask 077; docker compose exec -T db pg_dumpall -U postgres > /backups/windmill-$(date +\%F).sql)
+```
+
+The other volumes need no backup: `worker_dependency_cache`, `lsp_cache` and `windmill_index` are rebuilt on demand, and Caddy re-issues the certificates in `caddy_data`.
+`worker_logs` holds service logs and the overflow of very large job logs; losing it loses that log text, while jobs and their results stay in the database.
+
+To restore, follow the [Replace the cluster](./postgres_18_upgrade.mdx#replace-the-cluster) and [Rebuild planner statistics](./postgres_18_upgrade.mdx#rebuild-planner-statistics) steps of the PostgreSQL upgrade, keeping your current compose file.
+As there, expect exactly one error, `role "postgres" already exists`, and re-save then re-enable any [Postgres triggers](./postgres_18_upgrade.mdx#after-the-upgrade-postgres-triggers) on the instance's own databases, since a dump never includes their replication slots.
+
+With an [external database](#use-an-external-database), use your provider's backups.
 
 ### Reset your instance
 
@@ -682,21 +707,35 @@ healthcheck:
 
 ## First time login
 
-Once you have setup your environment for deployment and have access to the instance, you will be able to login with the default credentials `admin@windmill.dev` / `changeme` (even if you [setup OAuth](../../advanced/27_setup_oauth/index.mdx)).
+Once your instance is running, log in with the default credentials `admin@windmill.dev` / `changeme`.
+A fresh instance prefills them on the login form, and they work even if you have already [set up OAuth](../../advanced/27_setup_oauth/index.mdx).
 
-![First time login](./first_time_login.png "First time login")
+![First time login](./first_time_login.webp "First time login")
 
-Then you will be redirected to the [Instance settings](../18_instance_settings/index.mdx) page. You can always change the settings later.
+The first login opens a welcome dialog with three ways forward.
+Quick setup walks you through the handful of settings a new instance needs, advanced setup opens the full [instance settings](../18_instance_settings/index.mdx) page instead and ends on the same root login step, and skip takes you straight to the workspace list.
+Nothing you choose here is final, since every setting can be changed later from instance settings.
 
-![Instance settings](./instance_settings.png "Instance settings")
+![Welcome to Windmill](./first_time_welcome.webp "Welcome to Windmill")
 
-Then you can set up a new account that will override the default [superadmin](../../core_concepts/16_roles_and_permissions/index.mdx#superadmin) account. This step also syncs [resource types](../../core_concepts/3_resources_and_types/index.mdx#sync-resource-types-with-windmillhub) from [Windmill Hub](https://hub.windmill.dev/) and lets you keep them synced every day.
+Quick setup has four steps: Core, Authentication, AI, and Root login & Resource Types.
+Core holds the base url, which Windmill auto-detects from the address you opened it on: set it to the public URL your users and webhooks reach the instance on.
+Authentication configures SSO providers and is optional, since Windmill uses its own email and password login by default, and AI connects the instance to an AI provider.
+A step you leave untouched changes nothing, and the Skip setup link at the bottom leaves the wizard at any point.
 
-![Setup account](./setup_account.png "Setup account")
+![Core step of the quick setup](./quick_setup_core.webp "Core step of the quick setup")
 
-At last, you will get to create a new workspace.
+The last step is the one that matters for security.
+It replaces the default [superadmin](../../core_concepts/16_roles_and_permissions/index.mdx#superadmin) account with an email and password of your own, and syncs [resource types](../../core_concepts/3_resources_and_types/index.mdx#sync-resource-types-with-windmillhub) from [Windmill Hub](https://hub.windmill.dev/), with a toggle to keep them synced every day.
+Skipping it leaves `admin@windmill.dev` / `changeme` active, so anyone who can reach your instance can log in as superadmin.
+You can still create your own account and delete the default one later from [instance settings](../18_instance_settings/index.mdx).
 
-![Create workspace](./create_workspace.png "Create workspace")
+![Root login and resource types step](./root_login_resource_types.webp "Root login and resource types step")
+
+Setup ends on the workspace list, where the only entry is the `admins` workspace used to manage the instance.
+Create a [workspace](../../core_concepts/44_workspace_settings/index.mdx) of your own to start writing scripts, flows and apps.
+
+![Select a workspace](./select_workspace.webp "Select a workspace")
 
 ## Self-signed certificates
 

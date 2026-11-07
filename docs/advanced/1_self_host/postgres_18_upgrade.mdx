@@ -50,6 +50,7 @@ unless you pass `--exit-on-error`. On a real instance that is several hundred po
 dropped.
 
 `pg_dumpall` of the whole cluster handles both, and preserves role passwords too.
+This is why it is also the command for [routine backups](./index.mdx#back-up-and-restore), which, unlike this migration, do not need the stack stopped.
 
 ## Dump, while still on the old version
 
@@ -58,11 +59,15 @@ previous version first, or temporarily set the image back.
 
 ```bash
 docker compose down && docker compose up --wait db
-docker compose exec -T db pg_dumpall -U postgres > cluster.sql
+(umask 077; docker compose exec -T db pg_dumpall -U postgres > cluster.sql)
 ```
 
 Bringing everything down and then only `db` back up stops the server, the workers and the indexer
 without naming them, so nothing holds a connection during the dump.
+
+The dump holds every user's password hash and the secret that signs session tokens.
+`umask 077` creates it readable by you only; keep it that way wherever you copy it, and delete it
+once the migration is done.
 
 Check the dump lists every database you expect before going further:
 

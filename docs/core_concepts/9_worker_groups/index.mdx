@@ -576,21 +576,23 @@ Configure worker isolation through these environment variables:
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `ENABLE_UNSHARE_PID` | `false` (true in docker-compose) | Enable PID namespace isolation using Linux unshare |
+| `ENABLE_UNSHARE_PID` | `false` | Force PID namespace isolation using Linux unshare, whatever the Job isolation instance setting; the worker fails to start if unshare is unavailable |
+| `FAVOR_UNSHARE_PID` | `false` (true on the default workers of the docker-compose) | Use PID namespace isolation while the Job isolation instance setting is not set |
 | `DISABLE_NSJAIL` | `true` | Enable NSJAIL sandboxing (set to `false` to enable) |
 | `UNSHARE_ISOLATION_FLAGS` | `--user --map-root-user --pid --fork --mount-proc` | Customize unshare isolation flags |
 
 ### Default configuration
 
-The official docker-compose enables PID namespace isolation by default:
+The official docker-compose enables PID namespace isolation on its default workers:
 
 ```yaml
 windmill_worker:
+  privileged: true
   environment:
     - DATABASE_URL=${DATABASE_URL}
     - MODE=worker
     - WORKER_GROUP=default
-    - ENABLE_UNSHARE_PID=true # Enabled by default
+    - FAVOR_UNSHARE_PID=true
 ```
 
 PID namespace isolation prevents jobs from accessing parent process memory and environment variables, protecting sensitive credentials like `DATABASE_URL`.
