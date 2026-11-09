@@ -73,6 +73,10 @@ are in the correct folder or you may loose data.
 [selected workspace](./workspace-management.md#selected-workspace), creating or
 updating the remote equivalents.
 
+A local `ui/` folder is pushed to the workspace's shared UI folder, which [full-code apps](../../full_code_apps/index.mdx) import from with `/ui/` paths, and the local apps that import it are rebuilt to pick up the change.
+`ui/` is pushed whole, regardless of `includes` and `excludes`.
+Pushing `ui/` requires a workspace admin, and a scoped token needs `apps:write` on all paths: if it fails, `wmill sync push` exits with code 1.
+
 ## Pull API
 
 The `wmill sync pull` command is used to pull remote changes and apply them locally. It synchronizes the local workspace with the remote workspace by downloading any remote changes and updating the corresponding local files.
