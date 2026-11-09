@@ -144,16 +144,13 @@ This is useful when iterating on shell scripts or CI pipelines that call `wmill 
 
 ## MCP server
 
-Windmill's [MCP server](../../../core_concepts/51_mcp/index.mdx) allows AI tools to interact directly with a Windmill workspace. It supports:
-- Accessing Windmill documentation
-- Executing [scripts](../../../script_editor/index.mdx) and [flows](../../../flows/1_flow_editor.mdx)
-- Creating, updating, listing, and deleting resources ([schedules](../../../core_concepts/1_scheduling/index.mdx), [variables](../../../core_concepts/2_variables_and_secrets/index.mdx), etc.)
-- Note that for writing and deploying scripts, flows, and apps, we highly recommend using the CLI along with the AGENTS.md file, for better guidance and syntax validation.
+Windmill's [MCP server](../../../core_concepts/51_mcp/index.mdx) gives AI tools the toolset of an [AI session](../../../core_concepts/69_ai_sessions/index.mdx): exploring the workspace, writing [scripts](../../../script_editor/index.mdx), [flows](../../../flows/1_flow_editor.mdx) and apps as drafts, test-running, diffing and deploying them, and running deployed scripts and flows.
+Use it to work in the workspace directly, and the CLI when your code lives in a local repository.
 
 To set up the MCP server with Claude Code:
 
 ```bash
-claude mcp add --transport http windmill https://app.windmill.dev/api/mcp/w/<your-workspace-id>/mcp?token=<your-token>
+claude mcp add --transport http windmill https://app.windmill.dev/api/mcp
 ```
 
 To set up with Cursor, add the following to your MCP configuration:
@@ -162,13 +159,14 @@ To set up with Cursor, add the following to your MCP configuration:
 {
   "mcpServers": {
     "windmill-mcp": {
-      "url": "https://app.windmill.dev/api/mcp/w/<your-workspace-id>/mcp?token=<your-token>"
+      "url": "https://app.windmill.dev/api/mcp"
     }
   }
 }
 ```
 
-See the [MCP documentation](../../../core_concepts/51_mcp/index.mdx) for generating your token and full setup instructions.
+The client opens a Windmill page to sign in and choose the workspaces and access.
+See the [MCP documentation](../../../core_concepts/51_mcp/index.mdx) for access levels and tokens.
 
 <div className="grid grid-cols-2 gap-6 mb-4">
 	<DocCard

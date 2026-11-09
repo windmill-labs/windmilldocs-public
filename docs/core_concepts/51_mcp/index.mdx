@@ -1,5 +1,5 @@
 ---
-description: How do I connect LLMs to Windmill? Use the Model Context Protocol (MCP) to trigger scripts and flows from Claude, Cursor or any MCP client.
+description: How do I connect Claude, ChatGPT or Cursor to Windmill over MCP? Build, test, deploy and run scripts, flows and apps from your AI client at /api/mcp.
 ---
 
 import Tabs from '@theme/Tabs';
@@ -7,16 +7,9 @@ import TabItem from '@theme/TabItem';
 
 # Windmill MCP
 
-Windmill supports the [**Model Context Protocol (MCP)**](https://modelcontextprotocol.io/introduction), an open standard that enables seamless interaction between LLMs and tools like Windmill.
+Windmill supports the [Model Context Protocol (MCP)](https://modelcontextprotocol.io/introduction), an open standard that lets LLM clients call tools.
 
-With MCP, you can connect your favorite LLMs (like [Claude](https://claude.ai/download), [Cursor](https://www.cursor.com), or any [MCP compatible client](https://modelcontextprotocol.io/clients)) to Windmill, allowing you to trigger your scripts and flows from your client chat.
-
-Additionally, MCP provides access to Windmill's API endpoints for basic operations on:
-- **[Jobs](../20_jobs/index.mdx)** - Monitor and manage [job](../20_jobs/index.mdx) executions, including tracking their progress, retrieving logs, and viewing execution results
-- **[Resources](../3_resources_and_types/index.mdx)** - Create, read, update, and delete [resources](../3_resources_and_types/index.mdx) for third-party system connections like databases and APIs
-- **[Variables](../2_variables_and_secrets/index.mdx)** - Manage workspace [variables and secrets](../2_variables_and_secrets/index.mdx) for secure credential storage and configuration management  
-- **[Schedules](../1_scheduling/index.mdx)** - Control [scheduled executions](../1_scheduling/index.mdx) with CRON-like automation for scripts and flows
-- **[Workers](../9_worker_groups/index.mdx)** - Monitor [worker status and configuration](../9_worker_groups/index.mdx), including worker groups and resource allocation
+With MCP, you can connect an external client (like [Claude](https://claude.ai/download), ChatGPT, [Cursor](https://www.cursor.com), or any [MCP compatible client](https://modelcontextprotocol.io/clients)) to Windmill and work in your workspace from its chat.
 
 Windmill can also be the client rather than the server: an [AI session](../69_ai_sessions/index.mdx) chat calls the tools of the external MCP servers you connect to it from its [assistant settings](../69_ai_sessions/index.mdx#mcp-connections).
 The rest of this page covers the other direction, where an external client drives your Windmill workspace.
@@ -31,104 +24,191 @@ The rest of this page covers the other direction, where an external client drive
 	className="border-2 rounded-lg object-cover w-full dark:border-gray-800"
 ></iframe>
 
+## Two ways to connect
+
+The server at `/api/mcp` works in one of two ways, chosen with the [access](#access-levels) at sign-in or on the token:
+
+- As an [AI session](../69_ai_sessions/index.mdx) (Build and run, Read and run, Read only): the client gets Windmill's own tools to explore the workspace, write [scripts](../../script_editor/index.mdx), [flows](../../flows/1_flow_editor.mdx) and [full-code apps](../../full_code_apps/index.mdx) as your [drafts](../0_draft_and_deploy/index.mdx), test-run, diff and deploy them, run what is deployed and read its [runs](../20_jobs/index.mdx).
+- As your scripts and flows (Scripts and flows as tools): each selected script or flow is one typed tool, and the client gets nothing else.
+
+Pick an AI session to build and operate the workspace from your AI client, and scripts and flows as tools to share a few automations with an agent.
+
 ## Connect with Claude
 
 ### From the Claude Connectors Directory
 
 The easiest way to connect Windmill to Claude is through the [Claude Connectors Directory](https://claude.com/connectors):
 
-1. Go to the [Connectors Directory](https://claude.com/connectors) and search for **Windmill**
-2. Click **Connect** and log in to your Windmill account
-3. Select your workspace and choose which tools to expose
-4. Start using your scripts and flows directly from Claude
+1. Go to the [Connectors Directory](https://claude.com/connectors) and search for Windmill
+2. Click Connect and log in to your Windmill account
+3. Choose the workspaces and the access to give Claude
+4. Start working in your workspace from Claude
 
-### As a custom integration
+### As a custom connector {#as-a-custom-integration}
 
-You can also add Windmill manually as a custom integration:
+You can also add Windmill manually as a custom connector:
 
-1. Go to Claude > Settings > [Integrations](https://claude.ai/settings/integrations)
-2. Click "Add an integration"
+1. Go to Claude > Settings > [Connectors](https://claude.ai/settings/connectors)
+2. Click "Add custom connector"
 3. Name it "Windmill" and set the URL to:
 
 ```
-https://app.windmill.dev/api/mcp/gateway
+https://app.windmill.dev/api/mcp
 ```
 
-For self-hosted instances, replace the URL with your own instance base URL (e.g. `https://windmill.example.com/api/mcp/gateway`).
+For self-hosted instances, replace the URL with your own instance base URL (e.g. `https://windmill.example.com/api/mcp`).
 
-4. When redirected to Windmill, select your workspace and configure the scope
-5. Click **Approve** to complete the connection
+4. When redirected to Windmill, choose the workspaces and the access to give Claude
+5. Click Approve to complete the connection
+
+## Connect with ChatGPT
+
+### From the ChatGPT app directory
+
+On Windmill Cloud, connect from the ChatGPT app directory:
+
+1. In ChatGPT, open Apps and search for Windmill
+2. Click Connect and log in to your Windmill account
+3. Choose the workspaces and the [access](#access-levels) to give ChatGPT
+4. Click Approve, then ask ChatGPT about your scripts, flows, apps and runs
+
+### Self-hosted instances
+
+The Windmill app in the ChatGPT directory connects to Windmill Cloud (`app.windmill.dev`).
+To connect your own instance, add it to ChatGPT as a custom app:
+
+1. In ChatGPT, open Settings > Apps > Advanced settings and turn on Developer mode
+2. Click Create app, name it "Windmill" and set the MCP server URL to your instance base URL followed by `/api/mcp`:
+
+```
+https://windmill.example.com/api/mcp
+```
+
+3. Choose OAuth as the authentication
+4. When redirected to Windmill, log in, choose the workspaces and the access to give ChatGPT, and click Approve
+
+ChatGPT connects to your instance from OpenAI's servers, so the instance must be reachable from the internet over HTTPS.
 
 ---
 
 ## How to use
 
+### Authentication
+
+| Method | How |
+|--------|-----|
+| OAuth sign-in (recommended) | Add the bare URL `<base_url>/api/mcp`. The client opens Windmill to sign in and approve. See [Connect with OAuth](#connect-with-oauth) |
+| Token in the URL | `<base_url>/api/mcp?token=<token>`. See [Generate your MCP token and URL](#generate-your-mcp-token-and-url) |
+| Token in a header | The bare URL, with an `Authorization: Bearer <token>` header |
+
+Superadmins can [refuse tokens in URLs](#refuse-tokens-in-mcp-urls).
+
 ### Connect with OAuth
 
-The simplest way to connect is via OAuth. Just add the following URL to your MCP client:
+Windmill's MCP server has one URL:
 
 ```
-<base_url>/api/mcp/gateway
+<base_url>/api/mcp
 ```
 
-(e.g. `https://app.windmill.dev/api/mcp/gateway` for Windmill Cloud, or your own instance URL for self-hosted)
+(e.g. `https://app.windmill.dev/api/mcp` for Windmill Cloud, or your own instance URL for self-hosted)
 
-This is the **gateway URL** — it works without knowing your workspace ID upfront. During the OAuth flow, you'll be prompted to select your workspace and configure which tools (scripts, flows, endpoints) to expose.
+Add it to your client as a remote MCP server.
+The client opens a Windmill page where you sign in, choose the [workspaces](#multi-workspace-tokens) it may work in and its [access](#access-levels), then approve.
 
-If you already know your workspace ID, you can also use the **workspace-specific URL**:
+The URL is also shown, ready to copy, in the "Build and run from your AI client" section of your account settings and in the MCP tab of the home page's connect drawer.
 
-```
-<base_url>/api/mcp/w/<your-workspace-id>/mcp
-```
+### Access levels
 
-(e.g. `https://app.windmill.dev/api/mcp/w/my-workspace/mcp`)
+The access decides which tools the client gets:
 
-Both approaches automatically handle authentication via OAuth.
+| Access | What the client gets |
+|--------|----------------------|
+| Build and run (default) | The whole toolset: explore, write drafts, test-run, diff, deploy, run deployed scripts, flows and AI agents, and read runs |
+| Read and run | The read tools, plus running deployed scripts, flows and AI agents |
+| Read only | The read tools. Nothing is run or changed |
+| Scripts and flows as tools | Each selected script or flow as its own typed tool, and nothing else |
 
-For more fine-grained usage, you can manually create a token to choose which tools are exposed to the client (see below).
+The tools of each level are listed under "Tools the client gets" when you choose it.
+When creating a token through the API, Build and run is the scope `mcp:all`, Read and run `mcp:all mcp:read_run`, and Read only `mcp:all mcp:read_only`.
+Scripts and flows as tools is `mcp:runnables_as_tools` plus the selection: `mcp:favorites`, or `mcp:scripts:<paths>` and `mcp:flows:<paths>`, comma-separated, where a folder is `f/<folder>/*` and everything is `*`.
+`mcp:hub:<integrations>` adds the [Hub](https://hub.windmill.dev) scripts of those integrations.
+
+Every tool call acts as you, so your [permissions](../16_roles_and_permissions/index.mdx) apply: a tool you cannot use, such as changing [workspace settings](../44_workspace_settings/index.mdx) when you are not an admin, is listed but refused.
+With Read and run, the client changes nothing itself, but the scripts and flows it runs can.
+
+With "Scripts and flows as tools", the client cannot explore the workspace, read runs, build, or run anything outside the selection.
+It needs a single workspace.
+When configuring it, you can select favorites, several [folders](../8_groups_and_folders/index.mdx), or individual scripts and flows.
+A tool call waits for the run's result, and the run is canceled if the client disconnects or the wait times out: expose a long-running flow as a short tool that returns its run id with an [early return](../../flows/19_early_return.mdx), next to a tool that reads its status.
+
+### How the client works
+
+The client works as an [AI session](../69_ai_sessions/index.mdx) does, with these differences:
+
+- There is no preview panel: tools return links to the run, the draft's editor or the deployed item.
+- Scripts, flows, apps, schedules, triggers, resources and variables are written as your drafts until deployed. Folders, resource types, workspace settings and datatable changes apply directly.
+- Tools that run code, cancel a run, deploy, delete, overwrite a draft or change live data are marked as destructive, so clients that confirm such calls ask you first.
+  There is no confirmation card.
+- There is no question card, and your personal instructions are not applied.
+
+### Cards in the conversation
+
+Clients that support [MCP Apps](https://modelcontextprotocol.io/extensions/apps/overview), such as Claude and ChatGPT, can also show you results as interactive cards in the chat:
+
+| Tool | What the card shows |
+|------|---------------------|
+| `show_run` | A run, refreshing until it finishes: status, result, logs, inputs and, for a flow, its steps, with a Cancel run button while it runs |
+| `show_runs` | Up to 20 runs as a table |
+| `show_deploy_review` | Up to 10 drafts with their diff against the deployed version, and a Deploy button |
+| `show_item` | A script, flow, schedule, trigger, resource, app or saved AI agent, with links to its editor and its page |
+
+Expand a card to see it fullscreen.
+On a client without fullscreen, the card links to the page in Windmill.
+
+The deploy review and Cancel run are the only actions a card takes.
+To deploy, open the deploy review in fullscreen, check the drafts to deploy and click Deploy.
+If a draft was edited after the card was shown, it is not deployed and the card shows its new diff.
+The deploy review and the Cancel run button need [Build and run](#access-levels) access.
 
 ### Generate your MCP token and URL
 
-1. Navigate to your **account settings** in Windmill.
-2. Create a new **token** under the **Tokens** section, and select **Generate MCP URL**.
+Instead of signing in, a client can use a token:
 
-![Generate MCP token](./user_settings.png 'Generate MCP token')
+1. Open your account settings in Windmill.
+2. In the "Build and run from your AI client" section, expand "Use a token instead of signing in".
+3. Choose the workspaces and the access, then click Generate URL with token.
 
-Once created, your MCP URL will look like this:
-
-```
-<base_url>/api/mcp/w/<your-workspace-id>/mcp?token=<your-token>
-```
-
-(e.g. `https://app.windmill.dev/api/mcp/w/my-workspace/mcp?token=abc123`)
-
-> This token is used to authenticate MCP clients and generate your personal MCP endpoint URL. Save this URL securely. Treat it like an API key—anyone with access can trigger actions in your workspace.
-
-### Multi-workspace tokens
-
-When creating a token, select **All workspaces** in the workspace dropdown to generate a single token that works across every workspace you can access, instead of one token per workspace. This avoids registering a separate MCP server entry in your client for each workspace.
-
-A multi-workspace token has no bound workspace and uses the gateway URL directly:
+The generated URL looks like this:
 
 ```
-<base_url>/api/mcp/gateway?token=<your-token>
+<base_url>/api/mcp?token=<your-token>
 ```
 
-With a multi-workspace token, the MCP server exposes an extra `list_workspaces` tool that returns the workspaces the token can access. Workspace-scoped tools (like `listScripts` or `runScriptByPath`) then require an explicit `workspace_id` argument, which the LLM picks from the `list_workspaces` result. Per-workspace scripts and flows are not enumerated across all workspaces, so run them by path with `runScriptByPath`/`runFlowByPath` and the target `workspace_id`.
+(e.g. `https://app.windmill.dev/api/mcp?token=abc123`)
 
-Access is always gated by workspace membership: the token only reaches workspaces you are a member of, and requests to any other workspace are denied.
+> Save this URL securely. Treat it like an API key: anyone with access can act in your workspace as you, within the token's access.
+
+A token's access can be changed later from the token list.
+
+### Workspaces {#multi-workspace-tokens}
+
+When signing in or creating a token, pick the workspaces the client may work in: one, several, or all of yours, including ones you join later.
+Every AI session tool takes a `workspace_id` naming the workspace it acts in, and `list_workspaces` lists the ones the client may use.
+Requests to any other workspace are refused.
 
 ### Refuse tokens in MCP URLs
 
 A token in a URL ends up in browser history and proxy logs.
 Superadmins can make the MCP endpoints refuse a `?token=` query parameter with the [Disable token in MCP URLs](../../advanced/18_instance_settings/index.mdx#disable-token-in-mcp-urls) instance setting.
 Clients then use the bare MCP URL and sign in through [OAuth](#connect-with-oauth), or send the token in an `Authorization: Bearer <token>` header.
+With the setting on, account settings no longer offer to create a token for a URL.
 
 ---
 
 ### Connect your LLM to Windmill
 
-Most modern LLM agents and interfaces now support MCP as a plug-and-play integration. The Windmill MCP server uses **HTTP streamable** as the transport layer, and MCP clients should be configured to use that protocol. Here are some examples configurations, for Claude Desktop and Cursor.
+Most LLM agents and interfaces support MCP as a plug-and-play integration. The Windmill MCP server uses **HTTP streamable** as the transport layer, and MCP clients should be configured to use that protocol. For example, with Cursor and Claude Code:
 
 To connect with Cursor:
 
@@ -140,160 +220,67 @@ To connect with Cursor:
 {
   "mcpServers": {
     "windmill-mcp": {
-      "url": "<base_url>/api/mcp/w/<your-workspace-id>/mcp?token=<your-token>"
+      "url": "<base_url>/api/mcp"
     }
   }
 }
 ```
-
-To connect with Claude:
-
-- Go to Claude > Settings > Integrations ([here](https://claude.ai/settings/integrations))
-- Click on "Add an integration"
-- Choose a name for your integration (e.g. "Windmill")
-- Add your MCP URL in the "URL" field
 
 To connect with Claude Code:
 
 - Use the Claude Code CLI to add the Windmill MCP server:
 
 ```bash
-claude mcp add --transport http windmill <windmill_url_with_token>
+claude mcp add --transport http windmill <base_url>/api/mcp
 ```
 
-Replace `<windmill_url_with_token>` with your actual MCP URL from the previous step.
+- Run `/mcp` in Claude Code, select windmill and choose Authenticate: the Windmill sign-in page opens in your browser.
 
-Once connected, your LLM will be able to run any script or flow in your Windmill workspace.
+If you [created a token](#generate-your-mcp-token-and-url), send it in a header instead of signing in:
+
+```bash
+claude mcp add --transport http windmill <base_url>/api/mcp --header "Authorization: Bearer <token>"
+```
+
+The header keeps the token out of URLs, which end up in logs.
+The `?token=` URL also works.
+
+### Legacy MCP URLs {#earlier-mcp-urls}
+
+The legacy URLs (`<base_url>/api/mcp/w/<workspace-id>/mcp`, its `/sse` variant and `<base_url>/api/mcp/gateway`) still work; the UI shows only `/api/mcp`.
+Tokens created for them keep the API endpoint tools they were created with.
 
 ### Protocol versions
 
-The server answers five revisions of the MCP specification on the same endpoint: `2024-11-05`, `2025-03-26`, `2025-06-18`, `2025-11-25` and `2026-07-28`. Clients built against an older revision keep negotiating through the `initialize` handshake. Clients on `2026-07-28`, which removes that handshake, send their version in the `MCP-Protocol-Version` header instead and are served statelessly.
-
-Both eras expose the same tools, and the client picks the revision it speaks, so there is nothing to configure on the Windmill side. A client asking for a revision outside that list gets a `400` with JSON-RPC error `-32022`, whose payload lists the revisions the server accepts.
+The server speaks every MCP revision from `2024-11-05` to `2026-07-28`; there is nothing to configure.
 
 ### Tool list updates
 
-The server sends `notifications/tools/list_changed` when a [script](../../script_editor/index.mdx) or [flow](../../flows/1_flow_editor.mdx) of the workspace is added, updated, moved, archived or deleted, so an agent can create a script and call it as a tool in the same conversation.
+With [Scripts and flows as tools](#access-levels), the server sends `notifications/tools/list_changed` when a [script](../../script_editor/index.mdx) or [flow](../../flows/1_flow_editor.mdx) of the workspace is added, updated, moved, archived or deleted, so a new script shows up as a tool in the same conversation.
 Notifications require a client on protocol `2026-07-28` or later: older clients see new tools the next time they list them.
 Changes made outside the MCP tools (the UI, the [CLI](../../advanced/3_cli/index.mdx), [git sync](../../advanced/11_git_sync/index.mdx), another user) can take up to 30 seconds to be announced.
 
-Clients connected with a [multi-workspace token](#multi-workspace-tokens) or a token created with the Read-only toggle on receive no notifications, since their tool list does not include the workspace's scripts and flows.
+The other access levels have a fixed tool list, so they receive no notifications: the client finds new scripts and flows with its exploration tools.
 
-## Example: Triggering a script from Claude
+## Example: Building and deploying a script
 
-Say you’ve created a script called `send_welcome_email`.
+Once your MCP server is connected with Build and run, in Claude you could type:
 
-Once your MCP server is connected, in Claude you could type:
-
-> “Send an email to user@example.com with the subject 'Welcome' and the body 'Welcome to our service!' with Windmill”
+> "Write a script that sends a welcome email to a new user, test it with user@example.com, and deploy it to f/onboarding/send_welcome_email"
 <br/>
 
-Claude will:
-
-- Find the `send_welcome_email` script in your windmill workspace
-- Ask you for required inputs if needed
-- Run the script and show you the result right inside the chat
+Claude will read the guidance for writing scripts, write the script as your draft, test-run it, and deploy it, returning links to the run and to the deployed script.
 
 ## Example: Running a flow and checking its status
 
-You can also trigger multi-step [flows](../../flows/1_flow_editor.mdx) and use the built-in API endpoint tools to monitor them:
+You can also trigger [flows](../../flows/1_flow_editor.mdx) and follow their runs:
 
 > "Run the 'daily_data_sync' flow with the parameter region set to 'us-east-1'"
 
-The LLM will find and execute the flow, then you can follow up:
+Claude finds the flow, runs it and returns a link to the run.
+You can then follow up:
 
-> "What's the status of the job that just ran?"
-
-Claude will use the **Jobs** endpoint tool to look up the most recent execution, returning the job status, duration, and result.
-
-## Example: Managing resources through chat
-
-MCP exposes Windmill's [resource](../3_resources_and_types/index.mdx) management as endpoint tools. You can create or inspect resources conversationally:
-
-> "List all my PostgreSQL resources in Windmill"
-
-> "Create a new Slack resource called 'alerts-channel' with webhook URL https://hooks.slack.com/services/T00/B00/xxx"
-
-Claude will use the **Resources** endpoint tools to list, create, or update resources in your workspace without leaving the chat.
-
----
-
-## Available MCP Tools
-
-In addition to your workspace scripts and flows (which are exposed as individual tools), the Windmill MCP server provides the following built-in API endpoint tools.
-
-When configuring the MCP scope (via OAuth or token generation), you can select **multiple folders** to restrict which scripts and flows are exposed as tools. This lets you expose only the tools relevant to a specific use case without granting access to the entire workspace.
-
-### Scripts & Flows
-
-| Tool | Description |
-|------|-------------|
-| `listScripts` | List all scripts in the workspace |
-| `createScript` | Create a new script |
-| `updateScript` | Deploy a new version of a script, optionally moving it to a new path |
-| `getScriptByPath` | Get a script by its path |
-| `deleteScriptByHash` | Delete a script by hash (admin only) |
-| `deleteScriptByPath` | Delete a script at a given path (admin only) |
-| `runScriptByPath` | Run a script by path |
-| `runScriptPreviewAndWaitResult` | Run a script preview and wait for the result |
-| `listFlows` | List all flows |
-| `getFlowByPath` | Get a flow by its path |
-| `createFlow` | Create a new flow |
-| `updateFlow` | Update an existing flow |
-| `deleteFlowByPath` | Delete a flow by path |
-| `runFlowByPath` | Run a flow by path |
-
-### Resources & Variables
-
-| Tool | Description |
-|------|-------------|
-| `listResource` | List all resources |
-| `getResource` | Get a resource |
-| `createResource` | Create a new resource |
-| `updateResource` | Update an existing resource |
-| `deleteResource` | Delete a resource |
-| `listResourceType` | List available resource types |
-| `listVariable` | List all variables |
-| `getVariable` | Get a variable |
-| `createVariable` | Create a new variable |
-| `updateVariable` | Update an existing variable |
-| `deleteVariable` | Delete a variable |
-
-### Jobs & Schedules
-
-| Tool | Description |
-|------|-------------|
-| `getJob` | Get details of a specific job by ID |
-| `getJobLogs` | Get logs for a specific job by ID |
-| `listJobs` | List all completed jobs |
-| `listQueue` | List all queued jobs |
-| `listSchedules` | List all schedules |
-| `getSchedule` | Get a schedule |
-| `createSchedule` | Create a new schedule |
-| `updateSchedule` | Update an existing schedule |
-| `deleteSchedule` | Delete a schedule |
-
-### Apps & Workers
-
-| Tool | Description |
-|------|-------------|
-| `listApps` | List all apps, low-code and full-code alike |
-| `getAppByPath` | Get an app and its whole value |
-| `createApp` | Create a [full-code app](../../full_code_apps/index.mdx) from its sources |
-| `updateApp` | Update a full-code app from its sources |
-| `listWorkers` | List workers and their status |
-
-The two write tools deploy [full-code apps](../../full_code_apps/index.mdx): they take the app's source files and [compile them on a worker](../../full_code_apps/7_deployment/index.mdx#deploy-from-sources-via-the-api), returning compile errors as the error of the call so the agent can fix its own code. That compile runs the app's own dependencies on a worker, which a token is only allowed to do if it names these tools: select `createApp` and `updateApp` individually when configuring the scope. A token exposing all tools, favorites or a whole folder still lists them, but their calls are refused.
-
-[Low-code apps](../../apps/0_app_editor/index.mdx) have no write tool: an agent can list and read them, but they are built in the app editor. `raw_app` in the result of `listApps` and `getAppByPath` tells the two kinds apart. `updateApp` takes the whole value rather than a patch, so read it with `getAppByPath` first; an app large enough to hit the tool-result size limit comes back truncated, and deploying that fails the build rather than deploying something partial, so edit those in the app editor or with the [CLI](../../full_code_apps/5_cli_workflow/index.mdx).
-
-### Other
-
-| Tool | Description |
-|------|-------------|
-| `searchDocs` | Search the Windmill documentation and get back matching pages |
-| `readDocsPage` | Read one documentation page, or one of its sections |
-| `listDataMetrics` | List the [measures and dimensions](../63_pipelines/measures.mdx) declared on DuckLake tables |
+> "Did it succeed? Show me the logs of the failed step."
 
 ---
 
@@ -361,9 +348,8 @@ Unlike [webhooks](../4_webhooks/index.mdx#request-headers), there is no `include
 
 ### Which tools deliver headers
 
-Only the tools generated from your workspace's own scripts and flows, one per runnable.
-The [endpoint tools](#available-mcp-tools), including `runScriptByPath` and `runFlowByPath`, reach a runnable over a second HTTP request, so a preprocessor invoked that way sees that request rather than the caller's.
-[Multi-workspace tokens](#multi-workspace-tokens) expose only endpoint tools, so they never deliver headers.
+Only the per-script and per-flow tools of a [Scripts and flows as tools](#access-levels) token.
+`run_script`, `run_flow`, `runScriptByPath` and `runFlowByPath` start the run through a second request, so its preprocessor does not see the caller's headers.
 
 Which tool the model picks is its own choice, so a preprocessor relying on a header should treat a missing one as an error rather than defaulting.
 A preprocessor also runs only on a triggered run: a [scheduled](../1_scheduling/index.mdx) run or a preview calls `main` directly with the arguments it is given.
@@ -375,7 +361,7 @@ Where a runnable relies on an identity read from its headers, scope the token to
 
 - **Not seeing any scripts/flows?**
   - Ensure your LLM tool is connected to the correct MCP URL.
-  - If you chose the "favorites only" option when creating your MCP URL, make sure the script or flow is in your favorites.
+  - With [Scripts and flows as tools](#access-levels) set to favorites, make sure the script or flow is in your favorites.
 - **My LLM does not find the correct script/flow to run**
   - Ensure the script or flow is deployed and visible in your workspace.
   - Choose good titles and descriptions to help the LLM find the correct script/flow.
@@ -394,4 +380,4 @@ Where a runnable relies on an identity read from its headers, scope the token to
 - [MCP official docs](https://modelcontextprotocol.io/introduction)
 - [MCP compatible clients](https://modelcontextprotocol.io/clients)
 - [Windmill Privacy Policy](https://www.windmill.dev/privacy_policy)
-- [Support & Community](https://discord.com/invite/V7PM2YHsPB) — join our Discord or open an issue on [GitHub](https://github.com/windmill-labs/windmill/issues)
+- [Support & Community](https://discord.com/invite/V7PM2YHsPB): join our Discord or open an issue on [GitHub](https://github.com/windmill-labs/windmill/issues)
