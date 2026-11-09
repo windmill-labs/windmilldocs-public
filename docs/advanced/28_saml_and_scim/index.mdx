@@ -245,6 +245,6 @@ This is available under Enterprise Edition and is off unless the setting below i
 #### Enabling it
 
 1. Have your identity provider emit the groups claim with group ids. On Entra, see [configuring the groups claim](#configuring-the-groups-claim).
-2. In the [instance settings](../18_instance_settings/index.mdx#sso-groups-claim), in the "Auth/OAuth/SAML" section under the SSO tab, set "SSO groups claim" to the attribute name: `http://schemas.microsoft.com/ws/2008/06/identity/claims/groups` for Entra SAML, or the userinfo key (usually `groups`) for an OIDC provider. Leave it empty to turn the feature off.
+2. In [Instance settings](../18_instance_settings/index.mdx#sso-groups-claim) -> Authentication -> SSO, set "SSO groups claim" to the attribute name: `http://schemas.microsoft.com/ws/2008/06/identity/claims/groups` for Entra SAML, or the userinfo key (usually `groups`) for an OIDC provider. Leave it empty to turn the feature off.
 3. Give the groups their privileges: an instance-level role from the instance group editor, or a workspace role from the workspace's user management settings.
 4. Test with one user: add them to the group in the identity provider, log in, then remove them and log in again. Grants and removals made at login appear in the [audit logs](../../core_concepts/14_audit_logs/index.mdx#scim-and-sso-operations) with the "Instance" scope, recorded by the `sso` user under the operations `instance_groups.jit_adduser` and `instance_groups.jit_removeuser`.
