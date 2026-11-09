@@ -38,7 +38,7 @@ Your resource can be used [passed as parameters](../core_concepts/3_resources_an
 
 ## Native triggers
 
-The `gworkspace` resource type is also used by Google [native triggers](../triggers/11_native_triggers/index.mdx) to watch for changes in Google Drive and Google Calendar. When configured through the native triggers workspace integration, the resource is created with different scopes (`drive.readonly`, `calendar.readonly`, `calendar.events`) tailored to receiving push notifications.
+The `gworkspace` resource type is also used by Google [native triggers](../triggers/11_native_triggers/index.mdx) to watch for changes in Google Drive and Google Calendar. When an account is connected for native triggers, the resource is created with different scopes (`drive.readonly`, `calendar.readonly`, `calendar.events`) tailored to receiving push notifications.
 
 :::tip
 
