@@ -71,7 +71,7 @@ Everyone on the team works in the same workspace. Developers iterate in their ow
 
 ## Stage 2 — Add forks and the merge UI
 
-Stop editing the shared workspace directly. Instead, developers create a [workspace fork](../20_workspace_forks/index.mdx) for each change, iterate in the fork, and merge back via the [merge UI](../20_workspace_forks/index.mdx#merge-workspaces-from-the-ui-merge-ui). [Protection rulesets](../../core_concepts/56_protection_rulesets/index.mdx) enforce this: direct deploys to the shared workspace are blocked except for a small `wm_deployer` group.
+Stop editing the shared workspace directly. Instead, developers create a [workspace fork](../20_workspace_forks/index.mdx) for each change, iterate in the fork, and merge back via the [merge UI](../20_workspace_forks/index.mdx#merge-workspaces-from-the-ui-merge-ui). [Protection rulesets](../../core_concepts/56_protection_rulesets/index.mdx) enforce this: direct deploys to the shared workspace are blocked except for a small `wm_deployers` group.
 
 This is still a pure UI workflow — no git, no CI/CD, no external tools. Stage 3 will add git sync on top, and forks integrate seamlessly with it when you get there.
 
@@ -82,7 +82,7 @@ Forks are not a prerequisite for stage 3. Git sync works on a plain shared works
 ### Architecture
 
 - One shared workspace (same as stage 1), now called `prod` or `main`
-- [Protection rulesets](../../core_concepts/56_protection_rulesets/index.mdx) block direct deploys; a `wm_deployer` group has bypass permissions
+- [Protection rulesets](../../core_concepts/56_protection_rulesets/index.mdx) block direct deploys; a `wm_deployers` group has bypass permissions
 - Developers create [workspace forks](../20_workspace_forks/index.mdx) to develop features
 - Changes merge back through the [merge UI](../20_workspace_forks/index.mdx#merge-workspaces-from-the-ui-merge-ui)
 
@@ -90,16 +90,16 @@ Forks are not a prerequisite for stage 3. Git sync works on a plain shared works
 
 ### Setup
 
-#### 1. Create the `wm_deployer` group
+#### 1. Add deployers to the `wm_deployers` group
 
 1. Open the workspace settings and go to **Groups**.
-2. Create a group called `wm_deployer` and add the users who are allowed to deploy directly or approve merges.
+2. Every workspace has a built-in `wm_deployers` group. Add to it the users who are allowed to deploy directly or approve merges.
 
 #### 2. Enable protection rulesets
 
 1. Go to **Workspace settings** → **Protection Rulesets**.
 2. Add a rule that enables **Disable direct deployment**.
-3. Add the `wm_deployer` group to the bypass list.
+3. Add the `wm_deployers` group to the bypass list.
 
 This blocks everyone except the deployer group from modifying `f/` items directly. Developers must now use forks.
 
@@ -108,7 +108,7 @@ This blocks everyone except the deployer group from modifying `f/` items directl
 1. A developer creates a [workspace fork](../20_workspace_forks/index.mdx#fork-creation) from the shared workspace via the workspace menu.
 2. They iterate, test, and deploy freely *inside* the fork — triggers are not copied over to avoid unwanted executions.
 3. When ready, they open the fork home page, click **Review & Deploy Changes**, and review the diff in the [merge UI](../20_workspace_forks/index.mdx#merge-workspaces-from-the-ui-merge-ui).
-4. A member of `wm_deployer` approves the merge. The changes land in the shared workspace.
+4. A member of `wm_deployers` approves the merge. The changes land in the shared workspace.
 
 ### When to move to stage 3
 

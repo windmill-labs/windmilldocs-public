@@ -20,7 +20,7 @@ Below you will find guides on how to contribute to the Hub, thank you for being 
 
 ## Projects
 
-A project bundles a whole [folder](../../core_concepts/8_groups_and_folders/index.mdx) - its scripts, flows, apps and the resources they depend on - into a single Hub page others can fork. Workspace admins publish one from the Folders page: open the `...` menu next to a folder and pick "Publish to Hub".
+A project bundles a [folder](../../core_concepts/8_groups_and_folders/index.mdx), or one of its sub-folders - its scripts, flows, apps and the resources they depend on - into a single Hub page others can fork. Workspace admins publish one from the Folders page: open the `...` menu next to a folder and pick "Publish to Hub".
 
 Publishing happens in three steps:
 
