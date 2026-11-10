@@ -1,0 +1,164 @@
+---
+slug: self-host-production-internal-software
+image: ./thumbnail.png
+authors: [rubenfiszel]
+tags: ['Security', 'Self-hosting', 'Platform engineering']
+description: 'Should you self-host the platform that holds your production secrets? After the October 2026 Railway, Trigger.dev and Inngest incidents, our answer is yes, Windmill Cloud included.'
+title: 'For security, self-host your production internal software, including Windmill'
+---
+
+import DocCard from '@site/src/components/DocCard';
+
+# For security, self-host your production internal software, including Windmill
+
+No platform is immune to security bugs, and that includes ours.
+So for anything that holds production credentials, we think the most secure setup is the one you run yourself, and that goes for Windmill as much as anyone else.
+
+In October, [Railway](https://railway.com) [told all of its users](https://techcrunch.com/2026/10/22/developer-platform-railway-urges-all-users-to-revoke-secret-keys-after-cyberattack/) to rotate every secret stored on the platform.
+[Trigger.dev](https://trigger.dev) [disclosed](https://trigger.dev/blog/security-incident-nov-2026) that an attacker had read some customers' environment variables, a few weeks after fixing a series of bugs that let one customer reach another customer's runs and data.
+[Inngest](https://www.inngest.com) [patched an SDK bug](https://www.inngest.com/blog/cve-2026-42047) that handed `process.env` to anyone who sent the right HTTP verb.
+None of these teams is careless, and none of this is specific to them.
+This post is about why the risk is structural, why it applies to every hosted platform including ours, and how to layer your defenses against it.
+
+{/* truncate */}
+
+## What happened in October
+
+Each of these vendors disclosed quickly and in public, which is more than many do.
+In all likelihood they have stellar engineering teams, and what happened to them can happen to any of us.
+What matters is what the incidents have in common.
+
+**Railway.** On October 21, Railway disclosed that an unauthorized party may have accessed the encrypted environment variables of its customers, and obtained decrypted values for some of them.
+It paused deployments, asked all users to revoke and rotate their keys, and linked the attack to a series of attacks on platform companies aimed at stealing AI inference credentials ([TechCrunch](https://techcrunch.com/2026/10/22/developer-platform-railway-urges-all-users-to-revoke-secret-keys-after-cyberattack/), [GitGuardian](https://blog.gitguardian.com/railway-october-2026-incident-environment-variables/)).
+
+**Trigger.dev.** A run of authorization bugs fixed across the 4.5 and 4.6 releases: authenticated users could delete or disable other organizations' schedules ([CVE-2026-114078](https://www.strix.ai/cve/CVE-2026-114078)), block other organizations' runs ([CVE-2026-114068](https://www.strix.ai/cve/CVE-2026-114068)), and read or overwrite payloads outside their own tenant through a path traversal ([CVE-2026-114083](https://vulners.com/vulnrichment/VULNRICHMENT:CVE-2026-114083)).
+Then on November 1, Trigger.dev disclosed that an attacker had obtained customer root API keys for some environments and used them to read environment variables, affecting 0.66% of its customers ([disclosure](https://trigger.dev/blog/security-incident-nov-2026), [incident report](https://trigger.dev/blog/security-incident-report-nov-2026)).
+It hasn't shared the attack vector yet, but its report says self-hosters were not affected.
+
+**Inngest.** [CVE-2026-42047](https://www.inngest.com/blog/cve-2026-42047): in versions 3.22.0 to 3.53.1 of the TypeScript SDK, a `PATCH`, `OPTIONS` or `DELETE` request to the app's `serve()` endpoint fell through to a diagnostic handler that returned the process's environment variables, unauthenticated ([advisory](https://github.com/inngest/inngest-js/security/advisories/GHSA-2jf5-6wwv-vhxx)).
+Inngest's own systems were never accessed.
+
+These are two different problems, and self-hosting helps with both for different reasons.
+
+## Problem one: pooling
+
+A job runner, a workflow engine or an internal tool platform is only useful if it can reach your systems.
+So it holds your database password, your cloud credentials, your Stripe key.
+
+On a multi-tenant platform, it holds everyone's, and the other tenants are already inside.
+Anyone who signs up gets an authenticated account on the same API, the same workers and the same database as you.
+
+That changes the security problem.
+Keeping someone fully out is one decision at the edge: either they can reach the instance or they can't.
+Making sure someone who is in can only touch what's theirs is thousands of decisions: every endpoint, every query filter, every shared cache and worker, in every release.
+Get one of them wrong and you have a class of bug that doesn't exist when everyone inside works for the same company: cross-tenant access.
+
+When one check is missing, the result is the Trigger.dev CVE list: "other organizations" in nearly every description.
+When the intrusion is below the application layer, the result is Railway's: one store, every customer asked to rotate.
+And the target is attractive precisely because it's pooled.
+Railway said the attackers were after AI inference keys, and a platform that stores thousands of customers' keys is a much better target than any single customer.
+
+The same bugs exist in self-hosted deployments.
+Trigger.dev is open source, and a self-hosted instance running an affected version had the same missing checks.
+But on your own instance, "other organizations" are all yours.
+A cross-tenant bug becomes an internal privilege issue, and an intrusion reaches one company's secrets instead of everyone's.
+
+## Problem two: exposure
+
+The Inngest bug wasn't about pooling at all.
+The vulnerable code ran inside each customer's own application, and the leaked secrets were that application's own environment.
+
+Self-hosting the Inngest server alone wouldn't have fixed it: your app still ships the SDK, and you still have to patch it.
+What made it exploitable at scale was the architecture.
+Inngest Cloud works by calling into your app, so `serve()` has to be reachable from the internet, and anything reachable from the internet gets scanned.
+With a self-hosted control plane on your network, that endpoint can stay private, and the same bug is still there but nobody outside can send the request.
+
+This is the property worth checking in any tool you run: which direction do the connections go?
+In Windmill, workers pull jobs from the queue and only make outbound connections.
+Regular workers connect to Postgres, and they're meant to run next to it on the same private network, so the database is never exposed either.
+[Agent workers](/docs/core_concepts/agent_workers) connect to the server over HTTP only, so they need neither database credentials nor any inbound port.
+You can put them in a locked-down segment, another VPC or another datacenter, with outbound HTTPS as the only firewall rule.
+
+## Defense in depth
+
+Windmill Cloud is a multi-tenant platform too, and it carries the same structural risk as everyone above.
+We hold it to the highest standards we can: code review, sandboxed execution, fast patches.
+But the vendors above have strong teams too, and that wasn't enough.
+Shipping at the highest standard lowers the odds, it doesn't take them to zero.
+Over a long enough time, every platform with this much surface has a bad day.
+
+That time is getting shorter.
+AI models now find vulnerabilities and write working exploits on their own ([Forescout](https://www.forescout.com/blog/ai-security-testing-agents-leap-from-assistants-to-autonomous-hackers/), [Cloud Security Alliance](https://labs.cloudsecurityalliance.org/research/csa-whitepaper-ai-autonomous-vuln-discovery-threat-model-202/)), and attackers have the same models as defenders.
+Every vulnerability will eventually be found and exploited, it's only a question of when, and that makes it more urgent than ever to limit what any single bug can reach.
+
+We've had our own entry in the same class as Trigger.dev's.
+[GHSA-2jfj-x8j7-7mfh](https://github.com/windmill-labs/windmill/security/advisories/GHSA-2jfj-x8j7-7mfh), published in September, could lead to cache poisoning across workspaces sharing a worker.
+It was fixed in 1.782.0, a month before the advisory went out, and we have confirmed it was never exploited in an attack.
+
+So the question isn't which vendor never makes a mistake.
+It's what happens when one does, and the answer is layers, each one assuming the one before it has failed.
+
+**Layer 1: no multi-tenancy.**
+When the instance is yours, there is no other tenant on the other side of the boundary, and a bug in it can't reach anyone else's keys or let anyone else reach yours.
+On a single-tenant instance, that cache poisoning stays inside your own company instead of reaching someone else's.
+
+**Layer 2: no inbound connections.**
+Put the instance behind a VPN or a zero-trust proxy, and let workers only connect outbound.
+A bug that needs a request from the internet can't be exploited by someone who can't send one.
+This is the "keep them fully out" decision from earlier, and it's far easier to get right than the thousands of checks that keep an insider in their lane.
+
+**Layer 3: no implicit trust.**
+The first two keep outsiders out, but they do nothing about a phished employee, a stolen laptop already on the VPN, or a leaked token.
+So being on the network shouldn't grant anything by itself: every request carries an identity and gets checked.
+For people, that means SSO and roles that give each person only what their job needs.
+For code, it means credentials that die with the work: a token per job that carries only that job's permissions and expires with it, narrowed further for code that handles untrusted input like an AI agent, and workload identity from your platform instead of long-lived secrets in environment variables.
+This is the "keep an insider in their lane" problem again, but at a size you can manage.
+The insiders are your employees rather than anyone who signed up, and when a check is wrong, the damage stays inside your company.
+
+**Layer 4: a full record.**
+When every other layer has failed, audit logs are how you find out what was touched and when, and they're what lets anyone say "it was never exploited" with confidence.
+To be useful on the day you need them, they have to live somewhere an attacker can't erase, so ship them off the box, to storage the instance itself can't delete from.
+
+Self-hosting is what makes the first two layers possible, and the last two are yours to set up on top.
+
+## What self-hosting doesn't fix
+
+Self-hosting moves the work onto your team.
+You still patch: the Inngest bug was in your own dependency, and self-hosting the server did nothing about it.
+You still rotate secrets after an advisory.
+You still need someone who'll notice a release with a security fix in it.
+
+What you get in exchange is a smaller blast radius and less attack surface.
+A bug in your instance is your incident, not one of a thousand customers' incidents, and an instance with no public ingress isn't in anyone's scan results.
+
+## The rest of the checklist
+
+- Give each group of workers only the network access its jobs need.
+- Keep secrets out of the platform's database altogether, in a secret manager you already run, so a database dump or an SQL injection doesn't hand over your credentials. Encryption with a key stored in the same database doesn't count.
+- Pin versions, and subscribe to your vendors' security advisory feeds so a fix doesn't sit unread for a month.
+
+## When cloud is still fine
+
+If you're a small team with nobody to run infrastructure, a well-run cloud beats a self-hosted instance nobody patches.
+If your workflows don't hold credentials that matter, the pooling argument mostly doesn't apply.
+And for prototyping, use whatever gets you running.
+
+There's also a middle ground.
+Some vendors, us included, offer dedicated single-tenant instances with their own servers and database, so there are no other tenants and you get layer 1 without running anything yourself.
+It's still reachable from the internet, though, so you give up layer 2.
+
+The line we'd draw is the credentials.
+Once a platform holds the keys to production, its worst day becomes yours, along with everyone else on it.
+Run it where its worst day is only yours.
+
+## How Windmill fits
+
+Since we're telling you to self-host, here's what that looks like for Windmill.
+Windmill is open source and [runs on your own infrastructure](/docs/advanced/self_host) with Docker or Kubernetes, and the open source edition gives you layers 1 and 2: your own instance on your own network, with workers that only connect outbound.
+Per-job tokens and [roles](/docs/core_concepts/roles_and_permissions) are included too.
+Some of the rest is in our [Enterprise Edition](/pricing): [external secret backends](/docs/core_concepts/variables_and_secrets#secret-storage-backends) (HashiCorp Vault, Azure Key Vault) and [audit log export](/docs/core_concepts/audit_logs#exporting-audit-logs-to-object-storage) to your own bucket.
+You can get the same properties from other tools, and you should, whatever you run.
+
+<div className="grid grid-cols-2 gap-6 mb-4">
+	<DocCard title="Self-host Windmill" description="Run Windmill on Docker or Kubernetes on your own infrastructure." href="/docs/advanced/self_host" />
+</div>
