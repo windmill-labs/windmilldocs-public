@@ -117,6 +117,22 @@ A variable can be made secret. In this case, its value will not be visible outsi
 
 ![Add variable](./add_variable.png.webp)
 
+## Value expiration
+
+Any variable, secret or not, can have a value expiration date (Advanced section of the variable editor), such as the expiry date of an API key.
+The variable is never deleted: the date only triggers the workspace's [variable expiration handler](#variable-expiration-handler), if one is set.
+In the API and [CLI](../../advanced/3_cli/index.mdx) files the field is `value_valid_until`, not to be confused with `expires_at`, which deletes the variable.
+Variables linked to an [OAuth](../../advanced/27_setup_oauth/index.mdx) account cannot have one, since Windmill refreshes their value itself.
+
+### Variable expiration handler
+
+In the "Variable expiration" tab of [workspace settings](../44_workspace_settings/index.mdx), admins pick a handler that runs ahead of a value's expiration so it can be rotated: a Slack or Teams message ([Enterprise Edition](/pricing)), or a script or flow of your own, starting from the provided template.
+It runs 1 day before expiry by default, and can repeat as reminders until the value expires.
+A handler that cannot start raises a [critical alert](../37_critical_alerts/index.mdx).
+
+The handler receives `workspace_id`, `variable_path`, `description`, `value_valid_until` and `is_secret`, never the value.
+It runs as the group `g/variable_expiration_handler`, which starts with no access to variables: grant it write access to the variables a custom handler rotates.
+
 ## Secret masking in job logs
 
 Windmill automatically masks secret values in job logs to prevent accidental leakage. When a job fetches a secret variable (or is given `$encrypted:` arguments), the plaintext values are tracked per-job and masked in stdout/stderr before logs are persisted.
@@ -136,7 +152,7 @@ Notes:
 
 ## Secret storage backends
 
-By default, Windmill stores encrypted secrets in its own database using a workspace-specific symmetric key. On [Enterprise Edition](/pricing), superadmins can instead delegate secret storage to an external secret manager, keeping the ciphertext out of the Windmill database entirely.
+By default, Windmill stores encrypted secrets in its own database using a workspace-specific symmetric key. On Enterprise Edition, superadmins can instead delegate secret storage to an external secret manager, keeping the ciphertext out of the Windmill database entirely.
 
 Secret backends are configured instance-wide from **Instance Settings → Secret backend**. Changes take effect immediately without restarting the server, and Windmill provides a **Test connection** button plus bidirectional migration endpoints to move existing secrets between backends (`Database → Vault/Key Vault` and back).
 
