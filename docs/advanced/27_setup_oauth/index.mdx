@@ -28,6 +28,10 @@ We recommend using a private navigation tab to test the new settings as soon as 
 
 On [Enterprise Edition](/pricing), an OIDC provider that returns a groups claim in its userinfo response can also drive membership in SCIM-provisioned [instance groups](../../core_concepts/8_groups_and_folders/index.mdx#instance-groups) at each login: see [login-time group sync](../28_saml_and_scim/index.mdx#login-time-group-sync-from-the-idp-groups-claim).
 
+For an OIDC provider, Windmill reads the user's email from the `email` userinfo claim and the username of a new account from `preferred_username`.
+[GitHub](#github) and [Nextcloud](#nextcloud) take the email from their own API instead.
+On Enterprise Edition, the [SSO email claim](../18_instance_settings/index.mdx#sso-email-claim) and [SSO username claim](../18_instance_settings/index.mdx#sso-username-claim) instance settings read them from other claims.
+
 ### Google login
 
 <iframe

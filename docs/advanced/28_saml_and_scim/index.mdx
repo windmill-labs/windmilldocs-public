@@ -20,6 +20,9 @@ Application username format is `Email`
 
 In the Instance settings UI, pass the SAML Metadata URL (or content) containing the metadata URL (or XML content).
 
+Windmill takes the user's email from the NameID.
+If your identity provider sends a username as NameID and the email in an attribute, set the [SSO email claim](../18_instance_settings/index.mdx#sso-email-claim) to that attribute, and the [SSO username claim](../18_instance_settings/index.mdx#sso-username-claim) to `NameID` to keep it as the username.
+
 :::tip
 
 You can control the entity ID using the `SAML_AUDIENCE` environment variable. This can be useful if you want to use the same identity provider for multiple instances (e.g dev / prod).
