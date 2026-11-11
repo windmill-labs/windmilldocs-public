@@ -75,7 +75,7 @@ A `write` scope automatically includes `read` access for the same domain and res
 
 ### Available scope domains
 
-All domains support `read` and `write` actions. The **Jobs** domain additionally supports `run:scripts`, `run:flows`, `run:dependencies` (shown as **Generate dependency locks** in the selector) and `cancel`.
+All domains support `read` and `write` actions. The **Jobs** domain additionally supports `run:scripts`, `run:flows`, `run:agents` (running a [saved AI agent](../54_ai_agents/index.mdx#standalone-agents), created from the agent's webhook panel rather than offered in the selector), `run:dependencies` (shown as **Generate dependency locks** in the selector) and `cancel`.
 
 Domains with path restriction support: `scripts`, `flows`, `apps`, `raw_apps`, `resources`, `variables`, `schedules`, `folders`, `jobs` (for read, run and cancel), and all trigger types (`http_triggers`, `websocket_triggers`, `kafka_triggers`, `nats_triggers`, `mqtt_triggers`, `sqs_triggers`, `gcp_triggers`, `postgres_triggers`).
 

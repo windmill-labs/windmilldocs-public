@@ -23,6 +23,8 @@ This is how Windmill connects to any third-party system: pick one of the 200+ re
 
 ![Recap Resources and Types](./recap_resources_and_types.png 'Recap Resources and Types')
 
+Resources can also hold configuration that is not a connection: an [AI agent](../54_ai_agents/index.mdx#reusable-agents) saved for reuse across flows is stored as an `ai_agent` resource, with its own editor.
+
 While resources store configuration and credentials for connections, [Assets](../52_assets/index.mdx) track data flows and visualize datasets. Assets automatically detect when you reference [S3 objects](../38_object_storage_in_windmill/index.mdx#workspace-object-storage) (`s3://storage/path/to/file.csv`) or resources (`res://path/to/resource`) directly in your code, creating a visual representation of your data pipeline. This helps you understand how data moves through your workflows and identify dependencies between different data sources.
 
 :::tip

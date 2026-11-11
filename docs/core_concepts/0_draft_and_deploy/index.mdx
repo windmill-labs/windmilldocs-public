@@ -23,8 +23,8 @@ Once deployed, scripts, flows and apps will be visible, editable and/or runnable
 ## Draft
 
 Drafts are user-scoped and automatically saved to the database whenever you make changes in the editor. The script, flow, app, and raw app editors all display an **Autosave indicator** that shows when your changes are being saved.
+Resources are drafted the same way, [saved AI agents](../54_ai_agents/index.mdx#editing-a-saved-agent) included; testing a flow runs the drafts of the agents it links, and deploying it offers to deploy them.
 
-<!-- PLACEHOLDER: Replace with screenshot of the autosave indicator in the editor toolbar, showing the "Saving..." and "Saved" states -->
 ![Autosave indicator](./autosave_indicator.png "Autosave indicator")
 
 The autosave is intelligently debounced to avoid data loss while preventing excessive requests. Your work is continuously preserved without needing to manually click a save button.

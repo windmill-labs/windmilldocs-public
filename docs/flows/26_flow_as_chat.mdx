@@ -19,7 +19,7 @@ When chat is enabled, a chat-input virtual node is rendered on the flow graph to
 - The user's latest chat message (as the flow's chat input argument)
 - A `memory_id` identifying the current conversation
 
-The flow is free to use the `memory_id` to load conversation history, persist state, or pass it to AI agent steps for multi-turn memory.
+AI agent steps with [managed memory](../core_concepts/54_ai_agents/index.mdx#memory-auto--manual) inherit this `memory_id` by default, so each conversation keeps its own agent history.
 
 ## Conversations
 
