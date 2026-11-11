@@ -25,7 +25,7 @@ All details on the [Pricing page](/pricing).
 
 ### Workspace forks and billing
 
-On [Windmill Cloud](https://app.windmill.dev/), [workspace forks](../../advanced/20_workspace_forks/index.mdx) are available for workspaces on a paid (Team or Enterprise) plan. A fork does not carry its own subscription: it inherits the plan and usage limits of its parent (root) workspace, and its executions are metered into the root workspace's usage so they draw from the same pool and count toward the root's usage-based bill. The number of forks a workspace family can have is capped at 5 per paid (developer) seat of the root workspace. Free-tier workspaces cannot create forks. See [Forks on Windmill Cloud](../../advanced/20_workspace_forks/index.mdx#forks-on-windmill-cloud) for details.
+On [Windmill Cloud](https://app.windmill.dev/), [workspace forks](../../advanced/20_workspace_forks/index.mdx) are available for workspaces on a paid (Team or Enterprise) plan. A fork does not carry its own subscription: it inherits the plan and usage limits of its parent (root) workspace, and its executions are metered into the root workspace's usage so they draw from the same pool and count toward the root's usage-based bill. The number of forks a workspace family can have is capped at 5 per [seat](#upgrading-to-team-edition) of the root workspace. Free-tier workspaces cannot create forks. See [Forks on Windmill Cloud](../../advanced/20_workspace_forks/index.mdx#forks-on-windmill-cloud) for details.
 
 <div className="grid grid-cols-2 gap-6 mb-4">
 	<DocCard
@@ -81,7 +81,7 @@ Team plans work at the workspace-level.
 - To upgrade to the Team edition, open the <a href="https://app.windmill.dev/workspace_settings?tab=premium" rel="nofollow">Premium plans</a> tab of your workspace settings on Windmill cloud.
 - Click on "Upgrade to Team plan".
 - Follow the instructions to complete the upgrade process, which includes accessing the Stripe payment page.
-- The billing will be automatically adjusted based on the number of users and computations.
+- Billing follows the workspace's seats and computations. Every enabled member counts: an admin or a member whose [role](../../core_concepts/16_roles_and_permissions/index.mdx#roles-and-seats) builds is one seat, any other member half a seat, and a [service account](../../core_concepts/16_roles_and_permissions/index.mdx#service-accounts) half a seat even as an admin. The workspace total is rounded up.
 
 ### Upgrading to Enterprise Edition
 
