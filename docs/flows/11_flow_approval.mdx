@@ -189,10 +189,17 @@ With `Minimal`:
 
 The `resumeButtonText` and `cancelButtonText` options of the TypeScript Slack helper still override the labels of the modal's buttons.
 
+### Deny with a reason
+
+An approver who denies from the approval page, or from a flow's approval panel on the run page, can give an optional reason.
+When calling the cancel URL directly, send it as `reason` in the JSON body, for example `{"reason": "Budget exceeded"}`.
+The reason is included in the step's error and, on [Enterprise Edition](/pricing), recorded in the [audit log](../core_concepts/14_audit_logs/index.mdx).
+
 ### Continue on disapproval/timeout
 
 If set, instead of failing the flow and bubbling up the error, continue to the next step which would allow to put a [branchone](./13_flow_branches.md) right after to handle both cases separately. If any disapproval/timeout event is received, the resume payload will be similar to every error result in Windmill, an object containing an `error` field which you can use to distinguish between approvals and disapproval/timeouts.
 Its `name` is `SuspendedDisapproved` or `SuspendedTimedOut`.
+With this option enabled, the next step reads a [deny reason](#deny-with-a-reason) as `resume.error.reason`.
 
 ![Continue on disapproval/timeout](../assets/flows/continue_on_disapproval.png 'Continue on disapproval/timeout')
 
