@@ -317,6 +317,33 @@ def main(text: str, response_url: str, channel_id: str, command: str):
 </TabItem>
 </Tabs>
 
+### AI agents
+
+On the [Enterprise Edition](/pricing), [saved AI agents](../core_concepts/54_ai_agents/index.mdx#answering-in-slack) answer bot mentions in the Slack channels they are shared in, in the thread.
+`/windmill` never reaches an agent: it always runs the workspace's command script.
+
+For agents to answer:
+
+- Connect Slack from the workspace settings with "Let AI agents answer in Slack" on. The Slack app must declare `users:read`, `users:read.email` and `channels:read` (see the [app manifest](../advanced/27_setup_oauth/index.mdx#slack)). A workspace already connected without it must disconnect and connect again.
+- Set the Slack app's signing secret as the `SLACK_SIGNING_SECRET` [environment variable](../core_concepts/47_environment_variables/index.mdx) of the server. Without it, agents never answer.
+- Use the instance's Slack app. Every Slack request is checked against that one server-wide secret, so a [workspace-level Slack app](#workspace-level-slack-app-configuration) cannot run agents, and its `/windmill` stops working once the secret is set.
+
+In a channel, the first match picks the agent that answers:
+
+1. A message starting with `+name` (or `~name`), where `name` is the last segment of the path of an agent shared in the channel, or its full path: `@Windmill +support what is our refund policy?`.
+2. In a thread, the agent the thread was started with, so follow-ups need no `+name`.
+3. The channel's default agent.
+4. Otherwise the workspace's command script, as for any [@mention](#using-mentions).
+
+When `+name` matches no agent or several, or nothing answers and the workspace has no command script, the bot replies with an example `+name` question and the agents shared in the channel.
+
+Agents do not answer in direct messages.
+Each person in a thread has their own conversation with the agent.
+People from another Slack organization are refused.
+
+Answers are posted in the thread, where everyone in the channel can read them, including answers built with the asker's own permissions.
+An asker is matched to a Windmill member by their Slack email, so whoever manages the Slack workspace's directory can act as a Windmill member through agents: connect Slack only to a Slack workspace you trust as much as your identity provider.
+
 ### Workspace-level Slack app configuration
 
 By default, workspaces use the instance-level Slack app configured by your Windmill administrator. However, workspace admins can optionally configure their own Slack app for their workspace. This provides:

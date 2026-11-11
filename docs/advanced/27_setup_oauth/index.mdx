@@ -367,12 +367,16 @@ settings:
 
 :::note Customized manifest
 
-The workspace and instance "Connect to Slack" flows request the bot scopes listed above: `commands`, `chat:write`, `chat:write.public`, `channels:join`, `files:write`, `app_mentions:read`, `im:history` and `im:read`.
+The workspace and instance "Connect to Slack" flows request these bot scopes from the manifest above: `commands`, `chat:write`, `chat:write.public`, `channels:join`, `files:write`, `app_mentions:read`, `im:history` and `im:read`.
 Requested scopes must be a subset of the ones your app declares, so if you trim the manifest, set the `SLACK_OAUTH_SCOPES` [environment variable](../../core_concepts/47_environment_variables/index.mdx) on the server to the comma-separated list your app actually has.
 Connecting a `slack` [resource](../../core_concepts/3_resources_and_types/index.mdx) from the resources page uses the same app but is not affected by that variable: connecting as the app or as [yourself](../../integrations/slack.mdx#action-on-slack-from-windmill) only requests scopes the manifest above declares, under `bot` or `user` respectively.
 Add any optional scope you tick in the connect dialog to the manifest too.
 
+A workspace that connects Slack with [AI agents](../../integrations/slack.mdx#ai-agents) enabled also requests `users:read`, `users:read.email` and `channels:read`, on top of `SLACK_OAUTH_SCOPES`, so an app without them cannot connect with agents enabled.
+
 :::
+
+[Instance settings](../18_instance_settings/index.mdx#authoauth) -> Authentication -> OAuth -> Slack -> "Set up slack" shows this manifest filled in with your instance URL.
 
 Then from your [Instance settings](../../advanced/18_instance_settings/index.mdx), fill with Client ID and Client Secret.
 
