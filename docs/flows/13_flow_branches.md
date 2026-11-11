@@ -55,6 +55,11 @@ Clicking on one branch will open the branch editor. You can configure the:
 - **Summary**: the summary of the branch.
 - **Skip failure**: if set to `true`, the branch will be skipped if it fails.
 
+### Parallelism
+
+When `All branches run in parallel` is on in the `Run all branches` step, `Limit concurrent branches` sets a maximum number of branches that can run at the same time; the others start as running ones finish, like the [parallelism](./12_flow_loops.md#parallelism) of a for loop.
+The cap can be a number or an expression, and a value below 1 fails the step.
+
 ## Predicate expression
 
 The predicate expression is the JavaScript expression that will be evaluated to determine if the branch should be executed. It can be simple `true`/`false` but also comparison operators (`results.c.command === 'email'`, `flow_input.number >= 2` etc.)

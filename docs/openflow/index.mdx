@@ -240,6 +240,7 @@ type BranchOne = {
 type BranchAll = {
   type: 'branchall';
   parallel?: boolean;
+  parallelism?: InputTransform;
   branches: Array<{
     summary?: string;
     skip_failure?: boolean;
@@ -304,7 +305,7 @@ The `value` field of the `FlowModule` type can be one of these 9 kinds:
   In case none matches, the default branch is run. The result of this module is
   the result of the branch that was run.
 - `branchall`: run many branches with all their modules, sequentially or in
-  parallel. One can decide to skip failure of a particular branch. The
+  parallel, with a configurable parallelism. One can decide to skip failure of a particular branch. The
   result of this module is the results of the branches collected as a list.
 - `aiagent`: run an [AI agent](../flows/1_flow_editor.mdx) configured with a provider, a prompt and a
   set of tools (scripts, flows, MCP servers) that it can call to accomplish its

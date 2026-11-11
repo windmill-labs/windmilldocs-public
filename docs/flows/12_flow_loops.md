@@ -44,7 +44,8 @@ If set to `true`, all iterations will be run in parallel.
 
 ### Parallelism
 
-Set a maximum number of iterations that can run in parallel at the same time, to control huge for-loops.
+When `Run in parallel` is on, `Limit concurrent iterations` sets a maximum number of iterations that can run at the same time; the others start as running ones finish.
+The cap can be a number or an expression, and a value below 1 fails the step.
 
 ![For loop step](../assets/flows/flow_for_loop.png.webp 'For loop step')
 
