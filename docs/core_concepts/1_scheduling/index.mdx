@@ -49,11 +49,14 @@ Cron jobs are one of many ways to [trigger workflows](../../triggers/index.mdx) 
 
 Windmill uses [hexagons's croner expression parser](https://github.com/hexagon/croner-rust). This library supports the Unix cron syntax as well as extensions allowing for more complex scheduling.
 
+Windmill cron expressions have 6 fields and start with seconds: `sec min hour day-of-month month day-of-week`.
+The 5-field Unix crontab syntax is rejected when you save a schedule, so prepend a seconds field: `0 2 * * *` becomes `0 0 2 * * *`.
+
 Although the syntaxes are similar, there are some notable differences:
 
 | Feature                   | Unix cron               | hexagon's `croner` library                 |
 |---------------------------|-------------------------|--------------------------------------------|
-| **Seconds Field**         | Not included            | Included as the first field (optional)     |
+| **Seconds Field**         | Not included            | Included as the first field (required)     |
 | **Day of Week Index**     | Sunday = 0 through Saturday = 6 | Sunday = 0 through Saturday = 6, or SUN through SAT |
 | **Month Representation**  | Numeric and short names | Numeric, short names, and name ranges      |
 | **List and Range in Fields** | Supports lists and ranges | Supports lists, ranges, and combinations |
@@ -80,7 +83,7 @@ Hexagon's croner expressions have the following additional modifiers:
 
 | Field        | Required | Allowed values  | Allowed special characters | Remarks                                                                                                         |
 | ------------ | -------- | --------------- | -------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| Seconds      | Optional | 0-59            | * , - / ?                  |                                                                                                                 |
+| Seconds      | Yes      | 0-59            | * , - / ?                  |                                                                                                                 |
 | Minutes      | Yes      | 0-59            | * , - / ?                  |                                                                                                                 |
 | Hours        | Yes      | 0-23            | * , - / ?                  |                                                                                                                 |
 | Day of Month | Yes      | 1-31            | * , - / ? L W              |                                                                                                                 |
