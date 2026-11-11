@@ -130,7 +130,8 @@ type FlowModule = {
   timeout?: InputTransform;
 
   // return a mocked value without actually executing the step
-  mock?: { enabled?: boolean; return_value?: any };
+  // preview_only: only runs started from the editor; absent or false: every run
+  mock?: { enabled?: boolean; return_value?: any; preview_only?: boolean };
 
   // suspend the flow until it is resumed by receiving a certain number
   // of events before a timeout: this is how approval steps are built

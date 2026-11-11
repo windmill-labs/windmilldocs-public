@@ -4,7 +4,7 @@ description: How do I mock a flow step or pin a previous result to skip computat
 
 # Step mocking / Pin result
 
-Step mocking and pinning results allows faster iteration while building flows. When a step is mocked or pinned, it will immediately return the specified value without performing any computation.
+Step mocking and pinning results allows faster iteration while building flows. When a step is mocked or pinned, it will immediately return the specified value without performing any computation, in [test runs only or in every run](#test-runs-or-every-run).
 
 <iframe
 	style={{ aspectRatio: '16/9' }}
@@ -60,6 +60,26 @@ You can also edit the mocked value directly.
   ![Direct editing](../assets/flows/direct_editing.png "Direct editing")
   
 [Test step](./18_test_flows.mdx) functionality remains available even with pinned results.
+
+### Test runs or every run
+
+A pin or mock applies either to test runs only or to every run.
+Choose it with "Applies to" in the step's mock settings, or from the pin button's menu.
+
+- Test runs: only runs started from the flow editor ([testing flows](./18_test_flows.mdx)) use the pinned value, including the subflows they call. Runs of the deployed flow ([schedules](../core_concepts/1_scheduling/index.mdx), [triggers](../triggers/index.mdx), [webhooks](../core_concepts/4_webhooks/index.mdx), the API, restarts of a deployed run) execute the step.
+- Every run: deployed runs also return the pinned value.
+
+A step pinned for the first time applies to test runs, so you can deploy a flow without the pin taking over production runs.
+
+In the [flow YAML](../openflow/index.mdx), this is the `preview_only` key of the step's `mock`:
+
+```yaml
+mock:
+  enabled: true
+  return_value:
+    foo: bar
+  preview_only: true # absent or false: every run
+```
 
 :::tip Cache for steps
 
