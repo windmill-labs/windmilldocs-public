@@ -341,7 +341,12 @@ Create one from [`+ New`](../../getting_started/00_how_to_use_windmill/index.mdx
 
 A new agent starts with [managed memory](#memory-auto--manual) On; turn it off for an agent only reused in flows.
 
-Anyone who can read the agent, and whose [role](../16_roles_and_permissions/index.mdx#workspace-roles) may run, can run it, operators included, and it runs as them: they also need access to its provider resource and to whatever its tools use.
+Anyone who can read the agent, and whose [role](../16_roles_and_permissions/index.mdx#workspace-roles) may run, can run it, operators included.
+By default it runs as the caller, who also needs access to its provider resource and to whatever its tools use.
+With "Run on behalf of" on in the agent's settings, runs from its page, the API and Slack use the permissions of whoever last saved it, as a [flow's](../16_roles_and_permissions/index.mdx#run-on-behalf-of) do.
+An admin or a member of `wm_deployers` can keep another user when deploying.
+Callers steer its tool calls, so turn it on only for an agent whose permissions you are willing to lend.
+A flow step linking the agent runs as the flow either way.
 Renaming the agent leaves its existing chats under the old path.
 
 `POST /api/w/<workspace>/jobs/run/agent/<path>` runs a saved agent with a `user_message`, optional `user_attachments`, and `previous_messages` when the agent's memory is off, and a `memory_id` query parameter makes the run a turn of that conversation.

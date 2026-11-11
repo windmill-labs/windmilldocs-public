@@ -206,7 +206,7 @@ From the Compare & Deploy page, you can mark a resource or variable as workspace
 
 ## Run on behalf of
 
-When deploying a script, flow, app, or trigger to another workspace, the **"run on behalf of"** selector lets you choose which user the item will execute as in the target workspace. This is useful for controlling execution permissions across environments.
+When deploying a script, flow, app, or trigger to another workspace, or an [AI agent](../54_ai_agents/index.mdx#standalone-agents) with "Run on behalf of" on, the **"run on behalf of"** selector lets you choose which user the item will execute as in the target workspace. This is useful for controlling execution permissions across environments.
 
 There are three options:
 
