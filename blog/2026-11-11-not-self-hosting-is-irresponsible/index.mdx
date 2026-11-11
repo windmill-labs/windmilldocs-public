@@ -1,0 +1,87 @@
+---
+slug: not-self-hosting-is-irresponsible
+authors: [rubenfiszel]
+tags: ['Security', 'Self-hosting']
+description: 'Is it safe to let a SaaS vendor hold your production credentials? After Zeabur, Railway, Vercel and Klue, we think defaulting to it is irresponsible.'
+title: 'Not self-hosting critical software is irresponsible'
+---
+
+{/* placeholder: thumbnail.png, 16:9, brand tokens from the blog-thumbnail skill. Title text "Not self-hosting critical software is irresponsible" over a single shared vault icon with many small keys pouring out of it. Add `image: ./thumbnail.png` to the frontmatter once the file exists. */}
+
+# Not self-hosting critical software is irresponsible
+
+Nobody ever got fired for buying IBM.
+Nobody gets fired for picking the SaaS either.
+The difference is that IBM didn't keep your keys in a shared pool with 300,000 other customers.
+
+Zeabur did.
+In October, an attacker read [3.2 million environment variable records across 321,810 accounts](https://zeabur.com/blogs/october-2026-security-incident) from its platform database, two months after a first breach.
+The company is [shutting down](https://www.bleepingcomputer.com/news/security/zeabur-shutting-down-after-second-security-breach-in-two-months/) by December 31.
+Its customers did nothing wrong except pick the default.
+
+{/* truncate */}
+
+## The new IBM
+
+"Buy IBM" was a career decision, not a technical one.
+If the project failed, you had picked the vendor everyone picks, so the blame went somewhere else.
+"Use the hosted version" works the same way today: nobody has to justify it, and nobody owns the outcome.
+
+But the mainframe IBM sold you sat in your machine room.
+A bad day at IBM headquarters didn't open your machine.
+A hosted platform that runs your jobs, deploys your code or syncs your CRM holds your database password, your cloud keys and your OAuth tokens, next to everyone else's, behind one set of tenant checks.
+That pool is the most attractive target in the building, and the attackers know it: Railway said the people who breached it were [after AI inference keys](https://techcrunch.com/2026/10/22/developer-platform-railway-urges-all-users-to-revoke-secret-keys-after-cyberattack/).
+
+And the odds get worse every month.
+Models now find vulnerabilities and write working exploits, and attackers use them as much as defenders do.
+We made the long version of this argument [last week](/blog/self-host-production-internal-software).
+The short version: every platform with enough surface will have a bad day, and on a multi-tenant one, its bad day is yours.
+
+## The last 15 months
+
+- **Zeabur**, October 2026: 3.2M environment variable records read from the platform database, after an [August breach](https://zeabur.com/blogs/august-2026-security-incident) whose rotation missed the credentials used the second time. Shutting down.
+- **Railway**, October 2026: [told all users](https://techcrunch.com/2026/10/22/developer-platform-railway-urges-all-users-to-revoke-secret-keys-after-cyberattack/) to rotate every secret on the platform.
+- **Trigger.dev**, autumn 2026: cross-organization authorization bugs ([CVE-2026-114078](https://www.strix.ai/cve/CVE-2026-114078), [CVE-2026-114068](https://www.strix.ai/cve/CVE-2026-114068), [CVE-2026-114083](https://vulners.com/vulnrichment/VULNRICHMENT:CVE-2026-114083)), then [customer environment variables read](https://trigger.dev/blog/security-incident-nov-2026) with stolen root API keys. Self-hosters were not affected.
+- **Inngest**, October 2026: [CVE-2026-42047](https://www.inngest.com/blog/cve-2026-42047), an SDK endpoint that returned `process.env` to unauthenticated requests, exposed to the internet because the cloud needs to call in.
+- **Klue**, June 2026: attackers pushed code that harvested customers' OAuth tokens and used them to pull Salesforce data from [hundreds of customers](https://thehackernews.com/2026/06/salesforce-disables-klue-app.html), security vendors Huntress and Recorded Future among them.
+- **Vercel**, April 2026: a compromised third-party AI tool's OAuth grant let attackers [read some customers' environment variables](https://www.trendmicro.com/en_us/research/26/d/vercel-breach-oauth-supply-chain.html).
+- **Salesloft Drift**, August 2025: stolen OAuth tokens used to [query hundreds of customers' Salesforce instances](https://cloud.google.com/blog/topics/threat-intelligence/data-theft-salesforce-instances-via-salesloft-drift), including AWS keys and Snowflake tokens stored there.
+
+And the one that started the genre, **CircleCI**, January 2023: [rotate any and all secrets](https://circleci.com/blog/jan-4-2023-incident-report).
+
+None of these teams is careless.
+That's the point.
+
+## The exceptions
+
+Some software you can't reasonably run yourself, and we're not going to pretend otherwise.
+
+Email is the obvious one.
+Running a mail server that reaches inboxes and keeps spam out is a full-time job, and self-hosting doesn't make it safer by default: on-premise Exchange had [ProxyLogon](https://proxylogon.com), and tens of thousands of servers were hit before patches landed.
+Use Gmail or Microsoft 365, turn on phishing-resistant MFA, and move on.
+
+Web-scale infrastructure is the second.
+You can't self-host an anycast network with hundreds of points of presence, so Cloudflare or a peer it is.
+
+Compute is the third.
+You have to rent servers from someone, and whether to trust AWS or a rack in your office is its own post.
+Note that this is renting machines, not handing your environment variables to a platform that pools them.
+Half the list above is hosting platforms.
+
+What these have in common is that the alternative is either impossible or worse.
+A job runner, a workflow engine, a CI system or an internal tool platform is none of those.
+It's a container, a database and a weekend of setup.
+
+## "But you sell a cloud"
+
+We do, and the argument applies to Windmill Cloud exactly as much as to anyone above.
+We've had our own cross-workspace advisory, [fixed before it was ever exploited](https://github.com/windmill-labs/windmill/security/advisories/GHSA-2jfj-x8j7-7mfh), and we don't expect it to be the last.
+
+So here's the line we'd draw.
+If the software holds credentials to production, running it yourself is the responsible default, and putting it on a multi-tenant platform is a decision someone should own in writing.
+If you can't run it, a single-tenant instance with its own servers and database removes the pool, and is the next best thing.
+For prototyping and for workflows that hold nothing that matters, use whatever gets you running.
+We go through where that line sits, and the layers to put around a self-hosted instance, in [For security, self-host your production internal software, including Windmill](/blog/self-host-production-internal-software).
+
+Windmill is open source and [runs on your own infrastructure](/docs/advanced/self_host) with Docker or Kubernetes.
+So does most of what's on that list.
