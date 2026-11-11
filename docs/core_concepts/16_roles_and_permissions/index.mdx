@@ -26,7 +26,7 @@ In terms of billing for Windmill [Enterprise Edition](/pricing), we only count a
 Logging in once in 30 days is enough to be considered 'Active'.
 A user counts as a full seat when, in at least one workspace they are a member of, they are an [admin](#admin) or their [workspace role](#workspace-roles) can write code or build flows or apps.
 Every other user, whose roles only let them run, view and manage what others built, counts as half a seat.
-[Service accounts](#service-accounts) are the exception: they always count as half a seat.
+[Service accounts](#service-accounts) are the exception: they never log in, so each one counts as half a seat for as long as it is enabled.
 For [external JWT](../../advanced/16_external_auth_with_jwt/index.mdx) authentication, a unique JWT user is counted per (username/email, scope, instance) tuple used in the last 30 days - the same email with two different scopes, or on two different instances, counts as two JWT users. Each unique JWT user is billed as half a seat.
 
 [Guests](#guests) have no account at all and are not counted as users.
@@ -158,7 +158,7 @@ A role change can take up to two minutes to reach every server.
 #### Roles and seats
 
 A role that can write code or build flows or apps, at the Compose or Full level, consumes a full [seat](#users).
-Any other role consumes half a seat, unless the member is an admin, who always consumes a full seat.
+Any other role consumes half a seat, unless the member is an admin, who always consumes a full seat ([service accounts](#service-accounts) excepted).
 When a change to a role makes it author something, saving it asks you to confirm that the members holding it now consume a full seat.
 
 ### Service accounts

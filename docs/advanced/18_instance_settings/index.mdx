@@ -125,8 +125,6 @@ From there you also have two buttons:
 
 If your subscription is active, the key is automatically renewed everyday. A key is typically valid for 35 days.
 
-On [air-gapped](../../enterprise/2_onboarding/index.mdx#air-gapped-environments) instances running an offline license key, this field also shows live usage against the caps embedded in the key (`Seats: x / y` and `CUs: x / y`). Exceeding either cap invalidates the license and halts jobs until usage drops back under cap. See [air-gapped environments](../../enterprise/2_onboarding/index.mdx#air-gapped-environments) for details.
-
 ### Non-prod instance
 
 Whether we should consider the reported usage of this instance as non-prod.
@@ -734,7 +732,7 @@ The following information is collected:
 - job usage (language, total duration, count)
 - login type usage (login type, count)
 - worker usage (worker, worker instance, vCPUs, memory)
-- user usage (builder count, non-builder count, the distinct guests of the last 30 days, the seats they add past the free allowance, and the workspaces with an app set to Guests)
+- user usage (builder count, non-builder count, service account count, the distinct guests of the last 30 days, the seats they add past the free allowance, and the workspaces with an app set to Guests)
 - development instance status
 
 Telemetry can be fully disabled from the instance settings using the "Disable telemetry" toggle.
@@ -748,7 +746,7 @@ When minimal telemetry is enabled, the following is sent:
 - instance base URL
 - login type usage (login type, count)
 - worker usage (worker, worker instance, vCPUs, memory)
-- user usage (builder count, non-builder count, the distinct guests of the last 30 days, the seats they add past the free allowance, and the workspaces with an app set to Guests)
+- user usage (builder count, non-builder count, service account count, the distinct guests of the last 30 days, the seats they add past the free allowance, and the workspaces with an app set to Guests)
 - superadmin email address (one per instance)
 - development instance status
 
