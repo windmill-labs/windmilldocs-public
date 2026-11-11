@@ -19,6 +19,23 @@ When scaffolding a new app with `wmill app new`, you can choose from:
 
 The [CLI](../5_cli_workflow/index.mdx) generates a starter project with the selected framework, including `package.json`, entry point and a sample component.
 
+## Styling
+
+CSS imported from your entry point (`import './index.css'`) is bundled as is.
+
+To use [Tailwind CSS](https://tailwindcss.com/) v4, add `tailwindcss` (`^4`) to the app's `package.json` and start `index.css` with:
+
+```css
+@import "tailwindcss";
+```
+
+The bundler then compiles that stylesheet, generating the utilities used in your app's files and in the workspace's [shared `/ui` folder](../../advanced/3_cli/sync.mdx#pushing), along with `@theme`, `@utility`, `@apply` and `@custom-variant`.
+A design system's stylesheet can live in the shared `/ui` folder and be imported with `@import "/ui/theme.css";`.
+There is no `tailwind.config.js`: configure Tailwind in CSS.
+`@plugin` and `@config` are compiled only by the [CLI](../5_cli_workflow/index.mdx) (`wmill app bundle`, `wmill app push`), not by the web editor, and `wmill app dev` must be restarted to pick up an edit to one of them.
+
+Without the `tailwindcss` dependency, or with Tailwind v3 installed, Tailwind directives are left uncompiled.
+
 ## The wmill.ts module
 
 The `wmill.ts` module is auto-generated during development (`wmill app dev`) and provides the bridge between your frontend and Windmill's backend. It exports:
