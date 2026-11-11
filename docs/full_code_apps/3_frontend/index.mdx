@@ -180,6 +180,23 @@ export default function App() {
 
 ![Full-code apps](../full_code_apps.png 'Full-code apps')
 
+## Page context
+
+`window.ctx` holds the context of the page the app is viewed on:
+
+- `ctx`: the current user (absent for anonymous visitors of a [public app](../../apps/8_public_apps.mdx)).
+- `workspace` and `path`: the app's workspace and path (`path` is not set under `wmill app dev`).
+- `query`: the page URL's query parameters, as an object of strings.
+  A page with no query gives `{}`.
+
+```typescript
+// Viewed at /apps/get/u/me/app?customer=42
+const customerId = window.ctx.query.customer; // '42'
+```
+
+`query` is read once, when the app loads.
+Read query parameters from `window.ctx.query` rather than `window.location`: a sandboxed app runs in its own frame, so its `window.location` is the frame's address, not the viewer's page.
+
 ## Type safety
 
 During development, `wmill app dev` generates a `wmill.d.ts` file with typed signatures for each backend runnable. For example, given `backend/get_users.ts`:
