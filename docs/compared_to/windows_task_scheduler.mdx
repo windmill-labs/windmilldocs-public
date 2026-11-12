@@ -1,0 +1,108 @@
+---
+title: Windows Task Scheduler and SQL Server Agent alternative
+description: How does Windmill compare to Windows Task Scheduler and SQL Server Agent as a job scheduler? Who each is for, a comparison table, and using them together.
+---
+
+import DocCard from '@site/src/components/DocCard';
+
+# Windmill vs Windows Task Scheduler and SQL Server Agent
+
+Windows and SQL Server each ship with a scheduler.
+<a href="https://learn.microsoft.com/en-us/windows/win32/taskschd/about-the-task-scheduler" rel="nofollow">Task Scheduler</a> is the Windows service that runs a program on a chosen computer at a set time or when an event occurs, and it is installed with every supported version of Windows.
+<a href="https://learn.microsoft.com/en-us/ssms/agent/sql-server-agent" rel="nofollow">SQL Server Agent</a> is the Windows service that runs scheduled administrative tasks, called jobs, in SQL Server and Azure SQL Managed Instance.
+
+Windmill is an open-source, self-hostable platform that schedules and runs scripts and workflows from one place, on the workers you deploy and, on Self-Hosted [Enterprise Edition](/pricing), on [native Windows workers](../misc/17_windows_workers/index.mdx).
+
+This page is a short overview, written by Windmill.
+The [Windows automation](/use-cases/windows-automation) page compares Windmill with Task Scheduler, Power Automate and enterprise job schedulers in one table.
+Feel free to [contact us](../misc/6_getting_help/index.mdx) for corrections.
+
+## Who each tool is for
+
+**Task Scheduler** is for running a program or a batch file on one Windows computer, at a time or on an event such as system startup, user logon or idle time.
+It is already on every Windows machine and is managed from its graphical interface, the <a href="https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/schtasks" rel="nofollow">`schtasks`</a> command or the <a href="https://learn.microsoft.com/en-us/powershell/module/scheduledtasks/register-scheduledtask" rel="nofollow">`ScheduledTasks`</a> PowerShell module.
+
+**SQL Server Agent** is for database administrators automating work on a SQL Server instance: backups, maintenance, SSIS packages, replication agents and T-SQL or PowerShell job steps.
+Job information is stored in SQL Server itself.
+SQL Server Agent is included with SQL Server and Azure SQL Managed Instance. It is <a href="https://learn.microsoft.com/en-us/azure/azure-sql/database/job-automation-overview" rel="nofollow">not available in Azure SQL Database</a>, where Microsoft offers elastic jobs instead, and the <a href="https://learn.microsoft.com/en-us/sql/sql-server/editions-and-components-of-sql-server-2025" rel="nofollow">SQL Server 2025 editions table</a> lists it for Enterprise and Standard but not Express.
+
+**Windmill** is for teams whose scheduled scripts span several servers, databases and languages, and who want one place to schedule them, see every run, handle failures and review changes.
+
+## Comparison
+
+| | Task Scheduler | SQL Server Agent | Windmill |
+| --- | --- | --- | --- |
+| Where it runs | On each Windows computer, as part of Windows. | As a Windows service next to a SQL Server instance, or in Azure SQL Managed Instance. | A central server and PostgreSQL database, [self-hosted](../advanced/1_self_host/index.mdx) on Docker Compose or Kubernetes, or on Windmill Cloud. Jobs run on workers; [Windows workers](../misc/17_windows_workers/index.mdx) can run as a Windows service and are Self-Hosted Enterprise. |
+| What a job runs | Up to 32 <a href="https://learn.microsoft.com/en-us/windows/win32/taskschd/task-actions" rel="nofollow">actions</a> per task, run in sequence: start a program or fire a COM handler (the email and message actions were removed in Windows 8 and Windows Server 2012). | Job steps: T-SQL, PowerShell, operating system commands (CmdExec), SSIS packages, Analysis Services commands and queries, and replication agents. | A [script](../getting_started/0_scripts_quickstart/index.mdx) in PowerShell, C#, Python, TypeScript, SQL, Bash or another supported language, or a [flow](../flows/1_flow_editor.mdx) of scripts with branches, loops, retries and approval steps. |
+| What starts it | <a href="https://learn.microsoft.com/en-us/windows/win32/taskschd/task-triggers" rel="nofollow">Time-based triggers</a> (once, daily, weekly, monthly) and event-based triggers (system startup, user logon, idle). Up to 48 triggers per task. | Schedules (when the Agent starts, when the CPU is idle, one time, recurring), alerts on SQL Server events, performance conditions or WMI events, and the `sp_start_job` stored procedure. | [Cron schedules](../core_concepts/1_scheduling/index.mdx), [webhooks](../core_concepts/4_webhooks/index.mdx), [HTTP routes](../triggers/2_http_routing/index.mdx), email and other [triggers](../triggers/index.mdx) (Kafka is self-hosted Enterprise Edition, Postgres triggers are not available on Cloud), the API, the [CLI](../advanced/3_cli/index.mdx), or a run from the [auto-generated form](../core_concepts/6_auto_generated_uis/index.mdx). |
+| Scope | One computer per task. `schtasks` and the `ScheduledTasks` cmdlets can also manage tasks on a remote computer. | Databases on the Agent's own instance. <a href="https://learn.microsoft.com/en-us/ssms/agent/automated-administration-across-an-enterprise" rel="nofollow">Multiserver administration</a> lets a master server distribute jobs to target servers; it is not available in SQL Managed Instance. | One instance for all workers. [Worker tags](../core_concepts/9_worker_groups/index.mdx) route each script or flow to the workers that should run it, for example Windows workers for PowerShell. |
+| Run identity and credentials | A user account or group, or a built-in account such as SYSTEM, LOCAL SERVICE or NETWORK SERVICE. | T-SQL steps use `EXECUTE AS`. Other steps run under a proxy that maps to a credential. | Connection details live in [resources](../core_concepts/3_resources_and_types/index.mdx) and secrets in [variables](../core_concepts/2_variables_and_secrets/index.mdx), encrypted with a workspace-specific key. For SQL Server, [Windows integrated authentication](../getting_started/0_scripts_quickstart/5_sql_quickstart/index.mdx#windows-integrated-authentication) uses the account the worker runs as (Windows SSPI on Windows workers, Kerberos on Linux workers). MS SQL scripts need Enterprise Edition or Cloud, and integrated authentication needs a self-hosted worker. |
+| When a job fails | The task can be restarted a set number of times (`RestartCount`). By default a task is stopped 72 hours after it starts. | Alerts notify operators by email through Database Mail, by pager or by `net send`; Microsoft plans to remove the pager and `net send` options. | [Retries](../flows/14_retries.md) on flow steps, a flow [error handler](../flows/7_flow_error_handler.md), and schedule [error and recovery handlers](../core_concepts/1_scheduling/index.mdx#schedule-error-handler), with pre-set handlers for Slack and Microsoft Teams. The schedule error handler is available on Cloud and Enterprise Edition. |
+| Where you see jobs | On each computer, in the Task Scheduler interface or with `schtasks /query`. | In SQL Server Management Studio, or by querying job tables such as `msdb.dbo.sysjobs`. | A [Runs page](../core_concepts/5_monitor_past_and_future_runs/index.mdx) per workspace with all past and future runs, and, on Cloud and Enterprise Edition, [audit logs](../core_concepts/14_audit_logs/index.mdx) for every operation with side effects. |
+| Permissions | Access control lists on task files. Administrators and SYSTEM can manage any task; other users manage the tasks they created. | Fixed `msdb` roles (SQLAgentUserRole, SQLAgentReaderRole, SQLAgentOperatorRole) and the sysadmin server role. | [Roles and permissions](../core_concepts/16_roles_and_permissions/index.mdx) on scripts, flows, apps, resources, variables, schedules and jobs, with [groups and folders](../core_concepts/8_groups_and_folders/index.mdx). |
+| Definitions as files | A task can be registered from an XML definition (`Register-ScheduledTask -Xml`). | Jobs are defined in SQL Server Management Studio, in T-SQL or with SQL Server Management Objects. | [Git sync](../advanced/11_git_sync/index.mdx) commits scripts, flows, schedules and triggers to a repository: Cloud and Enterprise Self-Hosted, and Community Edition for workspaces with up to 2 users. |
+
+## Where Task Scheduler is the better choice
+
+- **One job on one machine.** If a single script has to run on a single computer and nothing else depends on it, Task Scheduler is already installed and needs no server or database.
+- **Work tied to that machine's state.** Triggers on system startup, user logon or idle time, and <a href="https://learn.microsoft.com/en-us/windows/win32/taskschd/about-the-task-scheduler" rel="nofollow">power-aware scheduling</a> that defers maintenance until the device is idle and on AC power, are part of Windows itself.
+
+## Where SQL Server Agent is the better choice
+
+- **Maintenance inside one instance.** Backups, jobs created by the Maintenance Plan Wizard, replication agents and SSIS packages are run by the instance's own Agent service, and SQL Server Agent stores job information in SQL Server itself.
+- **Reacting to the database engine.** Agent alerts fire on SQL Server events and performance conditions and can start a job in response.
+- **Many Azure SQL databases.** For Azure SQL Database, Microsoft's <a href="https://learn.microsoft.com/en-us/azure/azure-sql/database/elastic-jobs-overview" rel="nofollow">elastic jobs</a> run T-SQL across servers, elastic pools and subscriptions, and enumerate the target databases at run time.
+
+## Where Windmill is the better choice
+
+- **Scripts spread across many servers.** Schedules for every host are defined in one workspace, each run is listed on the [Runs page](../core_concepts/5_monitor_past_and_future_runs/index.mdx), and [worker tags](../core_concepts/9_worker_groups/index.mdx) decide which machine runs what. Windows workers connect to the same server and database as the rest of the [fleet](../misc/17_windows_workers/index.mdx).
+- **Jobs that cross systems.** A [flow](../flows/1_flow_editor.mdx) can query SQL Server, call an API, run PowerShell on a Windows host (Windows workers are Self-Hosted Enterprise) and wait for an [approval](../flows/11_flow_approval.mdx), with each step in the language that suits it.
+- **Failure handling you do not write yourself.** [Retries](../flows/14_retries.md) are a setting on each flow step, and schedules have pre-set error and recovery handlers for [Microsoft Teams](../integrations/teams.mdx) and Slack (the schedule error handler is available on Cloud and Enterprise Edition).
+- **Changes reviewed like code.** [Git sync](../advanced/11_git_sync/index.mdx) puts scripts and schedules in a repository, and, on Cloud and Enterprise Edition, [audit logs](../core_concepts/14_audit_logs/index.mdx) record each operation with side effects and the user behind it.
+- **Azure SQL Database.** SQL Server Agent is not available there. Windmill's [MS SQL resource](../integrations/mssql.md) connects to Azure SQL with Microsoft Entra, or on AKS with [Azure workload identity](../integrations/mssql.md#azure-workload-identity-for-azure-sql) and no stored password (MS SQL scripts need Enterprise Edition or Cloud, and workload identity needs a self-hosted worker on AKS).
+
+MS SQL as a dedicated script language is available on Enterprise Edition and Cloud.
+On Community Edition, query SQL Server through a resource from TypeScript, Python or another language ([details](../getting_started/0_scripts_quickstart/5_sql_quickstart/index.mdx)).
+
+## Using them together
+
+You do not have to move everything at once.
+
+- **Keep SQL Server Agent for engine maintenance and start its jobs from Windmill.** An Agent job can be started with the `sp_start_job` stored procedure, so an MS SQL step in a Windmill flow can kick off an existing backup or maintenance job and the flow can carry on with the work around it.
+- **Move Task Scheduler jobs one at a time.** A PowerShell script's `param()` block becomes its [typed inputs](../getting_started/0_scripts_quickstart/4_bash_quickstart/index.mdx#powershell), and `Import-Module` installs missing modules at run time ([details](../advanced/6_imports/index.mdx#imports-in-powershell)). Schedule the script in Windmill, tag it for a Windows worker (Self-Hosted Enterprise) or a Linux worker, and let the Task Scheduler task run in parallel until you are confident, as described in [Native Windows automation without Docker, WSL, or workarounds](/blog/windows-workflow-engine).
+- **Let a local task call Windmill.** A Task Scheduler task runs a command line, and every Windmill script and flow has [webhooks](../core_concepts/4_webhooks/index.mdx), so a task that must stay on a machine can hand the rest of the work to a Windmill flow.
+
+## Getting started
+
+<div className="grid grid-cols-2 gap-6 mb-4">
+	<DocCard
+		title="Schedules"
+		description="Run scripts and flows on cron schedules with error and recovery handlers."
+		href="/docs/core_concepts/scheduling"
+	/>
+	<DocCard
+		title="Windows workers"
+		description="Run Windmill workers natively on Windows as a service."
+		href="/docs/misc/windows_workers"
+	/>
+	<DocCard
+		title="Bash / PowerShell / Nu quickstart"
+		description="Write your first PowerShell script in Windmill."
+		href="/docs/getting_started/scripts_quickstart/bash"
+	/>
+	<DocCard
+		title="SQL quickstart"
+		description="Connect to SQL Server and run T-SQL from scripts and flows."
+		href="/docs/getting_started/scripts_quickstart/sql"
+	/>
+	<DocCard
+		title="Workers and worker groups"
+		description="Route scripts and flows to specific workers with tags."
+		href="/docs/core_concepts/worker_groups"
+	/>
+	<DocCard
+		title="Error handling"
+		description="Retries, error handlers and notifications for failed runs."
+		href="/docs/core_concepts/error_handling"
+	/>
+</div>

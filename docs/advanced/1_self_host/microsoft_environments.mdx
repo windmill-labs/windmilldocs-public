@@ -1,0 +1,112 @@
+---
+description: How do I use Windmill with Azure, Windows, SQL Server, Entra ID and Teams? Where each Microsoft-related capability is documented and the edition it needs.
+---
+
+import DocCard from '@site/src/components/DocCard';
+
+# Windmill for Microsoft environments
+
+This page lists what Windmill supports for teams running on Azure, Windows, SQL Server, Microsoft Entra ID and Microsoft Teams, and links to the page that documents each capability.
+
+The edition column repeats what the linked page states, and each edition entry links to the page or section that states it.
+Capabilities marked Enterprise need [Enterprise Edition](/pricing).
+An empty edition cell means the linked page states no edition requirement.
+
+## Deploy on Azure
+
+| Capability | What it does | Edition |
+| --- | --- | --- |
+| [Windmill on Azure](../../advanced/1_self_host/azure_entra_id.mdx) | Deploy Windmill on AKS with an Azure Database for PostgreSQL Flexible Server. The guide covers networking, database, Helm deployment and ingress through an Azure Load Balancer or the Application Gateway Ingress Controller. | |
+| [Entra ID database authentication](../../advanced/1_self_host/azure_entra_id.mdx#entra-id-database-authentication-optional) | Passwordless authentication of Windmill to PostgreSQL Flexible Server through Azure Workload Identity, with short-lived tokens instead of a static password. | [Enterprise](../../advanced/1_self_host/azure_entra_id.mdx#entra-id-database-authentication-optional) |
+| [Self-host](../../advanced/1_self_host/index.mdx) | General self-hosting reference: Docker Compose, Helm chart, and database role setup for managed PostgreSQL services such as Azure Database for PostgreSQL. | |
+
+## Sign in and provision users
+
+| Capability | What it does | Edition |
+| --- | --- | --- |
+| [Microsoft single sign-on](../../advanced/27_setup_oauth/index.mdx#microsoft) | Sign in to Windmill with Microsoft accounts through an OAuth client registered in Microsoft Entra ID. Emails can be restricted by domain. | [Without Enterprise Edition, the number of SSO users is limited to 10](../../advanced/18_instance_settings/index.mdx#single-sign-on-sso) |
+| [SAML with Microsoft Entra](../../advanced/28_saml_and_scim/index.mdx#microsoft-entra-azure) | Authenticate users through an Entra enterprise application over SAML. | [Enterprise](../../advanced/28_saml_and_scim/index.mdx) |
+| [SCIM with Microsoft Entra](../../advanced/28_saml_and_scim/index.mdx#microsoft-entra-azure-1) | Provision users and groups from Entra. Synced groups appear in Windmill as [instance groups](../../core_concepts/8_groups_and_folders/index.mdx#instance-groups). | [Enterprise](../../advanced/28_saml_and_scim/index.mdx) |
+| [Login-time group sync](../../advanced/28_saml_and_scim/index.mdx#login-time-group-sync-from-the-idp-groups-claim) | Read the groups claim of each SAML or OIDC login and reconcile instance group membership before the session starts. | [Enterprise](../../advanced/28_saml_and_scim/index.mdx) |
+
+## Run on Windows
+
+| Capability | What it does | Edition |
+| --- | --- | --- |
+| [Windows workers](../../misc/17_windows_workers/index.mdx) | Run scripts and flows directly on Windows machines without Docker or WSL, with Python, Bun, PowerShell, C#, Nu, Java, Ruby and R executors. The worker can run as a Windows service. | [Self-Hosted Enterprise](../../misc/17_windows_workers/index.mdx) |
+| [Agent workers](../../core_concepts/28_agent_workers/index.mdx) | Workers that connect to the Windmill server over HTTP instead of directly to the database. They can run without Docker on Windows. | [Cloud and Self-hosted Enterprise](../../core_concepts/28_agent_workers/index.mdx) |
+| [PowerShell scripts](../../getting_started/0_scripts_quickstart/4_bash_quickstart/index.mdx#powershell) | Write PowerShell scripts whose arguments are inferred from the `param` block. [Imported modules](../../advanced/6_imports/index.mdx#imports-in-powershell) are installed automatically when the script runs. | |
+| [Private PowerShell repository](../../advanced/6_imports/index.mdx#private-repository-azure-artifacts-feed) | Install PowerShell modules from an Azure Artifacts feed, configured in the [registries](../../advanced/18_instance_settings/index.mdx#registries) instance settings. | [Enterprise](../../advanced/18_instance_settings/index.mdx#registries) |
+| [C# scripts](../../getting_started/0_scripts_quickstart/11_csharp_quickstart/index.mdx) | Write C# scripts with NuGet dependencies declared at the top of the file. | |
+| [NuGet config](../../advanced/18_instance_settings/index.mdx#nuget-config) | Provide a `nuget.config` file to set custom or private package sources and credentials. | [Enterprise](../../advanced/18_instance_settings/index.mdx#registries) |
+
+## Talk to SQL Server
+
+| Capability | What it does | Edition |
+| --- | --- | --- |
+| [MS SQL scripts](../../getting_started/0_scripts_quickstart/5_sql_quickstart/index.mdx#ms-sql) | Query SQL Server from native SQL scripts with an `ms_sql_server` resource. MS SQL can also be reached from TypeScript, Python and the other languages on all editions. | [The dedicated MS SQL language needs Enterprise or a cloud workspace](../../getting_started/0_scripts_quickstart/5_sql_quickstart/index.mdx) |
+| [Windows integrated authentication](../../getting_started/0_scripts_quickstart/5_sql_quickstart/index.mdx#windows-integrated-authentication) | Authenticate to SQL Server as the worker instead of with a stored password: Kerberos on Linux workers, Windows SSPI on Windows workers. | [Same as MS SQL scripts, on self-hosted or agent workers only, not Cloud's managed workers](../../getting_started/0_scripts_quickstart/5_sql_quickstart/index.mdx#windows-integrated-authentication). [Windows workers are Self-Hosted Enterprise](../../misc/17_windows_workers/index.mdx) |
+| [Azure workload identity for Azure SQL](../../integrations/mssql.md#azure-workload-identity-for-azure-sql) | On AKS, workers authenticate to Azure SQL as their own managed identity, with no credential stored in the resource. | [Same as MS SQL scripts](../../getting_started/0_scripts_quickstart/5_sql_quickstart/index.mdx) |
+| [Azure AD (Entra) token](../../getting_started/0_scripts_quickstart/5_sql_quickstart/index.mdx#authentication-methods) | Authenticate to SQL Server with an OAuth token obtained through the [Azure OAuth](../../advanced/27_setup_oauth/index.mdx#azure-oauth) instance setting. | [Same as MS SQL scripts](../../getting_started/0_scripts_quickstart/5_sql_quickstart/index.mdx) |
+
+## Secrets and storage
+
+| Capability | What it does | Edition |
+| --- | --- | --- |
+| [Azure Key Vault secret backend](../../core_concepts/2_variables_and_secrets/index.mdx#azure-key-vault-backend) | Store Windmill secrets in Azure Key Vault instead of the Windmill database, with a client secret or Azure Workload Identity Federation. | [Enterprise](../../core_concepts/2_variables_and_secrets/index.mdx#secret-storage-backends) |
+| [Workspace object storage on Azure Blob](../../core_concepts/38_object_storage_in_windmill/index.mdx#workspace-object-storage) | Connect a workspace to Azure Blob storage so that scripts read and write files without handling the credentials. See also the [Azure Blob resource](../../integrations/microsoft-azure-blob.md). | [On Community Edition, workspace storage is limited to 10GiB per workspace](../../core_concepts/38_object_storage_in_windmill/index.mdx#workspace-object-storage) |
+| [Instance object storage on Azure Blob](../../core_concepts/38_object_storage_in_windmill/index.mdx#instance-object-storage) | Use Azure Blob at the instance level for large-scale log management and distributed dependency caching. On AKS it can [authenticate with Workload Identity](../../advanced/18_instance_settings/index.mdx#azure-blob) instead of an access key. | [Enterprise](../../core_concepts/38_object_storage_in_windmill/index.mdx) |
+| [Audit logs export](../../core_concepts/14_audit_logs/index.mdx) | Continuously export audit logs to the instance object storage bucket, including Azure Blob. | [Enterprise](../../core_concepts/14_audit_logs/index.mdx#exporting-audit-logs-to-object-storage) |
+| [DuckDB on Azure Blob](../../integrations/duckdb.md#azure-blob-storage-support) | DuckDB scripts read and write Parquet, CSV or JSON on the Azure Blob workspace storage. | |
+
+## AI providers
+
+| Capability | What it does | Edition |
+| --- | --- | --- |
+| [Azure OpenAI and Azure AI Foundry for Windmill AI](../../core_concepts/22_ai_generation/index.mdx#models) | Use Azure OpenAI or Azure AI Foundry models for Windmill AI, with an `azure_openai` or `azure_foundry` resource authenticated by API key. | |
+| [AI agents](../../core_concepts/54_ai_agents/index.mdx) | Azure OpenAI and Azure AI Foundry are among the providers available to AI agent steps in flows. | |
+
+## Triggers
+
+| Capability | What it does | Edition |
+| --- | --- | --- |
+| [Azure Event Grid triggers](../../triggers/10_azure_triggers/index.mdx) | Trigger scripts and flows when events are delivered from Event Grid custom topics, system topics, domains or Namespace topics. | [Self-hosted Enterprise, disabled on Cloud](../../triggers/10_azure_triggers/index.mdx) |
+
+## Microsoft Teams
+
+| Capability | What it does | Edition |
+| --- | --- | --- |
+| [Teams commands](../../integrations/teams.mdx#using-commands-on-teams) | Run a script or flow from Teams with the `/windmill` command, through the Windmill Teams bot. On self-hosted instances the bot is [set up](../../advanced/27_setup_oauth/index.mdx#microsoft-teams) with a Microsoft Entra app. | [The Teams bot needs Enterprise Edition](../../advanced/27_setup_oauth/index.mdx#microsoft-teams) |
+| [Teams approval steps](../../integrations/teams.mdx#teams-approval-steps) | Suspend a flow until it is approved or rejected, directly from a Teams message or through a link to the Windmill approval page. | [The Teams bot needs Enterprise Edition](../../advanced/27_setup_oauth/index.mdx#microsoft-teams) |
+| [Write to Teams](../../integrations/teams.mdx#write-to-teams-from-windmill) | Send messages to a Teams channel from scripts with an `ms_teams_webhook` resource. | |
+| [Teams error handler](../../core_concepts/10_error_handling/index.mdx#microsoft-teams-error-handler) | Send error notifications to Teams channels. | [Cloud and Enterprise Edition](../../core_concepts/10_error_handling/index.mdx#microsoft-teams-error-handler) |
+| [Critical alerts to Teams](../../integrations/teams.mdx#critical-alerts) | Receive instance critical alerts in a Teams channel. | [Enterprise](../../integrations/teams.mdx#critical-alerts) |
+
+## Git with Azure DevOps
+
+| Capability | What it does | Edition |
+| --- | --- | --- |
+| [Git sync with Azure DevOps](../../advanced/11_git_sync/index.mdx#azure-devops-with-service-principal-setup) | Sync a workspace to an Azure DevOps repository, authenticating with a Microsoft Entra service principal stored in an `azure` resource. | [Cloud and Enterprise Self-Hosted, Community Edition for workspaces with up to 2 users](../../advanced/11_git_sync/index.mdx) |
+
+<div className="grid grid-cols-2 gap-6 mb-4">
+	<DocCard
+		title="Windmill on Azure"
+		description="Deploy Windmill on Azure AKS with optional Entra ID database auth."
+		href="/docs/advanced/self_host/azure_entra_id"
+	/>
+	<DocCard
+		title="Windows workers"
+		description="Run Windmill scripts and flows directly on Windows machines without Docker or WSL."
+		href="/docs/misc/windows_workers"
+	/>
+	<DocCard
+		title="MS SQL integration"
+		description="Connect SQL Server to Windmill and choose an authentication method."
+		href="/docs/integrations/mssql"
+	/>
+	<DocCard
+		title="Microsoft Teams integration"
+		description="Run scripts from Teams commands and send messages, approvals and alerts to Teams."
+		href="/docs/integrations/teams"
+	/>
+</div>

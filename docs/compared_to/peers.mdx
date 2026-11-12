@@ -166,6 +166,25 @@ Rundeck runs operations jobs with option forms, and AWX runs Ansible playbooks w
 Windmill takes the orchestration role: Terraform or OpenTofu, Ansible, PowerShell and Python as steps of one flow, with approvals, triggers and audit logs, while vSphere and the tools those platforms called stay in place.
 See [infrastructure automation](/use-cases/infra-automation) for what that looks like, and the [open source alternative to VMware vRA and vRO](/use-cases/vmware-vra-replacement) guide for a migration off vRO.
 
+## Microsoft automation tools
+
+Power Automate is Microsoft's automation service for building workflows with little or no code, with connectors to Microsoft and third-party services and desktop flows for automating user interfaces.
+Windows Task Scheduler and SQL Server Agent are the schedulers that ship with Windows and SQL Server.
+Each has a place next to Windmill, and the pages below say where each one fits and how to run them together.
+
+<div className="grid grid-cols-2 gap-6 mb-4">
+	<DocCard
+		title="Windmill vs Power Automate"
+		description="Code-first workflows on your own infrastructure next to Microsoft's low-code automation service."
+		href="/compare/power-automate"
+	/>
+	<DocCard
+		title="Windmill vs Task Scheduler and SQL Server Agent"
+		description="One scheduler for scripts across Windows servers and SQL Server instances."
+		href="/docs/compared_to/windows_task_scheduler"
+	/>
+</div>
+
 ## Interactive side-by-side comparisons
 
 <div className="grid grid-cols-2 gap-6 mb-4">

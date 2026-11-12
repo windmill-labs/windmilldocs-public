@@ -12,6 +12,8 @@ Windows Native Workers are a [Self-Hosted Enterprise](/pricing) feature. In term
 
 You can connect Windows workers to your existing Dockerized or cloud self-hosted PostgreSQL database and Windmill server.
 
+For the other Microsoft-related capabilities (Azure deployment, Entra ID sign-in, SQL Server, Teams), see [Windmill for Microsoft environments](../../advanced/1_self_host/microsoft_environments.mdx).
+
 ### Setting up Windmill worker executable
 
 1. **Set up a working directory**:
@@ -126,12 +128,8 @@ You can also check other installation methods in uv`s [official documentation](h
      where.exe nu.exe 
      ```
 
-3. **Set environment variables**:
-   - Add the following environment variables (replace the placeholders with your specific values):
-     ```powershell
-     # Replace these variables with your specific configuration
-     $env:NU_PATH="C:\..\..\nu.exe"
-     ```
+3. **Make sure `nu.exe` is on the worker's PATH**: on Windows the worker invokes `nu` through PATH, and the `NU_PATH` environment variable is not used.
+
 ### Java executor
 
 1. **Install Java**: Ensure you have installed Java. You can use any Java version, but OpenJDK-22 is recommended and tested by Windmill.
@@ -156,10 +154,10 @@ You can also check other installation methods in uv`s [official documentation](h
 
 ### Ruby executor
 
-1. **Install Ruby**: For Ruby you will need to have `ruby.exe`, `bundler.bat` and `gem.cmd` in `PATH`. You can use [RubyInstaller](https://rubyinstaller.org/) for this.
+1. **Install Ruby**: For Ruby you will need to have `ruby.exe`, `bundle.bat` and `gem.cmd` in `PATH`. You can use [RubyInstaller](https://rubyinstaller.org/) for this.
    - Start PowerShell and verify you have working executables:
      ```powershell
-     ruby --version && bundler --version && gem --version
+     ruby --version && bundle --version && gem --version
      ```
 
 ### R executor
@@ -195,14 +193,26 @@ You can also check other installation methods in uv`s [official documentation](h
      ```
 
 
+## SQL Server with Windows integrated authentication
+
+A Windows worker can run [MS SQL](../../integrations/mssql.md) scripts and authenticate to SQL Server as the Windows account it runs as, with no username or password stored in the resource.
+Set `integrated_auth` to `true` on the `ms_sql_server` [resource](../../core_concepts/3_resources_and_types/index.mdx): the worker then authenticates through Windows SSPI, and the job logs state `Using Integrated Authentication (Windows SSPI)`.
+
+- The identity is the account the `windmill-ee.exe` process runs as. When it runs [as a Windows service](#running-as-a-windows-service), that is the service's log on account.
+- The worker only picks up MS SQL jobs if its [worker group](../../core_concepts/9_worker_groups/index.mdx#set-tags-to-assign-specific-queues) listens to their tag. MS SQL scripts use the `mssql` tag by default, which the `default` and `native` worker groups also listen to, so assign the script a [custom tag](../../core_concepts/9_worker_groups/index.mdx#how-to-assign-a-custom-worker-group-to-a-script-or-flow) that only the Windows worker listens to.
+
+Requirements and the Linux (Kerberos) equivalent are described in the [SQL quickstart](../../getting_started/0_scripts_quickstart/5_sql_quickstart/index.mdx#windows-integrated-authentication).
+
 ## Running as a Windows service
 
 For production environments, it's strongly recommended to run `windmill-ee.exe` as a Windows service. This ensures the Windmill process starts automatically at system boot, restarts on failure, and runs reliably in the background.
 
-Windmill supports three different modes of operation:
+On Windows, `windmill-ee.exe` runs in one of two modes:
 - **Worker mode** (`MODE=worker`): Executes jobs from the queue
-- **Server mode** (`MODE=server`): Runs the API server and web interface
 - **Agent mode** (`MODE=agent`): Connects to a remote Windmill server to execute jobs
+
+The Windows binary is built as a worker and does not include the web interface.
+Run the Windmill server from the Docker image or the Helm chart, as described in [Self-host](../../advanced/1_self_host/index.mdx).
 
 ### Understanding Windmill modes
 
@@ -211,13 +221,6 @@ Worker mode is used to execute jobs from the Windmill queue. Workers connect dir
 
 **Required environment variables:**
 - `MODE=worker`
-- `DATABASE_URL`: PostgreSQL connection string
-
-#### Server mode
-Server mode runs the Windmill API server and web interface. This mode handles all HTTP requests, serves the UI, and manages the job queue.
-
-**Required environment variables:**
-- `MODE=server`
 - `DATABASE_URL`: PostgreSQL connection string
 
 #### Agent mode
@@ -254,22 +257,6 @@ $envVars = @(
 Set-ItemProperty -Path $regPath -Name "Environment" -Value $envVars -Type MultiString
 ```
 
-**For Server mode:**
-```powershell
-sc.exe create WindmillServer `
-  binPath= "C:\Users\Alex\windmill\windmill-ee.exe" `
-  start= auto `
-  DisplayName= "Windmill Server"
-
-# Set environment variables for the service
-$regPath = "HKLM:\SYSTEM\CurrentControlSet\Services\WindmillServer"
-$envVars = @(
-    "MODE=server",
-    "DATABASE_URL=postgres://postgres:changeme@172.12.0.1:5432/windmill?sslmode=disable"
-)
-Set-ItemProperty -Path $regPath -Name "Environment" -Value $envVars -Type MultiString
-```
-
 **For Agent mode:**
 ```powershell
 sc.exe create WindmillAgent `
@@ -296,7 +283,7 @@ Add any additional environment variables (like `WORKER_GROUP`, executor paths, e
 Configure the service to restart automatically on failure:
 
 ```powershell
-# Replace WindmillWorker with WindmillServer or WindmillAgent as appropriate
+# Replace WindmillWorker with WindmillAgent as appropriate
 sc.exe failure WindmillWorker reset= 86400 actions= restart/60000/restart/60000/restart/60000
 ```
 
@@ -305,7 +292,7 @@ This configures the service to restart after 60 seconds on each of the first thr
 #### Step 3: Start the service
 
 ```powershell
-# Replace WindmillWorker with WindmillServer or WindmillAgent as appropriate
+# Replace WindmillWorker with WindmillAgent as appropriate
 sc.exe start WindmillWorker
 ```
 
@@ -392,9 +379,9 @@ If you prefer a GUI-based approach or need more advanced service management feat
 
 **Checking service status and logs:**
 - Check service status: `sc.exe query WindmillWorker` or open Services GUI with `services.msc`
-- **Windmill writes logs to**: `C:\tmp\windmill\logs\` by default
-  - Check this directory for log files generated by the Windmill service
-  - Make sure this directory exists and the service has write permissions to it
+- **Windmill writes logs to**: `<WINDMILL_DIR>\logs\services\<hostname>\`, where `WINDMILL_DIR` defaults to a `windmill` folder in the temporary directory of the account running the service
+  - Set the `WINDMILL_DIR` environment variable to choose the location
+  - Make sure the service has write permissions to it
 - For **stdout/stderr console output** (startup errors, etc.), the output is not captured by default when using `sc.exe`. To capture console output:
   - Use NSSM instead of `sc.exe` and configure log file paths in the I/O tab (recommended - see [Alternative: Using NSSM](#alternative-using-nssm) section)
 
@@ -402,4 +389,4 @@ If you prefer a GUI-based approach or need more advanced service management feat
 - Agent tokens must be generated from your Windmill server. See the [Agent workers documentation](../../core_concepts/28_agent_workers/index.mdx) for detailed instructions
 - Navigate to the worker management section in your Windmill instance
 - Create a new agent token with the appropriate worker group and tags
-- The token format is `jwt_agent_<suffix>_<actual_jwt_token>`
+- The token starts with `jwt_agent_`. Set it as generated in `AGENT_TOKEN`

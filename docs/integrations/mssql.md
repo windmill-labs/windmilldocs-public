@@ -17,9 +17,9 @@ Windmill supports multiple authentication methods for MS SQL Server:
 - **Username/Password**: Standard SQL Server authentication
 - **Azure AD (Entra)**: OAuth-based authentication for Azure-hosted databases
 - **Azure workload identity**: the worker authenticates as its own managed identity on AKS, with no password stored in the resource
-- **Windows Integrated Authentication**: Kerberos-based authentication for Active Directory environments
+- **Windows Integrated Authentication**: the worker authenticates as itself in Active Directory environments, with Kerberos on Linux workers and with Windows SSPI on [Windows workers](../misc/17_windows_workers/index.mdx), where the identity is the Windows account the worker runs as
 
-For detailed setup instructions, including Windows Integrated Authentication configuration, refer to the [SQL Getting started section](../getting_started/0_scripts_quickstart/5_sql_quickstart/index.mdx#ms-sql).
+For detailed setup instructions, including [Windows Integrated Authentication](../getting_started/0_scripts_quickstart/5_sql_quickstart/index.mdx#windows-integrated-authentication) configuration on Linux and Windows workers, refer to the [SQL Getting started section](../getting_started/0_scripts_quickstart/5_sql_quickstart/index.mdx#ms-sql).
 
 ---
 

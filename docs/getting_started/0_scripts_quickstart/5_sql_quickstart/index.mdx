@@ -155,7 +155,7 @@ Fill out the form with the information of your MS SQL instance and "Test connect
 | user      | string | Username                 |         | false    | Created in MS SQL (e.g., via SQL Server Management Studio) or provided by your hosting          |
 | dbname    | string | Database name            |         | true     | Created in MS SQL (e.g., via SQL Server Management Studio) or provided by your hosting          |
 | password  | string | User's password, or `ms_entraid` to authenticate as the worker's [Azure workload identity](../../../integrations/mssql.md#azure-workload-identity-for-azure-sql) | | false | Created in MS SQL (e.g., via SQL Server Management Studio) or provided by your hosting |
-| integrated_auth | bool | Use Windows Integrated Authentication | false | false | Enable to use the worker's Kerberos credentials instead of username/password |
+| integrated_auth | bool | Use Windows Integrated Authentication | false | false | Enable to authenticate as the worker instead of with username/password: Kerberos credentials on Linux workers, the Windows account the worker runs as on [Windows workers](../../../misc/17_windows_workers/index.mdx) |
 | aad_token | object | OAuth token AD           |         | false    | Requires OAuth setup in Windmill      |
 | instance_name | string | Named instance      |         | false    | For named SQL Server instances (e.g., `MSSQLSERVER`) |
 | encrypt   | bool   | Enable TLS encryption    | true    | false    | Set to false only for local development |
@@ -169,11 +169,19 @@ MS SQL Server supports four authentication methods:
 1. **Username/Password**: Provide `user` and `password` fields.
 2. **Azure AD (Entra)**: Use the `aad_token` field with OAuth.
 3. **Azure workload identity**: Set `password` to `ms_entraid` on an AKS worker that has a [workload identity](../../../integrations/mssql.md#azure-workload-identity-for-azure-sql).
-4. **Windows Integrated Authentication (Kerberos)**: Enable `integrated_auth`.
+4. **Windows Integrated Authentication**: Enable `integrated_auth`. Linux workers use Kerberos, [Windows workers](../../../misc/17_windows_workers/index.mdx) use SSPI.
 
 #### Windows Integrated Authentication
 
-For enterprise environments using Active Directory, enable `integrated_auth` to use Kerberos authentication. When enabled, the worker's service account credentials are used instead of username/password.
+For enterprise environments using Active Directory, enable `integrated_auth` to authenticate as the worker instead of with a username and password stored in the resource.
+When `integrated_auth` is enabled, `user`, `password` and `aad_token` are ignored.
+How the worker obtains its identity depends on its operating system.
+It needs a self-hosted worker or an [agent worker](../../../core_concepts/28_agent_workers/index.mdx) in your domain: Windmill Cloud's managed workers have no Active Directory identity.
+
+##### Linux workers (Kerberos)
+
+On Linux workers, the worker's Kerberos credentials are used.
+The job logs state `Using Integrated Authentication (Kerberos/GSSAPI)`.
 
 **Requirements:**
 - The worker must have a valid Kerberos ticket (e.g., via `kinit` or a keytab)
@@ -184,6 +192,31 @@ For enterprise environments using Active Directory, enable `integrated_auth` to 
 1. Mount a keytab file to the worker container
 2. Configure `/etc/krb5.conf` with your realm settings
 3. Optionally run `kinit` at container startup or use `KRB5_KTNAME` environment variable
+
+##### Windows workers (SSPI)
+
+On [Windows workers](../../../misc/17_windows_workers/index.mdx), the worker authenticates through Windows [SSPI](https://learn.microsoft.com/en-us/windows/win32/secauthn/sspi) as the Windows account the worker process runs as.
+There is no keytab, `krb5.conf` or `kinit` to set up, and no credential is stored in the resource.
+The job logs state `Using Integrated Authentication (Windows SSPI)`.
+
+**Requirements:**
+- The job must run on a Windows worker, which is a [Self-Hosted Enterprise](/pricing) feature. Integrated authentication is included in the `windmill-ee.exe` binary since v1.627.0.
+- The account the worker runs as must have a login on the SQL Server and permissions on the target database. When the worker runs [as a Windows service](../../../misc/17_windows_workers/index.mdx#running-as-a-windows-service), this is the service's log on account, which can be changed with [`sc.exe config`](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/sc-config).
+- The worker takes its credentials from the NTLM security package, so NTLM authentication must be allowed between the worker and the SQL Server.
+- The job must be routed to the Windows worker. MS SQL scripts use the `mssql` [tag](../../../core_concepts/9_worker_groups/index.mdx#set-tags-to-assign-specific-queues) by default, which the `default` and `native` worker groups also listen to, so assign the script a [custom tag](../../../core_concepts/9_worker_groups/index.mdx#how-to-assign-a-custom-worker-group-to-a-script-or-flow) that only the Windows worker listens to.
+
+The identity comes from the worker and not from the resource, so reaching two databases as two different Windows accounts takes two workers running as those accounts, in two [worker groups](../../../core_concepts/9_worker_groups/index.mdx).
+
+```json
+{
+  "host": "sqlserver.corp.example.com",
+  "port": 1433,
+  "dbname": "mydb",
+  "integrated_auth": true
+}
+```
+
+`instance_name`, `encrypt`, `trust_cert` and `ca_cert` apply as with the other authentication methods.
 
 To specify the application intent for read-only requests, add `-- ApplicationIntent=ReadOnly` to the script.
 
