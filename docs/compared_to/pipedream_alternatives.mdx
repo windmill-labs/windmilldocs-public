@@ -1,0 +1,203 @@
+---
+title: Pipedream alternatives after the Workflows shutdown
+description: Pipedream Workflows shuts down on March 31, 2027. Which tools can replace it? n8n, Zapier, Make, Activepieces, Trigger.dev, Inngest, Kestra and Windmill.
+---
+
+import DocCard from '@site/src/components/DocCard';
+
+# Pipedream alternatives after the Workflows shutdown
+
+Pipedream Workflows stops running on March 31, 2027, so every workflow on it needs a new home.
+The main alternatives are n8n, Zapier, Make, Activepieces, Trigger.dev, Inngest, Kestra and Windmill.
+They split into hosted no-code tools (Zapier, Make), visual builders you can also host yourself (n8n, Activepieces), code-first engines (Trigger.dev, Inngest, Windmill) and declarative orchestrators (Kestra).
+Which one fits depends mostly on whether your workflows are built from pre-built actions or from code steps, and whether you need to run them on your own infrastructure.
+
+This page describes each tool from its own documentation and pricing pages, with links, as checked on November 11, 2026.
+Windmill publishes this page and is one of the options, so the facts about other tools are quoted from their sites rather than summarized from memory.
+If something here is out of date, write to [contact@windmill.dev](mailto:contact@windmill.dev).
+
+## What Pipedream is shutting down
+
+Pipedream's notice, at [pipedream.com/docs/workflows](https://pipedream.com/docs/workflows), says:
+
+> We want to let you know that Pipedream Workflows and String will shut down on March 31, 2027.
+
+The same notice gives the rest of the timeline:
+
+- Workflows is in maintenance mode: "Your existing workflows will keep running normally through March 31, 2027, but we're no longer accepting signups or subscriptions, and we won't be shipping new features for Workflows."
+- "All Workflows data will be permanently deleted by April 30, 2027, including the credentials and OAuth tokens for your connected accounts."
+- Subscriptions are cancelled on March 31, 2027 with a prorated refund.
+- Pipedream Connect continues: "If you're using our Connect API, MCP Servers, or API Proxy, nothing changes for you."
+
+Pipedream provides an [export tool](https://pipedream.com/docs/workflows/export-workflows) that downloads "the structure of your workflows as JSON, one project at a time".
+The export does not contain connected-account credentials, so whichever tool you move to, plan to reconnect each account.
+
+If you only use Pipedream Connect to embed integrations in your own product, nothing on this page applies to you.
+
+## The alternatives at a glance
+
+| Tool | How you build | Code in a step | Self-hosting | Free option (vendor's wording) |
+|---|---|---|---|---|
+| [n8n](#n8n) | Visual canvas with code nodes | JavaScript, Python | Yes, under the Sustainable Use License | Self-hosted Community Edition; n8n Cloud has a trial |
+| [Zapier](#zapier) | No-code, with Code by Zapier steps | JavaScript, Python | No self-hosted plan found | "Free forever", 100 tasks per month |
+| [Make](#make) | Visual scenarios | JavaScript, Python (paid plans) | No self-hosted plan found | Free subscription, 1,000 credits per month |
+| [Activepieces](#activepieces) | Visual flows with code steps | TypeScript | Yes, MIT outside the `ee` folders | "Free forever", 1,000 credits a month |
+| [Trigger.dev](#triggerdev) | TypeScript tasks in your codebase | TypeScript, Python via an extension | Yes, Apache 2.0 core | $5 a month of free credits |
+| [Inngest](#inngest) | Functions in your codebase with an SDK | TypeScript, Python, Go, Kotlin/Java | Yes, server under the SSPL | 50k executions a month |
+| [Kestra](#kestra) | YAML flows, with a no-code editor | Python, Node.js, Shell, R, Julia, Ruby, PowerShell | Yes, Apache 2.0 | Open-source edition; no public cloud prices |
+| [Windmill](#windmill) | Scripts, plus a flow editor or workflows as code | TypeScript, Python, Go, Bash and 20+ languages | Yes, AGPLv3 core | Self-hosted Community Edition; Cloud free plan with 1,000 executions per month |
+
+## Each alternative
+
+### n8n
+
+n8n describes itself as "a workflow automation platform that uniquely combines AI capabilities with business process automation" ([n8n.io/llms.txt](https://n8n.io/llms.txt)).
+Workflows are built on a visual canvas, and the [Code node](https://docs.n8n.io/build/code-in-n8n/using-the-code-node) runs "custom JavaScript or Python".
+Workflows start from a [Webhook node](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.webhook/) or a [Schedule Trigger](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.scheduletrigger/) with a custom cron interval, among others.
+The homepage lists "500+ native integrations" ([n8n.io](https://n8n.io/)).
+
+On packages, the Code node docs say: "If you use n8n Cloud, you can't import external npm modules", and "On n8n cloud, the Python option for the Code node doesn't allow users to import any Python libraries".
+"If you self-host n8n, you can import and use built-in and external npm modules in the Code node", and Python modules have to be included in the `n8nio/runners` image and explicitly allowlisted.
+The self-hosted Community Edition is free; the code is under the [Sustainable Use License](https://github.com/n8n-io/n8n/blob/master/LICENSE.md), with `.ee.` files requiring an n8n Enterprise license.
+n8n Cloud has a trial rather than a free plan, and its Starter plan is "20€ /mo, billed annually" for 2.5K workflow executions ([n8n.io/pricing](https://n8n.io/pricing/)).
+
+n8n is a good fit when your Pipedream workflows are mostly pre-built actions, the people maintaining them prefer a canvas, and you want the option to self-host.
+Check how your code steps use npm or PyPI packages before moving to n8n Cloud.
+
+### Zapier
+
+Zapier calls itself "a no-code AI orchestration platform where teams connect thousands of apps and AI tools" ([zapier.com/llms.txt](https://zapier.com/llms.txt)), and its pricing page says it connects "9,000+ apps" ([zapier.com/pricing](https://zapier.com/pricing)).
+Code steps are available through [Code by Zapier](https://zapier.com/apps/code/integrations), with "Run Python" and "Run Javascript" actions.
+Webhooks arrive through a [Catch Hook](https://zapier.com/apps/webhook/integrations) trigger, and the [Schedule](https://zapier.com/apps/schedule/integrations) trigger runs every hour, day, week or month.
+
+The free plan includes 100 tasks per month, and Professional starts "from $19.99 /month" with yearly billing ([zapier.com/pricing](https://zapier.com/pricing)).
+We found no self-hosted plan on Zapier's pricing page.
+
+Zapier is a good fit when the Pipedream workflows are built from pre-built actions, the people who maintain them are not developers, and a hosted service is acceptable.
+
+### Make
+
+Make describes itself as "a leading visual automation platform for building AI agents, agentic workflows, and integrations without writing code", "connecting 3,500+ pre-built apps" ([make.com/llms.txt](https://www.make.com/llms.txt)).
+The [Make Code app](https://help.make.com/the-make-code-app-is-available.md) adds JavaScript or Python to a scenario and is available on paid plans; importing custom libraries is listed for Enterprise only.
+Scenarios start from [webhooks](https://help.make.com/webhooks.md) or on a [schedule](https://help.make.com/schedule-a-scenario.md).
+
+Make's help center gives the standard free subscription as "1,000 credits per month", on its page about [cancelling a subscription](https://help.make.com/cancel-your-subscription.md).
+Make's pricing page could not be fetched when this page was written, so paid prices are not quoted here.
+We found no self-hosted plan; Make offers an [on-premise agent](https://help.make.com/on-premise-agent.md) on Enterprise so cloud scenarios can reach systems on your network.
+
+Make is a good fit for the same profile as Zapier: hosted, visual, built from pre-built apps.
+
+### Activepieces
+
+Activepieces describes itself as "AI automation for teams, with governance and security built in" ([activepieces.com/docs/llms.txt](https://www.activepieces.com/docs/llms.txt)).
+Flows are visual, start from a "Schedule Trigger, Webhook Trigger, or Event Trigger" ([docs](https://www.activepieces.com/docs/flows/building-flows.md)), and code steps are TypeScript.
+In the sandbox mode the docs recommend, code steps run with "no `require`, no filesystem, no npm"; a process sandbox mode is available "if you genuinely need arbitrary `npm` packages" ([sandboxing docs](https://www.activepieces.com/docs/install/architecture/sandboxing.md)).
+The homepage lists "770+ apps" ([activepieces.com](https://www.activepieces.com/)).
+
+It can be self-hosted with Docker or Kubernetes, and the code outside `packages/ee/` and `packages/server/api/src/app/ee` is under the MIT Expat license ([LICENSE](https://github.com/activepieces/activepieces/blob/main/LICENSE)).
+The cloud has a free plan with "1,000 credits a month" and a Plus plan at "$20 flat per month" ([activepieces.com/pricing](https://www.activepieces.com/pricing)).
+
+Activepieces is a good fit when you want a visual builder close to Pipedream's, under a permissive license, on your own servers.
+
+### Trigger.dev
+
+Trigger.dev is "the open source platform for building and running durable AI agents and workflows in TypeScript" ([docs](https://trigger.dev/docs/introduction.md)).
+You write tasks "in your existing codebase" and deploy them; Python scripts can run through the [`pythonExtension`](https://trigger.dev/docs/config/extensions/pythonExtension.md) build extension.
+Tasks can run on a [cron schedule](https://trigger.dev/docs/tasks/scheduled.md), and the docs index lists webhooks as a public beta ([llms.txt](https://trigger.dev/docs/llms.txt)).
+
+It can be [self-hosted](https://trigger.dev/docs/self-hosting/overview.md), and its docs say its "core is Apache-2.0 licensed".
+The cloud's free plan includes "$5 / month free credits", and Hobby is "$10 /month" ([trigger.dev/pricing](https://trigger.dev/pricing)).
+
+Trigger.dev is a good fit when your Pipedream workflows were mostly Node.js code steps and you would rather keep that code in your application's repository than in a separate tool.
+It has no visual builder or pre-built action catalog in the Pipedream sense.
+
+### Inngest
+
+Inngest is "the durable workflow engine for AI applications" ([inngest.com/llms.txt](https://www.inngest.com/llms.txt)), with SDKs for TypeScript, Python, Go and Kotlin/Java ([README](https://github.com/inngest/inngest)).
+Functions start from events, a [cron trigger](https://www.inngest.com/docs-markdown/durable-execution/guides-and-advanced/events-and-triggers/schedules-and-delayed-starts) or a [webhook URL](https://www.inngest.com/docs-markdown/durable-execution/guides-and-advanced/events-and-triggers/receive-webhook-events).
+
+The server can be [self-hosted](https://www.inngest.com/docs-markdown/platform-and-operations/self-host-inngest), under the Server Side Public License with delayed publication under Apache 2.0; the SDKs are Apache 2.0 ([README](https://github.com/inngest/inngest)).
+The cloud's free plan includes "50k executions", and Pro starts "at $99 /mo" ([inngest.com/pricing](https://www.inngest.com/pricing)).
+
+Inngest fits the same profile as Trigger.dev: developers who want durable steps inside their own application code.
+
+### Kestra
+
+Kestra is "an open-source workflow orchestration platform. Workflows are defined declaratively in YAML" ([kestra.io/llms.txt](https://kestra.io/llms.txt)), and its README says the YAML editor, the no-code editor and the AI Copilot "all edit the same flow".
+Script tasks have "dedicated plugins for `Python`, `R`, `Julia`, `Ruby`, `Node.js`, `Powershell` and `Shell`" ([docs](https://kestra.io/docs/scripts.md)), and flows start from schedule or webhook [triggers](https://kestra.io/docs/workflow-components/triggers.md).
+Its pricing page lists "2,600+ Plugins".
+
+Kestra is Apache 2.0 and self-hostable, and Kestra Cloud is behind "Request Access" ([kestra.io/pricing](https://kestra.io/pricing)).
+Its open-source [Pause task](https://kestra.io/docs/how-to-guides/pause-resume) waits for someone to click Resume; the pricing page lists Human-in-the-Loop Approvals with custom inputs, and Apps for forms, as Enterprise.
+Kestra publishes its own [Pipedream migration guide](https://kestra.io/resources/migration/pipedream).
+
+Kestra is a good fit when the workflows are closer to data or infrastructure pipelines than to app-to-app automations, and your team is comfortable describing them in YAML.
+
+### Windmill
+
+Windmill runs scripts, flows, apps and AI agents on workers you host or on Windmill Cloud.
+A Pipedream code step becomes a Windmill script in the same language: TypeScript, Python, Go or Bash, among more than 20 supported languages.
+Packages are installed from the script's imports, so a step can use the vendor's SDK from npm or PyPI.
+Flows start from [webhooks](../core_concepts/4_webhooks/index.mdx), [schedules](../core_concepts/1_scheduling/index.mdx), [HTTP routes](../triggers/2_http_routing/index.mdx), emails and [other triggers](../triggers/index.mdx), and can pause on [approval steps](../flows/11_flow_approval.mdx).
+Every script also gets an [auto-generated form](../core_concepts/6_auto_generated_uis/index.mdx), and [apps](../full_code_apps/index.mdx) can be built on top of scripts and flows.
+
+What Windmill has less of: pre-built integrations.
+Pipedream's workflow docs mention "3,000 integrated apps"; Windmill has resource types and community scripts on its [Hub](https://hub.windmill.dev), and for anything else a step calls the API or imports the SDK.
+
+Windmill's core is open source under AGPLv3 and [self-hosts](../advanced/1_self_host/index.mdx) with Docker Compose or Kubernetes.
+Some features are [Enterprise Edition](/pricing) only on a self-hosted instance, including schedule error handlers and retries, forms on approval pages, unredacted [audit logs](../core_concepts/14_audit_logs/index.mdx), SSO for more than 10 users and [Git sync](../advanced/11_git_sync/index.mdx) for workspaces with more than 2 users.
+Windmill Cloud has a free plan with 1,000 executions per month, and the Team plan is $10 per seat per month ([pricing](/pricing)).
+
+Windmill is a good fit when your Pipedream workflows are mostly code steps, written by developers, and you want to keep them as plain scripts under version control, with the option to self-host.
+See [Windmill vs Pipedream](/compare/pipedream) for the side-by-side and the [migration guide](#moving-pipedream-workflows-to-windmill) below.
+
+## How to choose
+
+Answer these in order; the first answer usually narrows the list to two or three tools.
+
+1. Do you use only Pipedream Connect?
+   Then nothing changes and you do not need to migrate.
+2. Must the workflows run on your own infrastructure?
+   That rules out Zapier and Make, and leaves n8n, Activepieces, Trigger.dev, Inngest, Kestra and Windmill.
+   Read each license: Sustainable Use License (n8n), MIT with `ee` folders (Activepieces), Apache 2.0 (Kestra, Trigger.dev's core), SSPL (Inngest server), AGPLv3 with proprietary Enterprise features (Windmill).
+3. Are your workflows mostly pre-built actions or mostly code steps?
+   Count the code steps in your export.
+   Mostly actions points to Zapier, Make, n8n or Activepieces, which have the largest catalogs.
+   Mostly code points to Trigger.dev, Inngest, Kestra or Windmill, where the step code carries over with the least rewriting.
+4. Do your code steps import packages?
+   Check each tool's package rules above: several hosted plans restrict or block imports in code steps.
+5. Who maintains the workflows after the move?
+   Non-developers do better on a canvas (Zapier, Make, n8n, Activepieces).
+   Developers who already keep code in Git do better with Trigger.dev, Inngest, Kestra or Windmill.
+6. Do you need more than workflows?
+   If people also run the same logic by hand, need approval steps, or need internal UIs, compare what each tool includes for that.
+   On Kestra, the open-source Pause task waits for a Resume click, while approvals with custom inputs and Apps are Enterprise; n8n documents human approval for AI agent tools.
+
+Whatever you pick, run the Pipedream export early: it is one project at a time, and the data is deleted on April 30, 2027.
+
+## Moving Pipedream workflows to Windmill
+
+Windmill's migration guide covers the full procedure, including a concept-by-concept mapping and what the export leaves out.
+In short:
+
+1. Export each Pipedream project from its settings.
+2. Give the guide's prompt to Claude Code, Codex or Cursor, which converts the export into Windmill flows on your machine, with no Windmill account needed.
+3. Connect a workspace, preview each flow, reconnect the accounts, and deploy with routes and schedules disabled until you switch over.
+
+<div className="grid grid-cols-2 gap-6 mb-4">
+	<DocCard
+		title="Migrate from Pipedream"
+		description="Export, convert with your AI coding agent, preview and deploy."
+		href="/docs/misc/guides/migrate_from_pipedream"
+	/>
+	<DocCard
+		title="Windmill vs Pipedream"
+		description="Windmill and Pipedream Workflows side by side, with a before and after code step."
+		href="/compare/pipedream"
+	/>
+	<DocCard
+		title="Alternatives to Windmill"
+		description="When another tool is a better choice than Windmill."
+		href="/docs/compared_to/peers"
+	/>
+</div>

@@ -1,0 +1,121 @@
+---
+title: Replace cron with a web UI, logs and retries
+description: How do I replace crontab with a scheduler that has a web UI, run logs and retries? Move each cron job into a Windmill script with a schedule.
+---
+
+import DocCard from '@site/src/components/DocCard';
+
+# Replace cron with a web UI, logs and retries
+
+To replace cron, move each crontab line into Windmill as a script plus a [schedule](../../../core_concepts/1_scheduling/index.mdx) with the same cron expression.
+You keep your Bash, Python or PowerShell code, and get a web UI to see and edit schedules, a log and result for every run, a Run button for manual runs, and retries.
+Jobs run on Windmill [workers](../../../core_concepts/9_worker_groups/index.mdx) instead of one machine's crontab, so the schedule keeps working when that machine is replaced.
+
+## 1. Move the job into a script
+
+Take this crontab line:
+
+```text
+0 2 * * * /opt/scripts/rotate_logs.sh /var/log/myapp 14
+```
+
+The script becomes a Windmill [Bash script](../../../getting_started/0_scripts_quickstart/4_bash_quickstart/index.mdx).
+Positional arguments of the form `name="${1:-default}"` become named parameters, with a form in the UI:
+
+```bash
+# Was in crontab: 0 2 * * * /opt/scripts/rotate_logs.sh /var/log/myapp 14
+log_dir="${1:-/tmp/myapp-logs}"
+keep_days="${2:-14}"
+
+mkdir -p "$log_dir"
+echo "Deleting .log files older than $keep_days days in $log_dir"
+find "$log_dir" -name '*.log' -mtime +"$keep_days" -print -delete
+echo "Done"
+```
+
+Windmill reads `log_dir` and `keep_days` as two string parameters with defaults `/tmp/myapp-logs` and `14`.
+Save it as `f/ops/rotate_logs` in the script editor, or push it with the [CLI](../../../advanced/3_cli/index.mdx):
+
+```bash
+wmill generate-metadata f/ops --yes
+wmill script push f/ops/rotate_logs.sh
+```
+
+The script runs on the worker, so it sees the worker's filesystem, not the old server's.
+For files on a specific machine, run a worker on that machine and route the job to it with a [worker tag](../../../core_concepts/9_worker_groups/index.mdx), or have the script reach the machine over SSH or an API.
+
+## 2. Add the schedule
+
+A crontab expression has five fields.
+Windmill cron expressions have six, starting with seconds, and a five-field expression is rejected, so `0 2 * * *` becomes:
+
+```text
+0 0 2 * * *
+```
+
+Add the schedule from the script's Triggers tab or the Schedules page, set the timezone (cron on a server uses the server's local time; a Windmill schedule uses the timezone you pick), and set the arguments, here `log_dir: /var/log/myapp` and `keep_days: 14`.
+See [cron syntax](../../../core_concepts/1_scheduling/index.mdx#cron-syntax) for extensions such as `L` (last day of the month) and `#` (nth weekday).
+
+One script can have several schedules with different arguments, for example one per log directory.
+
+## 3. What you get compared with crontab
+
+| With crontab | With a Windmill schedule |
+|---|---|
+| Output goes to mail or a log file you set up | Every run keeps its logs, arguments, result and duration, in the [runs page](../../../core_concepts/5_monitor_past_and_future_runs/index.mdx) |
+| Manual runs from a shell on the server | Run the script from its form, with the same arguments or different ones |
+| Editing means SSH and `crontab -e` | Schedules are listed and edited in the web UI, with [roles and folders](../../../core_concepts/16_roles_and_permissions/index.mdx) controlling who can change them |
+| A failed run is silent unless the script reports it | A failure is marked in the run history; retries and alerts are configurable (see below) |
+| Secrets in environment files on the server | [Variables and secrets](../../../core_concepts/2_variables_and_secrets/index.mdx), encrypted in the database |
+| Tied to one machine | Runs on any worker of the matching [worker group](../../../core_concepts/9_worker_groups/index.mdx) |
+
+## 4. Retries and failure alerts
+
+There are two ways to retry a failed scheduled job:
+
+- Schedule-level retries for a script, set in the schedule's Retries tab.
+  This is an [Enterprise Edition](/pricing) feature on self-hosted instances.
+- Step [retries](../../../flows/14_retries.md) in a flow, available on every edition.
+  Wrap the script in a one-step flow and schedule the flow:
+
+```yaml
+summary: Rotate logs, with retries
+value:
+  modules:
+    - id: a
+      value:
+        type: script
+        path: f/ops/rotate_logs
+        input_transforms: {}
+      retry:
+        constant:
+          attempts: 2
+          seconds: 60
+```
+
+With `attempts: 2`, a failing step runs up to three times in total: the first try and two retries, 60 seconds apart.
+With `input_transforms: {}` the script runs with its default arguments; map the flow's inputs to the script's parameters to pass other values.
+[Exponential backoff](../../../flows/14_retries.md) is also available.
+
+To be told when a scheduled job fails, attach a [schedule error handler](../../../core_concepts/1_scheduling/index.mdx#schedule-error-handler) (for example the pre-set Slack or Teams handler) and a [recovery handler](../../../core_concepts/1_scheduling/index.mdx#schedule-recovery-handler) for when it succeeds again.
+Both are Cloud and Enterprise Edition features.
+On the Community Edition, add a [flow error handler](../../../flows/7_flow_error_handler.md) to the scheduled flow, which runs when a step fails.
+
+## Edition notes
+
+On a self-hosted Community Edition, schedules, run logs, manual runs and flow step retries are included, and the runs history is kept for up to 30 days.
+Schedule-level retries, schedule error and recovery handlers, and longer run retention need a Cloud plan or the Enterprise Edition.
+See [pricing](/pricing) for the full list.
+
+<div className="grid grid-cols-2 gap-6 mb-4">
+	<DocCard
+		title="Schedules"
+		description="Cron syntax, timezones, error and recovery handlers, dynamic skip."
+		href="/docs/core_concepts/scheduling"
+	/>
+	<DocCard
+		title="Retries"
+		description="Constant and exponential retries on flow steps."
+		href="/docs/flows/retries"
+	/>
+</div>

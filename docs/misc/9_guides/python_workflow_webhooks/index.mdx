@@ -1,0 +1,142 @@
+---
+title: Workflow tool with Python code steps and webhooks
+description: How do I build a workflow with Python code steps that starts from a webhook? Write each step as a Python function and call the flow's webhook URL.
+---
+
+import DocCard from '@site/src/components/DocCard';
+
+# Workflow tool with Python code steps and webhooks
+
+In Windmill, each step of a [flow](../../../flows/1_flow_editor.mdx) can be a Python function, and every flow gets [webhook URLs](../../../core_concepts/4_webhooks/index.mdx) that start it with the request body as input.
+Steps import any PyPI package: Windmill reads the imports when you save and pins them in a lockfile, so there is no requirements file to maintain.
+The example below receives an order from a shop's webhook, validates it with pydantic in one Python step, and posts a summary to Slack with requests in a second step.
+
+## 1. The flow
+
+The flow takes one input, `order`, and has two Python steps.
+This is its [OpenFlow](../../../openflow/index.mdx) definition, as the [CLI](../../../advanced/3_cli/index.mdx) stores it in `f/shop/order_to_slack.flow/flow.yaml`; the flow editor builds the same thing.
+
+```yaml
+summary: New order webhook to Slack
+schema:
+  type: object
+  properties:
+    order:
+      type: object
+  required: [order]
+value:
+  modules:
+    - id: a
+      summary: Validate the order
+      value:
+        type: rawscript
+        language: python3
+        content: |
+          from pydantic import BaseModel
+
+
+          class Item(BaseModel):
+              sku: str
+              quantity: int
+              unit_price: float
+
+
+          class Order(BaseModel):
+              id: str
+              customer_email: str
+              items: list[Item]
+
+
+          def main(order: dict):
+              parsed = Order.model_validate(order)
+              total = sum(i.quantity * i.unit_price for i in parsed.items)
+              return {"id": parsed.id, "customer": parsed.customer_email, "total": round(total, 2)}
+        input_transforms:
+          order:
+            type: javascript
+            expr: flow_input.order
+    - id: b
+      summary: Post to Slack
+      value:
+        type: rawscript
+        language: python3
+        content: |
+          import requests
+          import wmill
+
+
+          def main(summary: dict):
+              url = wmill.get_variable("f/shop/slack_webhook_url")
+              text = f"New order {summary['id']} from {summary['customer']}: {summary['total']} EUR"
+              r = requests.post(url, json={"text": text}, timeout=10)
+              r.raise_for_status()
+              return {"posted": text, "status": r.status_code}
+        input_transforms:
+          summary:
+            type: javascript
+            expr: results.a
+```
+
+- Step `a` gets the webhook's `order` field through `flow_input.order`, and step `b` gets step `a`'s return value through `results.a`.
+- `pydantic` and `requests` are not declared anywhere else: Windmill [resolves the imports](../../../advanced/15_dependencies_in_python/index.mdx) into a lockfile per step.
+- The Slack webhook URL is a secret [variable](../../../core_concepts/2_variables_and_secrets/index.mdx) at `f/shop/slack_webhook_url`, read with `wmill.get_variable`, not a flow input.
+
+Generate the lockfiles and deploy from the CLI:
+
+```bash
+wmill generate-metadata f/shop/order_to_slack.flow --yes
+wmill flow push f/shop/order_to_slack.flow f/shop/order_to_slack
+```
+
+## 2. Call the webhook
+
+Every flow has an asynchronous and a synchronous webhook.
+The synchronous one waits for the flow and returns its result:
+
+```bash
+curl -X POST "https://<your-instance>/api/w/<workspace>/jobs/run_wait_result/f/f/shop/order_to_slack" \
+  -H "Authorization: Bearer $WINDMILL_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"order": {"id": "A-1042", "customer_email": "ana@example.com",
+       "items": [{"sku": "MUG", "quantity": 2, "unit_price": 12.5},
+                 {"sku": "TEE", "quantity": 1, "unit_price": 20}]}}'
+```
+
+```json
+{"posted": "New order A-1042 from ana@example.com: 45.0 EUR", "status": 200}
+```
+
+The top-level keys of the JSON body become the flow's inputs, here `order`.
+If the order is missing `customer_email`, step `a` raises pydantic's validation error and the response carries the error, with a message that starts `1 validation error for Order`, names the missing field, and includes `"step_id": "a"`.
+
+The asynchronous endpoint, `/api/w/<workspace>/jobs/run/f/f/shop/order_to_slack`, returns a job id at once; use it when the sender should not wait, which is what most webhook senders expect.
+
+For the caller's token, create a [webhook-specific token](../../../core_concepts/4_webhooks/index.mdx#webhook-specific-tokens), which can run this flow and nothing else.
+If the sender cannot add an `Authorization` header or needs its own URL path, put an [HTTP route](../../../triggers/2_http_routing/index.mdx) in front of the flow, with its own authentication options and a [preprocessor](../../../core_concepts/43_preprocessors/index.mdx) to reshape the request.
+
+## 3. Run, debug and retry
+
+- Each run is in the [runs page](../../../core_concepts/5_monitor_past_and_future_runs/index.mdx) with the request body, each step's logs and result, and the error if one failed.
+- You can test a step on its own in the flow editor with sample input, without calling the webhook.
+- Add [retries](../../../flows/14_retries.md) to step `b` so a Slack outage does not lose the order, and a [flow error handler](../../../flows/7_flow_error_handler.md) to be told when a run fails.
+- The same flow can also run on a [schedule](../../../core_concepts/1_scheduling/index.mdx), from a [form](../../../core_concepts/6_auto_generated_uis/index.mdx), or from [other triggers](../../../triggers/index.mdx).
+
+Steps do not have to be Python: a flow can mix Python, TypeScript, Bash, SQL and the other [supported languages](../../../getting_started/0_scripts_quickstart/index.mdx).
+
+## Edition notes
+
+Flows, Python steps, webhooks, HTTP routes, variables and step retries are in the open-source Community Edition.
+On a self-hosted Community Edition, the runs history is kept for up to 30 days; Kafka, NATS, SQS and GCP Pub/Sub triggers, concurrency limits and external secret backends need the [Enterprise Edition](/pricing).
+
+<div className="grid grid-cols-2 gap-6 mb-4">
+	<DocCard
+		title="Webhooks"
+		description="Sync and async endpoints, tokens and custom response codes."
+		href="/docs/core_concepts/webhooks"
+	/>
+	<DocCard
+		title="Python quickstart"
+		description="Write Python scripts with dependencies resolved from imports."
+		href="/docs/getting_started/scripts_quickstart/python"
+	/>
+</div>

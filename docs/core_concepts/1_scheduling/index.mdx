@@ -399,6 +399,21 @@ Go the the script or flow's page, click on the `Advanced` button, fill in the da
 
 You can see the future runs in the [Runs menu](../../core_concepts/5_monitor_past_and_future_runs/index.mdx), with toggle 'Planned later'. You can find the created_at date when the run was scheduled on from the API [get job endpoint](https://app.windmill.dev/openapi.html#tag/job/GET/w/{workspace}/jobs_u/get/{id}) .
 
+## Guides
+
+<div className="grid grid-cols-2 gap-6 mb-4">
+	<DocCard
+		title="Replace cron with a web UI"
+		description="Move crontab jobs to Windmill scripts with schedules, run logs and retries."
+		href="/docs/misc/guides/cron_replacement_web_ui"
+	/>
+	<DocCard
+		title="Job scheduler with approval steps"
+		description="Run a flow on a cron schedule that waits for a person to approve."
+		href="/docs/misc/guides/job_scheduler_approval_steps"
+	/>
+</div>
+
 <!-- Resources -->
 
 [flows]: ../../getting_started/6_flows_quickstart/index.mdx

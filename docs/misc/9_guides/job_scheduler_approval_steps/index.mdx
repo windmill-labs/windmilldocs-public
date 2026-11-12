@@ -1,0 +1,159 @@
+---
+title: Job scheduler with approval steps
+description: How do I schedule a job that waits for a person to approve before it continues? Run a Windmill flow on a cron schedule with an approval step.
+---
+
+import DocCard from '@site/src/components/DocCard';
+
+# Job scheduler with approval steps
+
+To schedule a job that pauses for a human approval, write it as a Windmill [flow](../../../flows/1_flow_editor.mdx), add an [approval step](../../../flows/11_flow_approval.mdx) between the step that prepares the change and the step that applies it, and attach a cron [schedule](../../../core_concepts/1_scheduling/index.mdx) to the flow.
+On each run, the flow does the preparation, sends an approval link, and waits.
+It continues when someone approves, and stops if someone rejects or the timeout passes.
+Approval steps and schedules are both in the open-source Community Edition.
+
+The example below disables inactive user accounts every Monday at 9:00, after a person has approved the list.
+
+## 1. The flow
+
+The flow has three steps:
+
+1. `a` finds the inactive accounts.
+2. `b` sends the approval link, and the flow suspends after it.
+3. `c` disables the accounts, using the list from step `a`.
+
+This is the flow's [OpenFlow](../../../openflow/index.mdx) definition, as the [CLI](../../../advanced/3_cli/index.mdx) stores it in `f/ops/disable_inactive_accounts.flow/flow.yaml`.
+You can build the same flow in the flow editor.
+
+```yaml
+summary: Disable inactive accounts, after approval
+schema:
+  type: object
+  properties:
+    inactive_days:
+      type: integer
+      default: 90
+  required: []
+value:
+  modules:
+    - id: a
+      summary: Find inactive accounts
+      value:
+        type: rawscript
+        language: python3
+        content: |
+          def main(inactive_days: int):
+              # Query your user directory here.
+              return [
+                  {"email": "old.contractor@example.com", "last_login_days": inactive_days + 12},
+                  {"email": "test.account@example.com", "last_login_days": inactive_days + 40},
+              ]
+        input_transforms:
+          inactive_days:
+            type: javascript
+            expr: flow_input.inactive_days
+    - id: b
+      summary: Ask for approval
+      value:
+        type: rawscript
+        language: python3
+        content: |
+          import wmill
+
+
+          def main(accounts: list):
+              urls = wmill.get_resume_urls()
+              # Send this link to the approver by Slack, Teams or email.
+              print("Approve or reject:", urls["approvalPage"])
+              return {"accounts_to_disable": len(accounts)}
+        input_transforms:
+          accounts:
+            type: javascript
+            expr: results.a
+      suspend:
+        required_events: 1
+        timeout: 86400
+    - id: c
+      summary: Disable the accounts
+      value:
+        type: rawscript
+        language: python3
+        content: |
+          def main(accounts: list):
+              # Call your identity provider's API here.
+              return {"disabled": [a["email"] for a in accounts]}
+        input_transforms:
+          accounts:
+            type: javascript
+            expr: results.a
+```
+
+The `suspend` block on step `b` is what makes it an approval step:
+
+- `required_events: 1`: one approval resumes the flow.
+  Raise it to require several approvers.
+- `timeout: 86400`: if nobody answers within 24 hours, the flow is canceled.
+  To handle a rejection or a timeout in a later step instead of failing, enable [continue on disapproval/timeout](../../../flows/11_flow_approval.mdx#continue-on-disapprovaltimeout).
+
+`wmill.get_resume_urls()` returns the `approvalPage`, `resume` and `cancel` URLs for this run.
+The example prints the approval page link; in practice, send it where the approver will see it.
+The Windmill clients include helpers that post an interactive approval to [Slack](../../../flows/11_flow_approval.mdx#slack-approval-step) or [Microsoft Teams](../../../flows/11_flow_approval.mdx#microsoft-teams-approval-step).
+
+When the flow runs, steps `a` and `b` complete and the flow waits before step `c`.
+Opening the approval page shows the request with Approve and Deny buttons.
+After an approval, step `c` runs and the flow returns:
+
+```json
+{"disabled": ["old.contractor@example.com", "test.account@example.com"]}
+```
+
+Deploy the flow from the CLI with:
+
+```bash
+wmill generate-metadata f/ops/disable_inactive_accounts.flow --yes
+wmill flow push f/ops/disable_inactive_accounts.flow f/ops/disable_inactive_accounts
+```
+
+## 2. The schedule
+
+Add a schedule from the flow's Triggers tab, or from the Schedules page.
+Windmill cron expressions have six fields, starting with seconds, so Monday at 9:00 is:
+
+```text
+0 0 9 * * 1
+```
+
+Pick the timezone in the schedule settings: with `Europe/Paris`, the next run of this schedule was computed as Monday 08:00 UTC, which is 9:00 in Paris.
+The schedule also stores the flow's arguments, here `inactive_days: 90`.
+See [cron syntax](../../../core_concepts/1_scheduling/index.mdx#cron-syntax) for the supported expressions.
+
+Each scheduled run appears in the [runs page](../../../core_concepts/5_monitor_past_and_future_runs/index.mdx) with its steps and logs.
+
+## Who can approve
+
+By default, anyone who has the approval link can approve or reject, so treat the link as a secret and send it only to the approvers.
+These controls are Cloud and [Enterprise Edition](/pricing) features:
+
+- [Require approvers to be members of a group](../../../flows/11_flow_approval.mdx#require-approvers-to-be-members-of-a-group), which also requires them to be logged in.
+- [Disable self-approval](../../../flows/11_flow_approval.mdx#disable-self-approval), so the person who started the run cannot approve it.
+- A [form on the approval page](../../../flows/11_flow_approval.mdx#form), for example to let the approver deselect some accounts before step `c` runs.
+
+On Enterprise Edition, the reason given for a rejection is recorded in the [audit log](../../../core_concepts/14_audit_logs/index.mdx).
+
+## Edition notes
+
+The flow, the approval step with its links and timeout, the schedule and its timezone run on the Community Edition, as shown above.
+Approver permissions, approval forms, and a schedule [error handler](../../../core_concepts/1_scheduling/index.mdx#schedule-error-handler) that alerts you when a scheduled run fails are Cloud and Enterprise Edition features.
+
+<div className="grid grid-cols-2 gap-6 mb-4">
+	<DocCard
+		title="Suspend and approval steps"
+		description="All the options of approval steps, including forms, Slack and Teams."
+		href="/docs/flows/flow_approval"
+	/>
+	<DocCard
+		title="Schedules"
+		description="Cron syntax, timezones, error and recovery handlers."
+		href="/docs/core_concepts/scheduling"
+	/>
+</div>

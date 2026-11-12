@@ -1,0 +1,113 @@
+---
+title: Turn scripts into internal tools with web forms
+description: How do I turn a Python or TypeScript script into an internal tool with a web form? Windmill generates the form from the function's parameters.
+---
+
+import DocCard from '@site/src/components/DocCard';
+
+# Turn scripts into internal tools with web forms
+
+To turn a script into an internal tool, write it as a function in Windmill: Windmill reads the function's parameters and generates a web form from them, so a colleague can fill it in and run the script without a terminal.
+The same script also gets an API endpoint, a run history with logs, and can be placed in an app when one form is not enough.
+This works for Python, TypeScript and the other [supported languages](../../../getting_started/0_scripts_quickstart/index.mdx), on Windmill Cloud or a [self-hosted](../../../advanced/1_self_host/index.mdx) instance.
+
+## 1. Write the script as a function
+
+Here is a script a support team could use to refund an order.
+Every parameter of `main` becomes a field of the form:
+
+```python
+from typing import Literal
+
+
+def main(
+    order_id: str,
+    amount_eur: float,
+    reason: Literal["damaged", "late", "duplicate", "other"],
+    notify_customer: bool = True,
+    note: str = "",
+):
+    # Call your billing API here. The return value is shown to the user.
+    return {
+        "order_id": order_id,
+        "refunded_eur": round(amount_eur, 2),
+        "reason": reason,
+        "customer_notified": notify_customer,
+        "note": note,
+    }
+```
+
+Save it in the [script editor](../../../script_editor/index.mdx), or locally with the [CLI](../../../advanced/3_cli/index.mdx) as `f/ops/refund_order.py`.
+
+## 2. The form Windmill generates
+
+Windmill [parses the parameters](../../../core_concepts/13_json_schema_and_parsing/index.mdx) into a JSON schema and renders the [form](../../../core_concepts/6_auto_generated_uis/index.mdx) from it.
+For the script above, the schema has:
+
+| Parameter | Field in the form |
+|---|---|
+| `order_id: str` | Required text field |
+| `amount_eur: float` | Required number field |
+| `reason: Literal[...]` | Required dropdown with the four values |
+| `notify_customer: bool = True` | Toggle, on by default |
+| `note: str = ""` | Optional text field |
+
+Type hints set the field type, and default values make a field optional.
+In [Generated UI](../../../script_editor/customize_ui.mdx) you can add descriptions, placeholders, enums and string formats such as email or date-time without changing the code.
+For a dropdown whose options come from a database or an API, use a [dynamic select](../../../core_concepts/13_json_schema_and_parsing/index.mdx#dynamic-select).
+
+Secrets do not belong in the form.
+Store API keys as [variables](../../../core_concepts/2_variables_and_secrets/index.mdx) or [resources](../../../core_concepts/3_resources_and_types/index.mdx), and read them in the script.
+
+## 3. Let people run it
+
+Members with the [Operator role](../../../core_concepts/16_roles_and_permissions/index.mdx) run and view what others built without authoring scripts, flows or apps.
+Put the script in a [folder](../../../core_concepts/8_groups_and_folders/index.mdx) shared with the team that uses it.
+They open the script, fill in the form, run it and see the result.
+
+Every run is recorded with its inputs, logs, result and the user who started it, in the [runs page](../../../core_concepts/5_monitor_past_and_future_runs/index.mdx).
+
+## 4. Call the same script from other tools
+
+The script also has [webhook endpoints](../../../core_concepts/4_webhooks/index.mdx).
+The synchronous one waits for the result:
+
+```bash
+curl -X POST "https://<your-instance>/api/w/<workspace>/jobs/run_wait_result/p/f/ops/refund_order" \
+  -H "Authorization: Bearer $WINDMILL_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"order_id": "A-1042", "amount_eur": 19.999, "reason": "damaged"}'
+```
+
+```json
+{"note": "", "reason": "damaged", "order_id": "A-1042", "refunded_eur": 20.0, "customer_notified": true}
+```
+
+Fields left out of the request take their default values.
+Use a [webhook-specific token](../../../core_concepts/4_webhooks/index.mdx#webhook-specific-tokens) when another system calls it, so the token can run this script and nothing else.
+The same script can also run on a [schedule](../../../core_concepts/1_scheduling/index.mdx) or as a step of a [flow](../../../flows/1_flow_editor.mdx).
+
+## 5. When one form is not enough
+
+- Several steps, or a step that waits for a manager: chain scripts in a [flow](../../../flows/1_flow_editor.mdx), which also gets a form from its inputs, and add an [approval step](../../../flows/11_flow_approval.mdx).
+- A page with tables, several actions and your own layout: build a [full-code app](../../../full_code_apps/index.mdx) in React or Svelte that calls your scripts as backend runnables, or use the [low-code app editor](../../../apps/0_app_editor/index.mdx).
+- People outside the workspace: apps can be shared through a secret URL as [public apps](../../../apps/8_public_apps.mdx).
+
+## Edition notes
+
+The form, the webhook endpoints, the Operator role and the run history are part of the open-source Community Edition.
+On a self-hosted Community Edition, SSO is limited to 10 users, the runs history is kept for up to 30 days, and audit logs are redacted.
+Redirecting operators to a [workspace default app](../../../apps/1_default_app/index.md) when they log in is a Cloud and [Enterprise Edition](/pricing) feature.
+
+<div className="grid grid-cols-2 gap-6 mb-4">
+	<DocCard
+		title="Auto-generated UIs"
+		description="How Windmill builds forms from script and flow parameters."
+		href="/docs/core_concepts/auto_generated_uis"
+	/>
+	<DocCard
+		title="Full-code apps"
+		description="Build React or Svelte frontends on top of your scripts."
+		href="/docs/full_code_apps"
+	/>
+</div>

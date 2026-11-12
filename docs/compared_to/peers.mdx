@@ -1,257 +1,246 @@
 ---
-title: Alternatives to Windmill
-description: What are the alternatives to Windmill for workflow orchestration, internal tools, scripting and dbt-style transformation?
+title: 'Windmill alternatives: when to pick something else'
+description: What are the alternatives to Windmill? When n8n, Zapier, Kestra, Temporal, Airflow, Prefect, Retool or Rundeck is the better choice, and when Windmill is.
 ---
 
 import DocCard from '@site/src/components/DocCard';
 
-# Alternatives to Windmill
+# Windmill alternatives: when to pick something else
 
-For a detailed side-by-side with one specific tool, see the [comparison pages](/compare).
+The closest alternatives to Windmill are n8n and Zapier for app automations, Kestra, Airflow, Prefect and Dagster for data and infrastructure pipelines, Temporal and Hatchet for durable execution in application code, Retool, Appsmith and ToolJet for internal UIs, and Rundeck for operations runbooks.
+Each of them is the better choice for some teams.
+This page says, for each one, when we would point you to it instead of Windmill, and when Windmill fits better.
 
-We are aware other frameworks exist out there. Some of them might suit your specific needs. We believe Windmill is the only solution to provide this comprehensive set of features while being fully open-source.
+Windmill writes this page, so read it with that bias in mind.
+Facts about other tools are quoted from their own sites and repositories, checked on November 11, 2026.
+For a detailed side-by-side with one tool, see the [comparison pages](/compare).
+If something here is wrong or out of date, write to [contact@windmill.dev](mailto:contact@windmill.dev).
 
-Out of transparency, here is our subjective impression on other players you might come across.
+## What Windmill is, in one paragraph
 
-## No-code solutions
+Windmill runs scripts in more than 20 languages (TypeScript, Python, Go, Bash, SQL, PowerShell, Rust, C# and others) as jobs on workers you host or on Windmill Cloud.
+The same scripts are chained into [flows](../flows/1_flow_editor.mdx), started by [schedules](../core_concepts/1_scheduling/index.mdx), [webhooks](../core_concepts/4_webhooks/index.mdx) and [other triggers](../triggers/index.mdx), paused on [approval steps](../flows/11_flow_approval.mdx), and given a UI through [auto-generated forms](../core_concepts/6_auto_generated_uis/index.mdx) and [apps](../full_code_apps/index.mdx).
+The core is open source under AGPLv3, with some features reserved to the [Enterprise Edition](/pricing) (see [what the Community Edition does not include](#what-the-community-edition-does-not-include)).
+Each script resolves its own dependencies from its imports and pins them in a lockfile when it is saved.
+Workflow state is persisted in PostgreSQL, and Windmill is an at-least-once engine: after an infrastructure crash it recovers automatically, so steps where duplicates matter should be idempotent.
+If your problem is only one of those pieces, a tool built for that piece may suit you better.
 
-These names are well-known to the general public and have contributed to growing awareness in the workflow building space.
-They are made for **operational teams**, have polished UIs but are limited in terms of use cases, power & flexibility.
-We do not compare ourselves to them.
-
-examples: _Zapier_ or _Make_
-
-## Code-based workflow engines
-
-On the opposite side, you could go with a solely code-based solution.
-They give a solid foundation for building workflows, and the workflow lives in version control alongside the rest of your code.
-What they do not give you is anything above the workflow itself: none of them ships a UI builder, so internal tooling stays a separate problem solved by a separate tool.
-
-On execution overhead we publish [benchmarks](../misc/3_benchmarks/competitors/index.mdx) against Airflow, Prefect, Temporal, Kestra and Hatchet, with the setup and the code used for each engine, rather than assert a number here.
-
-examples: _[Temporal](/compare/temporal)_, _[Airflow](/compare/airflow)_, _[Prefect](/compare/prefect)_, _[Dagster](/compare/dagster)_, _[Hatchet](#hatchet)_
-
-<details>
-  <summary>More details</summary>
-
-Airflow and Temporal are the golden standards. They are very good, battle-tested and scale well. They brought all the good abstractions for workflows and from a bird's eye perspective, we are all running DAGs of tasks, sorted in topological order, parallelized where possible and run by a fleet of workers.
-
-<br />
-
-Those frameworks are a great source of inspiration for us but we bring a more principled and more opinionated approach so that one can focus on writing scripts rather than becoming a workflow engine expert. The goal of Windmill is to bring the benefits of those workflow engines in a more accessible package that is fit not just for data engineers but for hybrid teams made of data scientists, ops, and software engineers with standard scripts in Python/TypeScript/Go/PHP/Bash/Rust/C# and low-code builder for the graph itself the common denominator, without any sacrifice on performance (we publish [benchmarks](../misc/3_benchmarks/competitors/index.mdx) against those frameworks, more on the runtime in [1]), features, scalability/reliability and by improving the debuggability and developer experience of those. It is also possible to define [workflows-as-code](../core_concepts/31_workflows_as_code/index.mdx), in the same way as Prefect or Airflow (writing a program that defines the jobs and their dependencies, and then execute that program).
-
-<br />
-
-From a tech stack perspective, we rely on the ACID properties of PostgreSQL to achieve persistence and transactionality of the workflow's state. We made the simplifying assumption to be an at-least-once workflow engine, where in the exceptionally rare events of an infrastructure crash (machine shutdown, network split, etc), we will recover automatically but it is up to the application developer to implement idempotency in parts where it is critical for everything else, we support the same feature set ([retries](../flows/14_retries.md), [error handler](../flows/7_flow_error_handler.md), [suspend/sleep](../flows/15_sleep.md), [approval steps](../flows/11_flow_approval.mdx), [cancellation](../flows/2_early_stop.md), [inner workflows](../triggers/index.mdx#trigger-from-flows)).
-
-<br />
-
-To do a fair comparison, looking at the quickstart is a great way to see the different orientation of the product.
-The [Airflow quickstart](https://airflow.apache.org/docs/apache-airflow/stable/tutorial/fundamentals.html#example-pipeline-definition) is a great starting point. One has to learn what is an Airflow pipeline before being able to create or edit them. They also do not provide a great way to debug locally and iterate on those pipelines. You have to write them, deploy them, and then test them. By comparison, in Windmill you can [write scripts locally](../advanced/4_local_development/index.mdx), or test them either step by step or the full flow in the [web UI](../core_concepts/6_auto_generated_uis/index.mdx).
-
-<br />
-
-Temporal is an SDK for workflows, meaning you have to code around their SDK and learn their abstractions. It is made for teams of software engineers that want to control very finely the execution of the workflow. Their <a href="https://docs.temporal.io/activities" rel="nofollow">documentation</a> has good examples of that. Temporal is top notch, but it is complex and their primary language support is Go.
-
-<br />
-
-By comparison, in Windmill one would just write the canonical python or typescript scripts, exposing just a main function and build a dag in the low-code builder.
-
-<br />
-
-> [1]: Windmill is not just a workflow engine, it is also a function as a service (FaaS) infrastructure where it can run arbitrary scripts in TypeScript/Python/Bash/Go/PHP/Rust/C#. Contrary to Lambda or GCP cloud functions, we do not need the functions to be pre-packaged and deployed in advance AOT. For TypeScript, we rely on the Bun runtime (Deno is also supported), whose fast startup and aggressive dependency caching keep cold starts minimal. For Python, we have implemented our own dependency resolver that will override the Python virtual path and create a unique virtual environment for that specific script that will respect the lockfile generated at time of saving the script/flow for reproducibility. Given that those are interpreted languages, we pay no performance penalty to interpret that code on demand. So the only limiting factor for task execution is that in the events that dependencies are not cached by the worker, they need to be installed at time of execution. With a limited number of workers, the likelihood of a cache miss is low as soon as one script/workflow is executed more than once. With a large fleet of workers, cache miss increase and hence we have implemented a global caching mechanism that relies on syncing the cache through S3. It is only available in our [Enterprise Edition](/pricing). With it in place, we run tasks and workflows with 0 overhead versus running the same scripts on bare-metal. You can even leverage hardware acceleration without any additional configuration.
-
-</details>
-
-<div className="grid grid-cols-2 gap-6 mb-4">
-	<DocCard
-		title="Windmill compared to Prefect"
-		description="Windmill gives more control than Prefect for building & monitoring flows from a single platform."
-		href="/docs/compared_to/prefect"
-	/>
-	<DocCard
-		title="Windmill compared to Kestra"
-		description="Windmill provides a natural developer experience."
-		href="/docs/compared_to/kestra"
-	/>
-</div>
-
-### Prefect and Dagster
-
-Prefect [acquired Dagster Labs](https://www.prefect.io/prefect-acquires-dagster) in July 2026, and the combined company operates under the Prefect name from August 2026.
-Both products continue: [Dagster keeps its name](https://dagster.io/blog/prefect-is-acquiring-dagster), its open-source project stays under its existing license and is still being developed, and Dagster+ deployments, contracts, pricing and support are unchanged.
-
-For anyone choosing today that is one fewer independent vendor, not one fewer product.
-The two authoring models are still different, Prefect wrapping Python functions as flows and tasks and Dagster describing a graph of assets, so we keep a comparison for each: [Windmill vs Prefect](/compare/prefect) and [Windmill vs Dagster](/compare/dagster).
-
-## Transformation layer
-
-dbt is not an orchestrator.
-It compiles a set of SQL models into a DAG and runs them against your warehouse; something else still has to schedule that run, react to it and put the rest of the pipeline around it.
-That is where it overlaps with everything above.
-
-Windmill runs dbt rather than replacing it.
-A dbt project is [a script language of its own](../getting_started/0_scripts_quickstart/16_dbt_quickstart/index.mdx): the project is unmodified, it runs on your own workers, and its models land on the same [asset](../core_concepts/52_assets/index.mdx) graph as the Python and DuckDB scripts around them.
-So the comparison is not really with dbt Core, it is with dbt Cloud and with orchestrating dbt from Airflow.
-
-examples: _[dbt](/compare/dbt)_
-
-## Admin panels builders
-
-Getting closer to Windmill. Those players have a blend on admin panels. Therefore they are strong on UIs and low-code features.
-They allow you to use code in the process. However we believe **they lack flexibility for building complex workflows**.
-
-Those are great tools and since they focus solely on the UI builder part, they have made it a great and mature product. On the other hand, Windmill UI builder integrates well with the workflow and script execution engine.
-
-If you were to choose Windmill for the workflow engine, we hope to convince you that it might be worth the switch later for the UI builder part given our high level of integrations between those layers and us having caught up with them on the UI builder part.
-
-examples: _[Retool](/compare/retool)_ and its open source alternatives _Tooljet_, _Appsmith_ & _Openblocks_
-
-<div className="grid grid-cols-2 gap-6 mb-4">
-	<DocCard
-		title="Windmill compared to Retool"
-		description="Windmill provides a more versatile and powerful framework than Retool."
-		href="/docs/compared_to/retool"
-	/>
-</div>
-
-## Workflow builders
+## Workflow automation with pre-built integrations
 
 ### n8n
 
-n8n is source-available but not open-source: it ships under the [Sustainable Use License](https://github.com/n8n-io/n8n/blob/master/LICENSE.md), which limits use to your own internal business purposes or to non-commercial and personal use.
-It has no app builder, and it is not centered on organizing your scripts but on assembling workflows out of pre-made integrations to external services, with code inlined in Code nodes.
+n8n is a "fair-code platform to build and deploy AI agents and workflows" ([README](https://github.com/n8n-io/n8n)), built on a visual canvas with JavaScript and Python code nodes.
+Its homepage lists "500+ native integrations" ([n8n.io](https://n8n.io/)).
+It is source-available under the [Sustainable Use License](https://github.com/n8n-io/n8n/blob/master/LICENSE.md), and self-hosted Community Edition is free.
 
-Its [Code node](https://docs.n8n.io/build/code-in-n8n/using-the-code-node/) runs JavaScript on Node.js and, since native Python landed on task runners, Python.
-Dependencies are not per-node in either language: npm modules have to be enabled instance-wide on a self-hosted n8n, Python packages have to be present in the `n8nio/runners` image and explicitly allowlisted, and on n8n Cloud neither can be imported at all.
+Pick n8n when most of each workflow is pre-built nodes for SaaS apps, the people building them prefer a canvas to code, and an n8n node already exists for the services you use.
 
-For a detailed side-by-side, see the [Windmill vs n8n comparison](/compare/n8n).
+Windmill fits better when most steps are your own code: each step is a standalone script with its own dependencies, installed from its imports, that you can also run on its own, schedule, or expose as a form.
+On n8n Cloud, the Code node cannot import external npm modules or Python libraries; on a self-hosted n8n, Python modules must be in the `n8nio/runners` image and allowlisted ([n8n docs](https://docs.n8n.io/build/code-in-n8n/using-the-code-node)).
+See [Windmill vs n8n](/compare/n8n).
+
+### Zapier and Make
+
+Zapier "connects to 9,000+ apps" ([zapier.com/pricing](https://zapier.com/pricing)) and Make lists "3,500+ pre-built apps" ([make.com/llms.txt](https://www.make.com/llms.txt)).
+Both are hosted services aimed at people who do not write code, with code steps available ([Code by Zapier](https://zapier.com/apps/code/integrations), the [Make Code app](https://help.make.com/the-make-code-app-is-available.md) on paid plans).
+We found no self-hosted plan for either.
+
+Pick Zapier or Make when non-developers own the automations, the work is moving data between SaaS apps, and a hosted service is acceptable.
+
+Windmill fits better when developers own the automations, the logic is code you want in Git, or the workflows must run inside your network.
+See [Windmill vs Zapier](/compare/zapier) and [Windmill vs Make](/compare/make).
 
 ### Pipedream
 
-Pipedream has no app builder, it is centered on integrations to external services, and it is hosted only: there is no self-hosted deployment of the platform.
-Its [component registry](https://github.com/PipedreamHQ/pipedream) is public, but under the Pipedream Source Available License rather than an open-source one, since the license excludes "any commercial use of the software".
-Code steps run Node.js, Python, Go and Bash.
-
+Pipedream Workflows [shuts down on March 31, 2027](https://pipedream.com/docs/workflows); Pipedream Connect continues.
 Workday [signed a definitive agreement to acquire Pipedream](https://newsroom.workday.com/2025-11-19-Workday-Signs-Definitive-Agreement-to-Acquire-Pipedream) in November 2025.
-Pipedream [is shutting down Workflows and String on March 31, 2027](https://pipedream.com/docs/workflows), and deletes all Workflows data by April 30, 2027; Pipedream Connect continues.
+Pipedream's [component registry](https://github.com/PipedreamHQ/pipedream) is public under the Pipedream Source Available License, which excludes "any commercial use of the software".
+If you are leaving Pipedream Workflows, see [Pipedream alternatives after the Workflows shutdown](./pipedream_alternatives.mdx) for the options, including tools other than Windmill.
 
-To move Pipedream workflows to Windmill, see the [Pipedream Workflows alternative](/compare/pipedream) page, with a migration path and a mapping of Pipedream concepts to Windmill.
-
-### Hatchet
-
-[Hatchet](https://hatchet.run/) is a newer entrant, launched in 2024.
-It is a Postgres-backed task queue and workflow engine, with SDKs for [Python, TypeScript, Go and Ruby](https://docs.hatchet.run/home).
-In our [benchmarks](../misc/3_benchmarks/competitors/hatchet/index.mdx) it performed well on long-running tasks, with high execution ratios and low overhead, and struggled in multi-worker lightweight scenarios, with high wait and idle times despite perfect task distribution.
-
-The difference with Windmill is scope more than speed.
-Hatchet is the engine that your own worker programs register against; Windmill also owns the editor, the [auto-generated UIs](../core_concepts/6_auto_generated_uis/index.mdx), the [app builder](../apps/0_app_editor/index.mdx) and 20+ script languages.
+## Data and infrastructure orchestration
 
 ### Kestra
 
-[Kestra](https://kestra.io/) offers a declarative YAML syntax and event-driven orchestration, with a focus on data pipelines.
-In our [benchmarks](../misc/3_benchmarks/competitors/kestra/index.mdx) it sat in the mid-tier: decent on long-running tasks, slower orchestration on short task loads, more predictable than Airflow or Prefect but less optimized than Temporal, Hatchet or Windmill.
+Kestra is an "open-source orchestration platform for data, AI, and infrastructure workflows" ([README](https://github.com/kestra-io/kestra)), with flows declared in YAML and a no-code editor and AI Copilot that "all edit the same flow".
+It lists "2,600+ plugins" ([kestra.io](https://kestra.io/)) and is Apache 2.0.
 
-Its plugin ecosystem and its backfills are the strong points.
-What it does not cover is the internal tooling around the pipelines, which is where Windmill combines workflows, apps and scripts on one platform.
+Pick Kestra when you want pipelines declared in YAML, an Apache 2.0 license, and a plugin already exists for most of the systems you orchestrate.
 
-For a detailed side-by-side, see the [Windmill vs Kestra comparison](/compare/kestra).
+Windmill fits better when the steps are code you write: in Windmill the Python or TypeScript file is the unit you run, test and reuse, and the flow only wires them together.
+Kestra's form UIs ([Apps](https://kestra.io/docs/enterprise/scalability/apps)) are Enterprise only; Windmill's auto-generated forms and apps are in the Community Edition.
+Kestra's open-source [Pause task](https://kestra.io/docs/how-to-guides/pause-resume) waits for someone to click Resume, and the pricing page lists Human-in-the-Loop Approvals with custom inputs as Enterprise ([kestra.io/pricing](https://kestra.io/pricing)).
+Windmill approval steps are in the Community Edition, with forms and approver permissions on a Cloud plan or Enterprise.
+In our [benchmarks](../misc/3_benchmarks/competitors/kestra/index.mdx), Kestra sat in the mid-tier: decent on long-running tasks, slower orchestration on short task loads.
+See [Windmill vs Kestra](./kestra.mdx).
 
-## Infrastructure automation platforms
+### Apache Airflow
 
-VMware vRealize Orchestrator (vRO) and VCF Automation (formerly Aria Automation and vRealize Automation, vRA), Rundeck and AWX are what most infrastructure teams already run.
-vRO and vRA bundle a workflow engine with a request catalog, and are sold only as part of VMware Cloud Foundation.
-Rundeck runs operations jobs with option forms, and AWX runs Ansible playbooks with surveys, schedules and workflow templates.
+Airflow is "a platform created by the community to programmatically author, schedule and monitor workflows", with pipelines "defined in Python" ([airflow.apache.org](https://airflow.apache.org/)).
+It has "more than 80 providers" ([providers docs](https://airflow.apache.org/docs/apache-airflow-providers/)), is Apache 2.0, and is offered as a managed service by third parties, including Astro, Google Cloud Composer and Amazon MWAA ([ecosystem](https://airflow.apache.org/ecosystem/)).
 
-Windmill takes the orchestration role: Terraform or OpenTofu, Ansible, PowerShell and Python as steps of one flow, with approvals, triggers and audit logs, while vSphere and the tools those platforms called stay in place.
-See [infrastructure automation](/use-cases/infra-automation) for what that looks like, and the [open source alternative to VMware vRA and vRO](/use-cases/vmware-vra-replacement) guide for a migration off vRO.
+Pick Airflow when your team already runs it, your pipelines are Python DAGs, and you want the largest pool of engineers and managed providers who know it.
 
-## Microsoft automation tools
+Windmill fits better when the work is not only Python data pipelines, when you want to test each step on its own from a form before deploying, or when short tasks make scheduling overhead matter: see the [benchmarks](../misc/3_benchmarks/competitors/index.mdx).
+See [Windmill vs Airflow](/compare/airflow).
+
+### Prefect and Dagster
+
+Prefect is "a workflow orchestration framework for building data pipelines in Python" that uses `flow` and `task` decorators ([README](https://github.com/PrefectHQ/prefect)).
+Dagster is "a cloud-native data pipeline orchestrator" in which you declare the data assets you want to build as Python functions ([README](https://github.com/dagster-io/dagster)).
+Both are Apache 2.0, and Prefect Cloud has a free Hobby tier ([prefect.io/pricing](https://www.prefect.io/pricing)).
+
+Prefect [announced its acquisition of Dagster Labs](https://www.prefect.io/prefect-acquires-dagster) on July 13, 2026.
+Dagster's own [announcement](https://dagster.io/blog/prefect-is-acquiring-dagster) says "Dagster continues under the Dagster brand" and that the open-source project "will be actively developed, not just maintained".
+Dagster's [page for customers](https://dagster.io/prefect) says deployments, contracts, pricing and support remain unchanged.
+
+Pick Prefect when your team writes Python and wants to orchestrate existing Python functions with decorators.
+Pick Dagster when you think in data assets (tables, models, reports) and want lineage between them.
+
+Windmill fits better when the pipeline mixes languages, includes SQL, Bash or TypeScript steps, or needs UIs and approvals around it.
+Windmill also has [workflows as code](../core_concepts/31_workflows_as_code/index.mdx) for teams that prefer Prefect's style, and an [asset](../core_concepts/52_assets/index.mdx) graph.
+See [Windmill vs Prefect](./prefect.mdx) and [Windmill vs Dagster](/compare/dagster).
+
+### dbt
+
+dbt is not an orchestrator.
+It compiles SQL models into a DAG and runs them against your warehouse; something else schedules that run and puts the rest of the pipeline around it.
+
+Windmill runs dbt rather than replacing it: a dbt project is [a script language of its own](../getting_started/0_scripts_quickstart/16_dbt_quickstart/index.mdx), unmodified, and its models land on the same asset graph as the Python and DuckDB scripts around them.
+So the comparison is not with dbt Core but with dbt Cloud, or with orchestrating dbt from Airflow.
+Keep dbt Cloud if its IDE and hosted scheduling are what you need.
+See [Windmill vs dbt](/compare/dbt).
+
+## Durable execution in application code
+
+### Temporal
+
+Temporal is "a durable execution platform that enables developers to build scalable applications without sacrificing productivity or reliability" ([README](https://github.com/temporalio/temporal)).
+You write workflows with its SDKs, which officially support Go, Java, Python, TypeScript, .NET, Ruby, PHP and Rust ([SDK docs](https://docs.temporal.io/encyclopedia/architecture/temporal-sdks)), and its docs state: "A Temporal Application can run for seconds or years in the presence of arbitrary load and failures."
+The server is MIT licensed; Temporal Cloud starts with $150 of free credits ([temporal.io/pricing](https://temporal.io/pricing)).
+
+Pick Temporal when durable workflows are part of your product's own code, written by software engineers who want fine control over execution, and you run them inside your services.
+In our [benchmarks](../misc/3_benchmarks/competitors/index.mdx), Temporal had the top throughput in Go multi-worker scenarios.
+
+Windmill fits better when the workflows are internal automation rather than product code: each step is a plain script with a `main` function, and you get the editor, the run history, the forms and the schedules without building workers around an SDK.
+See [Windmill vs Temporal](/compare/temporal).
+
+### Hatchet
+
+Hatchet is "an orchestration engine for background tasks, AI agents, and durable workflows" that "uses Postgres as a durability layer", with SDKs for Python, TypeScript, Go and Ruby ([README](https://github.com/hatchet-dev/hatchet)).
+It is MIT licensed, and Hatchet Cloud includes "1M runs and 1M events free, every month" ([hatchet.run/pricing](https://hatchet.run/pricing)).
+
+Pick Hatchet when you want a Postgres-backed task queue that your own worker programs register against, under MIT.
+
+Windmill fits better when you also want the editor, [auto-generated UIs](../core_concepts/6_auto_generated_uis/index.mdx), apps and 20+ script languages around the queue.
+In our [benchmarks](../misc/3_benchmarks/competitors/hatchet/index.mdx), Hatchet performed well on long-running tasks and had high wait and idle times in multi-worker lightweight scenarios.
+
+## Internal UI builders
+
+### Retool, Appsmith and ToolJet
+
+Retool builds internal tools on a visual canvas, and [Retool Workflows](https://retool.com/build-enterprise-apps/workflows) lets you "define your process directly in code".
+Its free plan covers up to 5 users, and self-hosting is listed on the Enterprise plan ([retool.com/pricing](https://retool.com/pricing)).
+Appsmith is "an open-source low-code platform" under Apache 2.0, with drag-and-drop UI and JavaScript ([README](https://github.com/appsmithorg/appsmith)).
+ToolJet is open source under AGPL-3.0, with "60+ responsive components" and JavaScript and Python inside apps ([README](https://github.com/ToolJet/ToolJet)).
+
+Pick one of them when the main deliverable is a screen (admin panels, CRUD views over a database) and the backend logic is small queries.
+They have spent years on their component libraries, and that shows.
+
+Windmill fits better when the screen is a front for scripts and workflows that do real work: the same Python or TypeScript runs from the app, a schedule, a webhook or an approval flow, on your own workers.
+Windmill's [full-code apps](../full_code_apps/index.mdx) are React or Svelte, and every script already has a [form](../core_concepts/6_auto_generated_uis/index.mdx) without building a UI at all.
+See [Windmill vs Retool](./retool.mdx).
+
+## Operations runbooks
+
+### Rundeck
+
+Rundeck "is an open source runbook automation service with a web console, command line tools and a WebAPI" ([README](https://github.com/rundeck/rundeck)), Apache 2.0, maintained by PagerDuty.
+PagerDuty's commercial product, Runbook Automation, is offered as SaaS and as [Runbook Automation Self-Hosted](https://www.pagerduty.com/platform/automation/process-software/), with "more than 40 out of box plugin integrations".
+
+Pick Rundeck when your team runs node-oriented jobs (commands and scripts across a fleet of servers) and already uses PagerDuty.
+
+Windmill fits better when runbooks are a mix of API calls, scripts and approvals that other teams trigger from a form, and when the same platform also runs your scheduled jobs and internal tools.
+See [Windmill vs Rundeck](/compare/rundeck), and [infrastructure automation](/use-cases/infra-automation) for Ansible, Terraform and PowerShell steps in one flow.
+
+### VMware vRO and vRA, AWX
+
+VMware vRealize Orchestrator (vRO) and VCF Automation (formerly Aria Automation and vRealize Automation, vRA) bundle a workflow engine with a request catalog, and are sold as part of VMware Cloud Foundation.
+AWX runs Ansible playbooks with surveys, schedules and workflow templates.
+Windmill takes the orchestration role, with Terraform or OpenTofu, Ansible, PowerShell and Python as steps of one flow, while vSphere and the tools those platforms call stay in place.
+See the [open source alternative to VMware vRA and vRO](/use-cases/vmware-vra-replacement).
+
+### Microsoft automation tools
 
 Power Automate is Microsoft's automation service for building workflows with little or no code, with connectors to Microsoft and third-party services and desktop flows for automating user interfaces.
 Windows Task Scheduler and SQL Server Agent are the schedulers that ship with Windows and SQL Server.
-Each has a place next to Windmill, and the pages below say where each one fits and how to run them together.
+See [Windmill vs Power Automate](/compare/power-automate) and [Windmill vs Task Scheduler and SQL Server Agent](./windows_task_scheduler.mdx).
+
+## What the Community Edition does not include
+
+Some answers above depend on the edition, so check these before choosing the free self-hosted Community Edition.
+
+On any Windmill Cloud plan or on Enterprise Edition:
+
+- Unredacted [audit logs](../core_concepts/14_audit_logs/index.mdx): on the self-hosted Community Edition, audit logs are redacted.
+- [Git sync](../advanced/11_git_sync/index.mdx) for workspaces with more than 2 users.
+- Schedule error handlers, recovery handlers and schedule-level retries.
+  Flow step [retries](../flows/14_retries.md) work on the Community Edition.
+- Forms on approval pages, and approver permissions such as disabling self-approval or requiring a group.
+- [Dedicated workers](../core_concepts/25_dedicated_workers/index.mdx) and concurrency limits.
+
+On Enterprise Edition only, self-hosted or on Cloud:
+
+- SSO for more than 10 users, SAML and SCIM.
+- External secret backends (HashiCorp Vault, Azure Key Vault, AWS Secrets Manager).
+
+On self-hosted Enterprise Edition only:
+
+- The [worker group](../core_concepts/9_worker_groups/index.mdx) management UI, init scripts, autoscaling and step priority.
+
+A self-hosted instance also needs Enterprise Edition for more than 3 workspaces or more than 50 users.
+The full list is on the [pricing page](/pricing).
+
+## Side-by-side comparisons
 
 <div className="grid grid-cols-2 gap-6 mb-4">
-	<DocCard
-		title="Windmill vs Power Automate"
-		description="Code-first workflows on your own infrastructure next to Microsoft's low-code automation service."
-		href="/compare/power-automate"
-	/>
-	<DocCard
-		title="Windmill vs Task Scheduler and SQL Server Agent"
-		description="One scheduler for scripts across Windows servers and SQL Server instances."
-		href="/docs/compared_to/windows_task_scheduler"
-	/>
-</div>
-
-## Interactive side-by-side comparisons
-
-<div className="grid grid-cols-2 gap-6 mb-4">
-	<DocCard
-		title="Windmill vs Airflow"
-		description="Compare authoring, scheduling, and execution between Windmill and Airflow."
-		href="/compare/airflow"
-	/>
-	<DocCard
-		title="Windmill vs Temporal"
-		description="Compare workflow SDK ergonomics, durability, and observability."
-		href="/compare/temporal"
-	/>
-	<DocCard
-		title="Windmill vs Prefect"
-		description="Compare flow authoring, deployment, and runtime between Windmill and Prefect."
-		href="/compare/prefect"
-	/>
-	<DocCard
-		title="Windmill vs Kestra"
-		description="Compare YAML-first orchestration with Windmill's script-first model."
-		href="/compare/kestra"
-	/>
 	<DocCard
 		title="Windmill vs n8n"
-		description="Compare node-based automation with Windmill's code-first workflow engine."
+		description="Node-based automation compared with Windmill's code-first workflow engine."
 		href="/compare/n8n"
 	/>
 	<DocCard
+		title="Windmill vs Kestra"
+		description="YAML-first orchestration compared with Windmill's script-first model."
+		href="/docs/compared_to/kestra"
+	/>
+	<DocCard
+		title="Windmill vs Temporal"
+		description="Workflow SDK ergonomics, durability and observability."
+		href="/compare/temporal"
+	/>
+	<DocCard
+		title="Windmill vs Airflow"
+		description="Authoring, scheduling and execution."
+		href="/compare/airflow"
+	/>
+	<DocCard
+		title="Windmill vs Prefect"
+		description="Flow authoring, deployment and runtime."
+		href="/docs/compared_to/prefect"
+	/>
+	<DocCard
 		title="Windmill vs Retool"
-		description="Compare internal-tool builders and how each handles backend logic."
-		href="/compare/retool"
+		description="Internal tool builders and how each handles backend logic."
+		href="/docs/compared_to/retool"
 	/>
 	<DocCard
-		title="Windmill vs Dagster"
-		description="Compare data orchestration and asset-based pipelines with Windmill's approach."
-		href="/compare/dagster"
+		title="Pipedream alternatives"
+		description="Where to move Pipedream Workflows before March 31, 2027."
+		href="/docs/compared_to/pipedream_alternatives"
 	/>
 	<DocCard
-		title="Windmill vs dbt"
-		description="Compare SQL transformation workflows and how Windmill runs dbt-style pipelines."
-		href="/compare/dbt"
+		title="All comparisons"
+		description="Every Windmill comparison page."
+		href="/compare"
 	/>
 </div>
-
-## What makes Windmill different today
-
-We are working to build a solution with a clear approach (targeting developers who do not want to compromise on flexibility)
-and the aim to solve main issues (scalability, technicity for advanced use cases, open-source).
-
-We believe Windmill is different because:
-
-- **Comprehensive platform**: Unlike competitors that focus on single aspects (workflows, UIs, or integrations), Windmill provides a unified platform for [scripts](../script_editor/index.mdx), [workflows](../flows/1_flow_editor.mdx), [low-code apps](../apps/0_app_editor/index.mdx) and [full-code apps](../full_code_apps/index.mdx)
-- **Multi-language support**: Support for 20+ programming languages (including [TypeScript](../getting_started/0_scripts_quickstart/1_typescript_quickstart/index.mdx), [Python](../getting_started/0_scripts_quickstart/2_python_quickstart/index.mdx), [Go](../getting_started/0_scripts_quickstart/3_go_quickstart/index.mdx), [PHP](../getting_started/0_scripts_quickstart/index.mdx), [Bash](../getting_started/0_scripts_quickstart/4_bash_quickstart/index.mdx), [Rust](../getting_started/0_scripts_quickstart/index.mdx), [C#](../getting_started/0_scripts_quickstart/index.mdx), [SQL](../getting_started/0_scripts_quickstart/5_sql_quickstart/index.mdx)) with native runtime optimization
-- **AI-powered development**: Integrated [AI chat](../core_concepts/22_ai_generation/index.mdx) for both scripts and flows, with support for all major AI providers (OpenAI, Anthropic, Google, Mistral and more) for code generation and assistance, plus [AI agent steps](../core_concepts/22_ai_generation/index.mdx) in flows
-- **Modern developer experience**: [VS Code extension](../cli_local_dev/1_vscode-extension/index.mdx), [CLI tools](../advanced/3_cli/index.mdx), [Git sync](../advanced/11_git_sync/index.mdx), and [local development](../advanced/4_local_development/index.mdx) capabilities
-- **Performance**: fastest total flow times on long-running tasks across Python, JavaScript and Go in our [benchmarks](../misc/3_benchmarks/competitors/index.mdx), where Temporal took top throughput in Go multi-worker scenarios
-- **Enterprise-ready**: Advanced features like [DuckLake integration](../core_concepts/11_persistent_storage/ducklake.mdx), [customer portal](../enterprise/1_plans_details/index.mdx#windmill-customer-portal), [autoscaling](../core_concepts/42_autoscaling/index.mdx), and comprehensive [monitoring](../core_concepts/5_monitor_past_and_future_runs/index.mdx)
-- **Open-source first**: Fully [open-source](https://github.com/windmill-labs/windmill) while providing [enterprise features](/pricing) and support
-
-Windmill keeps evolving quickly: [AI Flow Chat](../core_concepts/22_ai_generation/index.mdx#windmill-ai-for-flows) for natural language workflow creation, [data pipelines](../core_concepts/27_data_pipelines/index.mdx) with [DuckLake](../core_concepts/11_persistent_storage/ducklake.mdx) and [DuckDB](../integrations/duckdb.md) support, client SDKs in [TypeScript](../advanced/2_clients/ts_client.mdx), [Python](../advanced/2_clients/python_client.md) and [Rust](../advanced/2_clients/rust_client.mdx), and enterprise capabilities like the [customer portal](../enterprise/1_plans_details/index.mdx#windmill-customer-portal) and [autoscaling](../core_concepts/42_autoscaling/index.mdx).
-
-Have a look at our [core concepts](../core_concepts/index.mdx) and [changelog](/changelog) to see what makes us different.
-
-We ourselves have our own limitations. We believe we can do better in terms of product education and having a prettier UI. All the rest is ready for scale.
-
-Please note that this comparison is made with at least **two biases**: 1. we want to convince you of the power of our product and 2. we are never safe from hiding things from ourselves about the strengths of competitors.
-
-Anyway, we are committed to the culture of transparency and of _confronting the facts_, so if you have any objections or suggestions,
-please contact us at contact@windmill.dev.
