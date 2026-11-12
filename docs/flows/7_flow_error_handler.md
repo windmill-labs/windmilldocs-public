@@ -8,6 +8,10 @@ The error handler is a special flow step that is executed when an error occurs i
 
 If defined, the error handler will take as input the result of the step that errored (which has its error in the 'error field').
 
+A failed TypeScript, Python or PHP step's error, and a DuckDB step's failed [data test](../core_concepts/63_pipelines/materialization.mdx#data-tests), also carries `job_id`, the failed job (to link its run page), and `flow_path`, the path of the flow job the step ran under: the flow, a subflow, or a `…/forloop-N`-style path for a step inside a loop or branch.
+On a [dedicated worker](../core_concepts/25_dedicated_workers/index.mdx), a TypeScript or Python step's error carries neither field.
+The editor fills only `message`, `name` and `step_id`: to receive the other two, add `job_id` and `flow_path` parameters set to `error.job_id` and `error.flow_path`.
+
 <video
     className="border-2 rounded-xl object-cover w-full h-full dark:border-gray-800"
     autoPlay
