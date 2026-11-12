@@ -141,7 +141,10 @@ Scripts and flows as tools is `mcp:runnables_as_tools` plus the selection: `mcp:
 `mcp:hub:<integrations>` adds the [Hub](https://hub.windmill.dev) scripts of those integrations.
 
 Every tool call acts as you, so your [permissions](../16_roles_and_permissions/index.mdx) apply: a tool you cannot use, such as changing [workspace settings](../44_workspace_settings/index.mdx) when you are not an admin, is listed but refused.
+The guidance the client receives follows your access and, with Build and run, your role in the workspace and whether its [protection rulesets](../56_protection_rulesets/index.mdx) let you deploy, so it does not plan work Windmill would refuse.
 With Read and run, the client changes nothing itself, but the scripts and flows it runs can.
+
+In a workspace with a [Disable direct deployment](../56_protection_rulesets/index.mdx#disable-direct-deployment) rule, Build and run works as Read and run for everyone, admins included: that workspace takes its changes from a [dev workspace](../../advanced/26_dev_workspaces/index.mdx) or a fork.
 
 With "Scripts and flows as tools", the client cannot explore the workspace, read runs, build, or run anything outside the selection.
 It needs a single workspace.
