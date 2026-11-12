@@ -62,6 +62,12 @@ import { backendAsync } from "./wmill.ts";
 const jobId = await backendAsync.long_running_task({ input: data });
 ```
 
+### Conversations
+
+`backend` and `backendAsync` take an optional `{ memoryId }` second argument that makes the call a turn of that conversation, with a [saved agent](../2_backend_runnables/index.mdx#saved-ai-agents) or a [flow in chat mode](../../flows/26_flow_as_chat.mdx).
+For any other flow, it only scopes the memory of its [AI agent steps](../../core_concepts/54_ai_agents/index.mdx#memory-auto--manual), with no conversation kept.
+A signed-in viewer's conversations are theirs alone, and an anonymous visitor's are kept apart per app.
+
 ### `waitJob` - wait for a job
 
 Waits for a previously started async job to complete:

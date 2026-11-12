@@ -92,7 +92,6 @@ Its inputs are `user_message` and optional `user_attachments`.
 Anonymous visitors cannot attach files, and on [Enterprise Edition](/pricing) a viewer attaches only files they can read.
 An agent that keeps no [managed memory](../../core_concepts/54_ai_agents/index.mdx#memory-auto--manual) also takes `previous_messages`, the history the app keeps itself.
 For an agent with managed memory, pass a conversation id as the `memoryId` option to make a call a turn of that conversation, `backendAsync.chat({ user_message }, { memoryId })`; without it, the call is a single run.
-A signed-in viewer's conversations are theirs alone, and an anonymous visitor's are kept apart per app.
 
 For a chat UI, pass the runnable's ID and the app's generated `wmill.ts` to the [`@windmill-labs/chat-sdk` package](../../flows/26_flow_as_chat.mdx#chat-sdk-for-your-own-frontend):
 
