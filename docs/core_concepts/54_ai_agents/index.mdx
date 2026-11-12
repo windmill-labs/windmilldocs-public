@@ -134,6 +134,33 @@ To limit which of the server's tools the agent gets, use the tool filtering sett
 
 To limit what a prompt-injected agent can do through its tools, [restrict the job token](../59_user_tokens/index.mdx#restricted-job-tokens) of the AI agent step, with a `resources:read` scope for its provider resource.
 
+### Require approval
+
+Turn on "Require approval" in a script or flow tool's "Tool settings" tab, or on an MCP server tool (it then covers every tool the server exposes), to have each call wait for a person before it runs.
+
+The agent pauses and releases its worker, like a [suspended step](../../flows/11_flow_approval.mdx), and resumes once the call is answered.
+Someone approves or rejects it, with its arguments shown, from the run page or, in a [chat flow](#chat-mode) or an agent's own chat, from the chat.
+No approval link or Slack or Teams message is sent.
+Any member of the workspace can answer: the approver and self-approval settings of an approval step don't apply.
+Other tool calls of the same turn run right away.
+A question asked in the same turn, a second question, or the structured answer are refused, and the model is told to retry once the request is answered.
+
+- The model is told a rejected call did not run, with the reason if one was given.
+- A call nobody answers within 30 minutes reaches the model as not run. This timeout cannot be changed.
+
+### Ask a question tool
+
+The built-in "Ask a question" tool, added from the agent's tool picker, lets the agent ask a person for something only they can give, such as a choice or missing information.
+It can offer one or several choices, and a free-text answer is always possible.
+The agent pauses and releases its worker until someone answers from the run page or the chat, and the answer, with who gave it, becomes the tool's result.
+If the question is declined or goes unanswered past the tool's timeout (30 minutes by default), the agent is told and continues.
+
+### Limits of approval and questions
+
+- A [nested AI agent](#nested-ai-agents-agent-as-tool) is never offered the question tool or a tool that requires approval.
+- The run page banner and the chat only show requests from a top-level agent step: for an agent step inside a loop or branch, answer from its node in the flow graph.
+- A run started from Slack shows no request in Slack: answer it from the run page.
+
 ## Enabled tools
 
 The `enabled_tools` step input narrows which of the step's tools the agent can call in a run, so it costs no more than it needs.
@@ -158,6 +185,7 @@ In an expression, name each tool as follows:
 | Script, flow or nested AI agent tool | The tool name, as shown to the model |
 | MCP server | The MCP resource path, for example `u/admin/github_mcp` |
 | Websearch | The reserved name `__wm_web_search`, which no other tool can use |
+| Ask a question | The reserved name `__wm_question`, which no other tool can use |
 
 An MCP server is enabled as a whole: it gives the agent every tool the server exposes, filtered by the server's [tool filtering settings](#mcp-tools).
 A single tool from an MCP server cannot be enabled on its own: use the server's tool filtering settings for that.
