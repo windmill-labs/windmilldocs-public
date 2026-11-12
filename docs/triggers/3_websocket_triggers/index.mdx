@@ -99,6 +99,12 @@ When at least one filter is present, a filter logic selector lets you choose how
 
 Existing triggers without an explicit filter logic default to AND.
 
+Filters cannot read a message that is not valid JSON (or, on Kafka, not valid UTF-8), and by default such a message is skipped, with a warning in the server logs.
+Turn on "Run on messages the filters can't read" (`run_on_filter_error` in the raw configuration, off by default) to run the runnable on it as if the trigger had no filters instead.
+A [preprocessor](../../core_concepts/43_preprocessors/index.mdx) then finds the reason in `event.filter_error`, so it can dead-letter or fail the message.
+Valid JSON that is not an object (an array, a string or a number) is not treated as unreadable, whatever the setting.
+When the filters accept a message with no fields, as a [NONE group](#filter-groups) on its own does, a message that is not valid JSON runs the runnable whatever the setting, and `event.filter_error` is not set.
+
 <!-- SCREENSHOT PLACEHOLDER: ./filters.png (+ .webp) - the Filters section of the WebSocket trigger
      editor, showing the filter logic selector, two leaf criteria with the Key/Path toggle visible
      (one on Key, one on Path with a dotted path such as account.id), and an OR group nesting two

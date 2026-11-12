@@ -131,6 +131,7 @@ credentials to interact with the platform.
 | WM_WORKER_GROUP | default | Name of the worker group the job is running on |
 | WM_RUNNABLE_ID | 1712845957812678132 | Hash of the script. Useful as cache key for cache that should be runnable specific. |
 | WM_END_USER_EMAIL | demo@windmill.dev | Email of the person the run was started for: the viewer of an app, or whoever started a script or flow directly. Empty string for runs started by a schedule or a trigger, see [Identifying the app viewer](../../apps/3_app-runnable-panel.mdx#identifying-the-app-viewer). |
+| WM_MCP_CLIENT | claude-desktop | Client id, at your [external identity provider](../51_mcp/index.mdx#sign-in-with-your-own-identity-provider), of the MCP client that started the run. Set only for such runs, flow steps included. |
 
 ### Custom contextual variables
 

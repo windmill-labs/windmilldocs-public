@@ -61,7 +61,7 @@ The tab also reports the instance's standing against the guest allowance: the fi
 
 ## Workspace roles
 
-The Workspace roles tab defines the [workspace roles](../../core_concepts/16_roles_and_permissions/index.mdx#workspace-roles) members can hold in every workspace of the instance, and what each one may author, manage and see.
+The Workspace roles tab defines the [workspace roles](../../core_concepts/16_roles_and_permissions/index.mdx#workspace-roles) members can hold in every workspace of the instance, and what each one may author, run, manage and see.
 Developer and Operator are the defaults.
 Add, remove and reorder roles from there: the first role ranks highest when several instance groups or settings name a role for the same user, and at least one role must remain.
 Workspaces can still override each role's capabilities from their own settings.
@@ -320,6 +320,7 @@ Without [Enterprise Edition](/pricing), the number of SSO users is limited to 10
 
 Name of the SAML attribute or OIDC userinfo claim carrying the user's identity provider groups.
 When set, every SSO login reconciles the user's membership in SCIM-provisioned instance groups against the claim before the session starts, so group changes in the identity provider apply at the next login instead of the next SCIM push.
+MCP requests signed in through the [MCP external identity provider](#mcp-external-identity-provider) use the groups this claim lists in their token.
 Leave empty to disable.
 Enterprise Edition only; see [login-time group sync](../28_saml_and_scim/index.mdx#login-time-group-sync-from-the-idp-groups-claim).
 
@@ -344,6 +345,12 @@ It only applies to new accounts: existing accounts keep their username.
 It has no effect when [automatic username creation](#global-users) is off.
 
 For both settings, a login that lacks the configured claim falls back to the protocol default above, so one value can serve several providers that name the claim differently.
+
+#### MCP external identity provider
+
+Lets [MCP](../../core_concepts/51_mcp/index.mdx) clients sign users in with your OpenID Connect provider instead of with Windmill: set the issuer, optionally the audience and claim names, and map each OAuth client to a workspace and its access: an access level, or a selection of scripts and flows.
+MCP clients then discover your provider for sign-in; tokens issued by Windmill stay valid.
+Enterprise Edition only; see [Sign in with your own identity provider](../../core_concepts/51_mcp/index.mdx#sign-in-with-your-own-identity-provider).
 
 ### OAuth
 

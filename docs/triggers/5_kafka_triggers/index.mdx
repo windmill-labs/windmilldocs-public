@@ -346,6 +346,9 @@ Each entry is either a criterion, addressing a top-level field by Key or a neste
 
 Filters are configured in the Kafka trigger editor and evaluated server-side before dispatching the job. They use the same engine as [WebSocket trigger filters](../3_websocket_triggers/index.mdx#filters), where the syntax, the matching rules and the group semantics are documented in full.
 
+A message the filters cannot read (not valid UTF-8 or not JSON) is skipped (and, with auto-commit on, its offset committed), unless "Run on messages the filters can't read" is on: it then runs the runnable and a preprocessor finds the reason in `event.filter_error`, so it can for instance publish the message to a dead-letter topic.
+The WebSocket [filters section](../3_websocket_triggers/index.mdx#filters) covers this setting in full.
+
 ## Error handling
 
 Kafka triggers support local error handlers that override workspace error handlers for specific triggers. See the [error handling documentation](../../core_concepts/10_error_handling/index.mdx#trigger-error-handlers) for configuration details and examples.

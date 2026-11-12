@@ -94,7 +94,7 @@ At the [folder](../8_groups_and_folders/index.mdx#folders) level, an admin of a 
 
 ### Workspace roles
 
-Every member of a workspace holds a workspace role, which decides what they can author, what they can manage and which pages they see.
+Every member of a workspace holds a workspace role, which decides what they can author, run and manage, and which pages they see.
 You pick it when [adding or inviting a member](../15_authentication/index.mdx#manually), for [auto-added users](../15_authentication/index.mdx#auto-add) and for [instance groups mapped to the workspace](../../advanced/28_saml_and_scim/index.mdx#workspace-auto-assignment).
 When several sources name a role for the same user, the highest-ranked one wins: admin first, then the order of the roles in the instance settings.
 
@@ -111,7 +111,8 @@ A role is a set of capabilities, edited from the role settings:
 
 | Capability | Values | What it allows |
 |---|---|---|
-| Write code | On / Off | Author [scripts](../../getting_started/0_scripts_quickstart/index.mdx) and run code of one's own on a worker: script previews, dependency jobs, dynamic selects, resolving a job's code, [data table](../11_persistent_storage/data_tables.mdx) migrations and [AI agent eval](../70_ai_agent_evals/index.mdx) datasets. Required for full flow or app authoring. |
+| Write code | On / Off | Author [scripts](../../getting_started/0_scripts_quickstart/index.mdx) and run code of one's own on a worker: script previews, dependency jobs, dynamic selects, resolving a job's code, [data table](../11_persistent_storage/data_tables.mdx) migrations and [AI agent eval](../70_ai_agent_evals/index.mdx) datasets. Required for full flow or app authoring. Script previews also need Can run. |
+| Can run | On / Off | Start runs of the scripts, flows and [AI agents](../54_ai_agents/index.mdx) the member can see, restarts and batch re-runs included. Without it, members of the role see runs, logs and results but start none. On by default. |
 | Flows and AI agents | None / Compose / Full | Compose assembles already deployed scripts and flows into [flows](../../getting_started/6_flows_quickstart/index.mdx) and [AI agents](../54_ai_agents/index.mdx), without code of its own: the server refuses inline scripts and Hub runnables. A composed flow can link a [reusable agent](../54_ai_agents/index.mdx#reusable-agents) the member can read, and set only the tool inputs that agent leaves to the AI. Full is the complete flow and agent editor. At None, a member cannot create or edit AI agents, although they are resources. |
 | Apps | None / Compose / Full | Compose builds [full-code apps](../../full_code_apps/index.mdx), frontend code included, whose backend runnables are existing workspace scripts, flows or saved AI agents the member can read. Such an app is always deployed with [sandbox isolation](../../full_code_apps/8_sandbox_isolation/index.mdx). [Low-code apps](../../getting_started/7_apps_quickstart/index.mdx) need Full. |
 | Manage schedules | On / Off | Create, edit and delete [schedules](../1_scheduling/index.mdx) where folder permissions allow. Without it, members still see schedules but the server refuses any change, including through the API and the CLI. |
@@ -120,6 +121,9 @@ A role is a set of capabilities, edited from the role settings:
 
 Full flows or apps require Write code, since both can carry inline code.
 Page visibility only hides pages: it does not stop an API call, and the enforced rights are the other capabilities.
+[Schedules](../1_scheduling/index.mdx), [HTTP routes](../../triggers/2_http_routing/index.mdx) and the other [triggers](../../triggers/index.mdx) Windmill listens for run as their owner, and [apps](../../getting_started/7_apps_quickstart/index.mdx) are not gated, so withdrawing Can run does not stop them.
+[Webhooks](../4_webhooks/index.mdx), API and CLI calls and MCP run tools act as the caller and are refused.
+Approving or resuming a [suspended step](../../flows/11_flow_approval.mdx) is not a run, so members of the role can still do it.
 A role that cannot write code or build flows and apps cannot [deploy those items to another workspace](../12_staging_prod/index.md) either, and the integration pickers of [native triggers](../../triggers/index.mdx) need both Write code and Manage triggers.
 
 A role restricts authoring, not access to data.

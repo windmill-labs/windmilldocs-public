@@ -26,7 +26,7 @@ The rest of this page covers the other direction, where an external client drive
 
 ## Two ways to connect
 
-The server at `/api/mcp` works in one of two ways, chosen with the [access](#access-levels) at sign-in or on the token:
+The server at `/api/mcp` works in one of two ways, chosen with the [access](#access-levels) at sign-in, on the token, or by the admin for [your own identity provider](#sign-in-with-your-own-identity-provider):
 
 - As an [AI session](../69_ai_sessions/index.mdx) (Build and run, Read and run, Read only): the client gets Windmill's own tools to explore the workspace, write [scripts](../../script_editor/index.mdx), [flows](../../flows/1_flow_editor.mdx) and [full-code apps](../../full_code_apps/index.mdx) as your [drafts](../0_draft_and_deploy/index.mdx), test-run, diff and deploy them, run what is deployed and read its [runs](../20_jobs/index.mdx).
 - As your scripts and flows (Scripts and flows as tools): each selected script or flow is one typed tool, and the client gets nothing else.
@@ -61,6 +61,8 @@ For self-hosted instances, replace the URL with your own instance base URL (e.g.
 4. When redirected to Windmill, choose the workspaces and the access to give Claude
 5. Click Approve to complete the connection
 
+If your instance signs MCP clients in through [your own identity provider](#sign-in-with-your-own-identity-provider), steps 4 and 5 happen at your provider, and the admin's settings decide the workspace and access.
+
 ## Connect with ChatGPT
 
 ### From the ChatGPT app directory
@@ -87,6 +89,8 @@ https://windmill.example.com/api/mcp
 3. Choose OAuth as the authentication
 4. When redirected to Windmill, log in, choose the workspaces and the access to give ChatGPT, and click Approve
 
+If your instance signs MCP clients in through [your own identity provider](#sign-in-with-your-own-identity-provider), step 4 happens at your provider, and the admin's settings decide the workspace and access.
+
 ChatGPT connects to your instance from OpenAI's servers, so the instance must be reachable from the internet over HTTPS.
 
 ---
@@ -100,6 +104,7 @@ ChatGPT connects to your instance from OpenAI's servers, so the instance must be
 | OAuth sign-in (recommended) | Add the bare URL `<base_url>/api/mcp`. The client opens Windmill to sign in and approve. See [Connect with OAuth](#connect-with-oauth) |
 | Token in the URL | `<base_url>/api/mcp?token=<token>`. See [Generate your MCP token and URL](#generate-your-mcp-token-and-url) |
 | Token in a header | The bare URL, with an `Authorization: Bearer <token>` header |
+| Your identity provider ([Enterprise Edition](/pricing)) | The bare URL. The client signs in at the OpenID Connect provider configured on the instance and sends its access token in an `Authorization: Bearer` header. See [Sign in with your own identity provider](#sign-in-with-your-own-identity-provider) |
 
 Superadmins can [refuse tokens in URLs](#refuse-tokens-in-mcp-urls).
 
@@ -115,6 +120,7 @@ Windmill's MCP server has one URL:
 
 Add it to your client as a remote MCP server.
 The client opens a Windmill page where you sign in, choose the [workspaces](#multi-workspace-tokens) it may work in and its [access](#access-levels), then approve.
+With [your own identity provider](#sign-in-with-your-own-identity-provider) set up, a new client signs you in there instead.
 
 The URL is also shown, ready to copy, in the "Build and run from your AI client" section of your account settings and in the MCP tab of the home page's connect drawer.
 
@@ -203,6 +209,35 @@ A token in a URL ends up in browser history and proxy logs.
 Superadmins can make the MCP endpoints refuse a `?token=` query parameter with the [Disable token in MCP URLs](../../advanced/18_instance_settings/index.mdx#disable-token-in-mcp-urls) instance setting.
 Clients then use the bare MCP URL and sign in through [OAuth](#connect-with-oauth), or send the token in an `Authorization: Bearer <token>` header.
 With the setting on, account settings no longer offer to create a token for a URL.
+
+### Sign in with your own identity provider
+
+On [Enterprise Edition](/pricing), MCP clients can sign their users in at your organization's OpenID Connect provider (Keycloak, Okta, Entra, Auth0...) instead of at Windmill.
+Clients then discover your provider as their authorization server and sign users in there, without a Windmill page to choose workspaces or access: the admin sets each client's access in the setting below.
+A client already registered with Windmill can still sign in through Windmill.
+Tokens issued by Windmill, including those from Windmill sign-ins, stay valid.
+
+Register each MCP client (Claude, ChatGPT, Cursor...) as an OAuth client at your provider, with the redirect URI the MCP client uses and the `openid profile email` scopes allowed.
+If the MCP client relies on dynamic client registration, your provider must allow it.
+
+Superadmins then set it up in the instance settings, under Authentication > SSO > [MCP external identity provider](../../advanced/18_instance_settings/index.mdx#mcp-external-identity-provider):
+
+- Issuer: your provider's issuer URL, over HTTPS (HTTP only on `localhost` or `127.0.0.1`). Windmill must be able to reach its OIDC discovery document.
+- Audience: recommended. The `aud` your provider puts in access tokens for Windmill. Without it, only tokens marked as access tokens are accepted.
+- Client claim: the claim naming the OAuth client. Defaults to `azp`; use `cid` on Okta, or `client_id` on RFC 9068 servers.
+- User email claim: defaults to `email`.
+- MCP clients: for each OAuth client registered at your provider, its client id, the one workspace it works in, and its [access](#access-levels).
+
+Each request acts as the Windmill user with the token's email, within the client's access.
+That user must already be an active member of the client's workspace, for instance by signing in once through [SSO](../../advanced/27_setup_oauth/index.mdx) or through [SCIM](../../advanced/28_saml_and_scim/index.mdx).
+Otherwise the request is refused, as it is for a user deactivated in Windmill, a token with no user (client credentials), or an email your provider marks unverified.
+
+When the [SSO groups claim](../../advanced/18_instance_settings/index.mdx#sso-groups-claim) is set, membership in the instance groups linked to your provider comes from the token, so a group change applies at the user's next token.
+Roles stay as stored.
+On Entra, limit the groups claim to the groups assigned to the client: a token that leaves out the claim because the user has too many groups is refused.
+
+Runs started this way record the client, and their steps read its id as the `WM_MCP_CLIENT` [contextual variable](../47_environment_variables/index.mdx#contextual-variables).
+Tool calls, and tokens refused for their client or user, are written to the [audit logs](../14_audit_logs/index.mdx) with both the client and the user.
 
 ---
 
