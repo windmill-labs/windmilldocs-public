@@ -16,11 +16,12 @@ Add it from the step menu with "AI Decision".
 
 ## Providers
 
-The step runs on one of three decision models:
+The step runs on one of four decision models:
 
 - [TypeSafe's Jev](https://docs.typesafe.ai/introduction), with a `typesafe` [resource](../core_concepts/3_resources_and_types/index.mdx) holding your TypeSafe API key. The model defaults to `jev-latest`; pin a version such as `jev-1.13.0` to keep a flow tuned against its probabilities.
 - Cloudflare's Jev-compatible [Clef](https://developers.cloudflare.com/workers-ai/models/clef-flash/) on Workers AI, with a `cloudflare` resource holding a token and account ID. The model is `clef` (the default) or `clef-flash` for faster answers. A `base_url` on the resource replaces the Workers AI URL, for example to go through an AI Gateway.
 - OpenAI's [Decisions API](https://developers.openai.com/api/docs/guides/decisions), with the same `openai` resource as [AI agent](../core_concepts/54_ai_agents/index.mdx) steps. The model is `gpt-6-luna`. Azure OpenAI resources are not supported.
+- Gemini's Decisions API, with a `googleai` resource. The model is `gemini-decision-1` (the default). A resource on the Vertex AI platform fails the step: use one on the standard Gemini API.
 
 TypeSafe and Cloudflare only answer decisions: an AI agent step refuses them.
 
@@ -37,7 +38,17 @@ To combine several values, pass an object with descriptive keys holding only wha
 A missing or blank state fails the step before any request is sent.
 
 On OpenAI, a text is sent as is, and a list of user messages (`role: "user"` with a text or `input_text` and `input_image` parts) is passed through, which is the only way to send an image.
-Any other object or array is sent as its JSON text.
+On Gemini, a text, a content block or a list of content blocks is sent as is, which is how to evaluate an image, audio, video or document.
+A block is `{ type: "text", text }`, or `{ type, mime_type, data }` (or `uri` instead of `data`) with `type` one of `image`, `audio`, `video` or `document`:
+
+```js
+[
+	{ type: 'text', text: 'Is this receipt legible?' },
+	{ type: 'image', mime_type: 'image/png', data: results.fetch_receipt.base64 }
+]
+```
+
+On both, any other object or array is sent as its JSON text.
 
 ## Questions
 
@@ -79,7 +90,7 @@ A later step with the decision as `triage` reads:
 - `results.triage.output.angry.noul`
 
 On OpenAI, `probabilities` is a list of `{ value, probability }` and a score has no `legend`.
-A question OpenAI refuses to answer fails the step.
+A question OpenAI refuses to answer, or a prompt Gemini blocks, fails the step.
 
 ![An AI decision step tested on OpenAI, with the answers in the result panel](./ai_decision_openai_test.webp)
 
