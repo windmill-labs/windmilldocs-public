@@ -158,6 +158,8 @@ Viewers need permission to run the flow.
 With [sandbox isolation](../full_code_apps/8_sandbox_isolation/index.mdx#frontend-api-access) on, turn on "Run scripts and flows" in the app's frontend API access, plus "Manage your flow chats" for server-side history.
 Under `wmill app dev` there is no viewer session, so pass `baseUrl`, `workspace` and `token` explicitly during development.
 
+To chat with a saved AI agent instead, use an [agent runnable](../full_code_apps/2_backend_runnables/index.mdx#saved-ai-agents), which needs no frontend API access.
+
 ### Tokens and conversation history
 
 Outside Windmill, the chat authenticates with a [user token](../core_concepts/59_user_tokens/index.mdx).

@@ -76,6 +76,37 @@ path: hub/123/sendgrid/send_email
 
 Hub flows from the [Windmill Hub](https://hub.windmill.dev) can also be selected as backend runnables from the flow picker in the UI.
 
+### Saved AI agents
+
+An agent runnable calls a [saved AI agent](../../core_concepts/54_ai_agents/index.mdx#reusable-agents).
+Pick it under "AI agents" in the runnable picker, or reference its path:
+
+```yaml
+# backend/chat.yaml
+type: agent
+path: f/support/agent
+```
+
+Each call runs one turn of the agent as the app, so in publisher [execution mode](../7_deployment/index.mdx#execution-policy) viewers need no access to the agent, and a [sandboxed](../8_sandbox_isolation/index.mdx) app needs no frontend API access for it.
+Its inputs are `user_message` and optional `user_attachments`.
+Anonymous visitors cannot attach files, and on [Enterprise Edition](/pricing) a viewer attaches only files they can read.
+An agent that keeps no [managed memory](../../core_concepts/54_ai_agents/index.mdx#memory-auto--manual) also takes `previous_messages`, the history the app keeps itself.
+For an agent with managed memory, pass a conversation id as the `memoryId` option to make a call a turn of that conversation, `backendAsync.chat({ user_message }, { memoryId })`; without it, the call is a single run.
+A signed-in viewer's conversations are theirs alone, and an anonymous visitor's are kept apart per app.
+
+For a chat UI, pass the runnable's ID and the app's generated `wmill.ts` to the [`@windmill-labs/chat-sdk` package](../../flows/26_flow_as_chat.mdx#chat-sdk-for-your-own-frontend):
+
+```tsx
+import { useWindmillChat } from '@windmill-labs/chat-sdk/react';
+import * as wmill from './wmill';
+
+const chat = useWindmillChat({ wmill, runnable: 'chat' });
+```
+
+This works the same in the deployed app and under `wmill app dev`, but not with the AI SDK transport.
+The chat expects an agent with managed memory or a flow in chat mode; with memory off, every turn is answered on its own.
+It keeps its history in the browser and sends no attachments.
+
 ### Static fields
 
 You can pre-fill runnable inputs with static values so the frontend doesn't need to pass them:

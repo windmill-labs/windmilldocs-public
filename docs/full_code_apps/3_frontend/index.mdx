@@ -103,6 +103,7 @@ const finalResult = await streamJob(jobId, (update) => {
 These functions all call the app's own backend runnables, which execute under the app's [execution policy](../7_deployment/index.mdx#execution-policy).
 Calling the wider Windmill API from frontend code is a separate feature: it requires [sandbox isolation](../8_sandbox_isolation/index.mdx#frontend-api-access), and runs as the viewer rather than the publisher.
 To put a chat over a flow in chat mode, use the [`@windmill-labs/chat-sdk` package](../../flows/26_flow_as_chat.mdx#inside-a-full-code-app).
+For a saved AI agent, give the app an [agent runnable](../2_backend_runnables/index.mdx#saved-ai-agents).
 
 ## Framework examples
 
