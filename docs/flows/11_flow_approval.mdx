@@ -555,8 +555,8 @@ Customizing permissions of approval steps is a [Cloud & Enterprise Self-Hosted](
 
 The options in this section are checked when an approver answers on the Windmill approval page as a signed-in user.
 They are not checked when the step is resumed or canceled through its secret resume URL: holding the URL is the authorization.
-This includes the buttons of an [interactive Microsoft Teams card](#microsoft-teams-approval-step), which resume the flow through that URL, so anyone who can see the card in the channel can approve or reject the step, whatever the options below say.
-Post Teams approval cards only to a channel whose members are allowed to approve.
+This includes the buttons of [interactive Slack messages](#slack-approval-step) and [Microsoft Teams cards](#microsoft-teams-approval-step), which resume the flow through that URL, so anyone who can see the message in the channel can approve or reject the step, whatever the options below say.
+Post Slack and Teams approval requests only to a channel whose members are allowed to approve.
 
 :::
 
@@ -568,7 +568,8 @@ By enabling this option, only users logged in to Windmill can approve the step.
 
 ### Disable self-approval
 
-The user who triggered the flow will not be allowed to approve it. This restriction is enforced both on the approval page and on the flow resume API endpoint, preventing flow owners from bypassing approval requirements programmatically.
+The user who triggered the flow will not be allowed to approve it. This restriction is enforced both on the approval page and on the flow resume API endpoint for signed-in users, preventing flow owners from bypassing approval requirements programmatically.
+It does not apply to [secret resume URLs](#permissions).
 
 ![Disable self-approval](../assets/flows/disable-self-approval.webp 'Disable self-approval')
 
@@ -739,6 +740,7 @@ The card shows the form fields as:
 
 Fields of other types, such as objects or arrays, are not shown in the card.
 Approvers can fill them in on the Windmill approval page, which the card links to.
+When the step has a form, [hiding the cancel button](#hide-cancel-button-on-approval-page) also removes the card's reject button.
 
 The card's buttons skip the step's [permission options](#permissions).
 
