@@ -10,9 +10,38 @@ import DocCard from '@site/src/components/DocCard';
 <a href="https://retool.com/" rel="nofollow">Retool</a> is a proprietary platform for building internal apps, workflows and agents on a visual canvas, wired to databases and APIs with JavaScript, SQL and, in workflows, Python.
 Windmill covers the same ground as an open-source, self-hostable platform: apps, flows and scripts run on one runtime, and every piece of logic is a script you can also run on its own, on a schedule or behind a webhook.
 
-This page is a short overview. For a section-by-section read of both products, with the plan each feature needs on either side, see the [full side-by-side comparison of Windmill and Retool](/compare/retool).
+This page compares Windmill and Retool section by section, with the plan each feature needs on either side.
 
 ![Windmill Retool](../assets/compared_to/windmill_retool.webp 'Windmill Retool')
+
+## Windmill vs Retool at a glance
+
+Both platforms build internal apps.
+The difference is what else runs on the same runtime.
+
+| What you can build | Windmill | Retool |
+| --- | --- | --- |
+| Low-code internal apps: drag-and-drop dashboards and admin tools with a built-in component library | Yes | Yes |
+| Full-code internal apps: custom dashboards and admin tools built in React or Svelte | Yes | Partial |
+| Workflows: chain steps into flows with branching, retries and approval steps | Yes | Yes |
+| Scripts: standalone functions exposed as APIs, webhooks or cron jobs with their own UI | Yes | No |
+| Data pipelines: ETL, syncs and scheduled data jobs with parallel branches | Yes | Partial |
+| AI agents with tool calling | Yes | Yes |
+| AI sandboxes and volumes: isolated environments with persistent volumes for running agents | Yes | No |
+| Scheduled tasks: cron jobs with retries, error handling and alerting | Yes | Yes |
+
+Windmill centralizes scripts, workflows, data pipelines, full-code apps, AI agents and operator UIs on a single runtime, with shared resources, auth and observability.
+Retool is app-builder first, with Workflows and Agents layered on the same visual canvas.
+
+## Who each platform is built for
+
+Windmill is built for developer-led teams where engineers own the platform end to end: code, Git, local development, workspace forks, code review, CI/CD, AI coding tools and infrastructure as code.
+Non-developers use what engineers build through auto-generated UIs, custom apps and run-only workspace roles.
+They can build simple apps with AI assistance, but authoring scripts and flows still involves writing code.
+
+Retool is built for developers and low-code engineers building internal tools.
+The canvas-first editor suits people who think visually and write short JavaScript or SQL for glue logic.
+Its drag-and-drop app canvas is approachable for non-developers who can read a bit of JavaScript, while Workflows still require real code.
 
 ## Open source and self-hosting
 
@@ -65,6 +94,7 @@ Workflow runs are metered: the pricing page lists 500 runs a month on Free and 5
 
 Windmill [flows](../flows/1_flow_editor.mdx) chain scripts in any of the languages above, with [approval steps](../flows/11_flow_approval.mdx), [sleep](../flows/15_sleep.md), [early stop](../flows/2_early_stop.md), [while loops](../flows/22_while_loops.mdx), retries and error handlers.
 They start from schedules, webhooks, HTTP routes, or event triggers for [Kafka](../triggers/5_kafka_triggers/index.mdx), NATS, SQS, MQTT, Postgres, WebSocket and email.
+[Kafka](../triggers/5_kafka_triggers/index.mdx), [NATS](../triggers/6_nats_triggers/index.mdx) and [SQS](../triggers/7_sqs_triggers/index.mdx) triggers are self-hosted Enterprise features, and [Postgres](../triggers/4_postgres_triggers/index.mdx) and [MQTT](../triggers/8_mqtt_triggers/index.mdx) triggers are not available on Windmill Cloud.
 Self-hosted Windmill, on Community and Enterprise Edition, has no execution limit: you size the workers that run the flows. On Windmill Cloud, the free plan includes 1,000 executions a month and the Team plan 10k per user.
 
 <div className="grid grid-cols-2 gap-6 mb-4">
@@ -85,8 +115,12 @@ Windmill also lets you build [full-code apps](../full_code_apps/index.mdx) in Re
 Windmill can be used entirely from your own tools: the [CLI](../advanced/3_cli/index.mdx), [local development](../advanced/4_local_development/index.mdx) in VS Code or with Claude Code, and [Git sync](../advanced/11_git_sync/index.mdx), which writes every script, flow, app and trigger to a repository as files.
 Git sync is free on self-hosted Community Edition for up to 2 users.
 
+[Full-code apps](../full_code_apps/index.mdx) are React or Svelte source trees in your repository: edit them in VS Code, preview with a local dev server, and deploy with the CLI or Git sync.
+The scripts and flows behind an app are edited and tested locally the same way, so AI coding tools such as Claude Code and Codex work against real source files.
+
 Retool apps are edited in Retool's web editor.
 <a href="https://docs.retool.com/source-control" rel="nofollow">Source Control</a> syncs apps and workflows to GitHub, GitLab, Bitbucket, AWS CodeCommit or Azure Repos through pull requests, and the pricing page lists it on the Enterprise plan.
+Lower tiers rely on app release versions inside Retool.
 
 <div className="grid grid-cols-2 gap-6 mb-4">
 	<DocCard
@@ -101,17 +135,56 @@ Retool apps are edited in Retool's web editor.
 	/>
 </div>
 
+## Data, resources and secrets
+
+Windmill has [data tables](../core_concepts/11_persistent_storage/data_tables.mdx) with SQL queries and a browse and edit UI, kept separate from apps, plus [workspace object storage](../core_concepts/38_object_storage_in_windmill/index.mdx) on S3 for large payloads and files shared across scripts, flows and apps (capped at 10 GiB per workspace on Community Edition, unlimited on Enterprise).
+[Resources](../core_concepts/3_resources_and_types/index.mdx) (typed JSON for credentials and connection settings) and [variables and secrets](../core_concepts/2_variables_and_secrets/index.mdx) are reusable across scripts, flows and apps, encrypted at rest, scoped by folders and groups, and versioned in Git.
+External secret backends such as Vault and AWS Secrets Manager are an [Enterprise](/pricing) feature.
+
+<a href="https://retool.com/database" rel="nofollow">Retool Database</a> is a hosted Postgres for app data with a browse and edit UI, with unlimited rows up to 5 GB of storage on every cloud plan.
+External databases connect as resources, and files go through the File component and the AWS S3 resource.
+Resources and environment variables are configured at the organization level and encrypted at rest; external secret managers are on Enterprise.
+
 ## Integrations
 
-Retool ships a catalog of pre-built <a href="https://retool.com/integrations" rel="nofollow">integrations</a> and falls back to a generic REST or GraphQL resource for anything else.
+Retool ships a catalog of pre-built <a href="https://retool.com/integrations" rel="nofollow">integrations</a> for databases, SaaS and AI providers, and falls back to a generic REST or GraphQL resource or a JavaScript code block for anything else.
+Retool supports <a href="https://docs.retool.com/apps/guides/custom" rel="nofollow">custom components</a>, and custom auth or connectors often go through a generic REST resource with JavaScript transformers.
 
-In Windmill, any npm, PyPI, Go or Maven package is an integration, since scripts import it directly.
+In Windmill, any npm, PyPI, Go or Maven package is an integration, since scripts import it directly and call the vendor's own SDK, with dependencies resolved and pinned per script.
 [Resource types](../integrations/0_integrations_on_windmill.mdx) describe connections to databases, SaaS and infrastructure, and anyone can add one.
+A new integration is a script with a new import, with no plugin release to wait for.
+The [Hub](https://hub.windmill.dev/) has reusable scripts and flows for common tasks.
+
+To receive events, every Windmill script and flow has an HTTP endpoint and a [webhook](../core_concepts/4_webhooks/index.mdx), and [triggers](../triggers/index.mdx) consume Kafka, NATS, SQS, MQTT, Postgres changes, WebSocket and email directly.
+[Kafka](../triggers/5_kafka_triggers/index.mdx), [NATS](../triggers/6_nats_triggers/index.mdx) and [SQS](../triggers/7_sqs_triggers/index.mdx) triggers are self-hosted Enterprise features, and [Postgres](../triggers/4_postgres_triggers/index.mdx) and [MQTT](../triggers/8_mqtt_triggers/index.mdx) triggers are not available on Windmill Cloud.
+Retool Workflows start from schedules, webhooks and query triggers; event sources such as Kafka consumers or database change streams need polling or an external bridge.
+
+## Migration and lock-in
+
+Getting into Windmill: paste a function body into the script editor, and Windmill infers the arguments, generates a UI and resolves dependencies.
+Apps, triggers, schedules and variables move over one by one.
+Getting into Retool is fast if you already think in drag-and-drop apps wired to queries, and Retool can also create apps <a href="https://docs.retool.com" rel="nofollow">from imported React code</a>.
+
+Getting out of Windmill: step logic is standard TypeScript, Python, Go, Bash or SQL that runs anywhere, and the [CLI](../advanced/3_cli/index.mdx) exports the workspace as plain files.
+What you lose when leaving Windmill is the runtime, not the code.
+Retool apps are stored in Retool's own canvas format.
+With Source Control (Enterprise), apps and workflows sync to Git as Retool-specific files that do not port to another platform without a rewrite.
+JavaScript and SQL inside queries are portable; the layout and component bindings are not.
+
+## Enterprise requirements
+
+| | Windmill | Retool |
+| --- | --- | --- |
+| Observability | Streaming logs, inputs, outputs and duration for every run, worker queue metrics, and Prometheus metrics on Enterprise Edition | Workflow run logs with per-block timings and I/O, app usage analytics and query history; OpenTelemetry export on self-hosted Enterprise |
+| Audit logs | [Audit logs](../core_concepts/14_audit_logs/index.mdx) of who ran, edited or deployed what; not in the self-hosted free edition, retention by plan on the [pricing page](/pricing) | Business plan and above |
+| Access control and SSO | [RBAC](../core_concepts/16_roles_and_permissions/index.mdx), SSO for up to 10 users and encrypted secrets in the open-source edition; uncapped SSO, SCIM and SAML on Enterprise | Rich RBAC on Business and above; SSO (SAML, OpenID), SCIM and independent workspaces on Enterprise, with no SSO on Free, Team or Business; custom branding on Business, full white-labeling on Enterprise; SOC 2 Type II and ISO 27001 audits |
+| Isolation | Several isolated workspaces on one instance, each with its own users, resources, secrets and permissions: 3 on the self-hosted free edition, unlimited on Enterprise | Independent workspaces on Enterprise; staging and production environments on Team, unlimited environments from Business |
+| Performance | [Dedicated workers](../core_concepts/25_dedicated_workers/index.mdx) (Enterprise Edition or Windmill Cloud) keep runtimes and dependencies warm; published [benchmarks](../misc/3_benchmarks/competitors/index.mdx) against other orchestrators | No published performance benchmarks |
 
 ## Pricing
 
 Retool charges per user on <a href="https://retool.com/pricing" rel="nofollow">annual billing</a>: builders at $10 a month on Team and $50 on Business, internal users at $5 and $15, with Enterprise priced by quote.
-Custom SSO, source control and self-hosting are on Enterprise.
+SSO, source control and self-hosting are on Enterprise.
 
 Windmill's Community Edition is free to self-host at any scale.
 Paid plans are priced on [seats and compute units](/pricing), and the [plan details](../enterprise/1_plans_details/index.mdx) list what each one includes.
@@ -131,9 +204,40 @@ Paid plans are priced on [seats and compute units](/pricing), and the [plan deta
 
 ## Where Retool is ahead
 
-Retool has a large library of <a href="https://retool.com/templates/" rel="nofollow">templates</a> and a broad <a href="https://retool.com/components" rel="nofollow">component library</a>, and its canvas is approachable for people who write a little JavaScript.
+Retool has a large library of <a href="https://retool.com/templates/" rel="nofollow">templates</a> and a broad <a href="https://docs.retool.com/classic-apps/reference/components/" rel="nofollow">component library</a>, and its canvas is approachable for people who write a little JavaScript.
 If your team builds CRUD screens over a database and does not need other languages, self-hosting or Git outside Enterprise, Retool is a reasonable choice.
 
 Windmill fits better when internal tools are one part of a wider estate of scripts, workflows, data pipelines and AI agents that you want to run on your own infrastructure, review in Git and pay for by compute rather than by run.
 
-For the full comparison, section by section, read [Windmill vs Retool](/compare/retool).
+## FAQ
+
+### Is Windmill a drop-in replacement for Retool?
+
+For internal apps, yes, with caveats.
+Windmill has a visual app builder with a component library similar to Retool's, plus full-code apps in React or Svelte that live as source trees in your repository.
+Porting means rebuilding apps component by component, since Retool's canvas definition is not directly importable.
+Teams that rely on Retool's wider widget catalog (mobile-specific components, some specialty inputs) should check component parity before committing to a migration.
+
+### Can I migrate Retool apps to Windmill automatically?
+
+No.
+Migrations are manual rebuilds: each query becomes a Windmill script and each component maps to the closest Windmill equivalent.
+Because Windmill scripts have their own API endpoints, many of the rebuilt queries can then be reused outside the app as webhooks, scheduled jobs or flow steps.
+
+### Is Retool open source?
+
+No.
+Retool is proprietary and closed source, and self-hosting is on the Enterprise plan.
+Windmill's core is open source under AGPLv3 and free to self-host, with Enterprise features in a separate proprietary codebase.
+
+### Does Windmill support JavaScript and SQL queries the way Retool does?
+
+Yes.
+Windmill scripts can be written in TypeScript, JavaScript, Python, Go, Bash, SQL, PHP, Rust, C# and more, or run a Docker container.
+For SQL, both platforms run raw queries against connected databases.
+
+### Is Retool better for non-technical users who want to build apps?
+
+On the app-building side, Retool is more polished for that audience: a deeper component library, more mature drag-and-drop interactions, and an editor that assumes no CLI or Git.
+Windmill has a visual app builder too, but authoring queries involves writing code.
+If your main users are analysts assembling CRUD screens over a single database, Retool is often faster to stand up; if the team is developer-led or ships code-driven automations next to its apps, Windmill fits better.

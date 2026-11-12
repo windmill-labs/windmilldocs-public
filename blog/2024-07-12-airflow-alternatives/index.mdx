@@ -2,14 +2,14 @@
 slug: airflow-alternatives
 authors: [henricourdent]
 tags: ['Compare']
-description: 'A deep dive on open source alternatives to Apache Airflow: Luigi, Prefect, Dagster, Temporal, Kedro, Windmill, Mage AI, Kestra'
+description: 'Which open-source tools can replace Apache Airflow? Eight Airflow alternatives (Luigi, Prefect, Dagster, Temporal, Kedro, Windmill, Mage AI and Kestra) compared by target users, ecosystem, use cases and performance.'
 image: ./compare_airflow.png
-title: 8 Alternatives to Airflow - Use Cases
+title: '8 open-source Airflow alternatives, compared by use case'
 ---
 
 import GithubStarTable from '../../src/components/CompareGithub.tsx';
 
-# 8 Alternatives to Airflow - Use Cases
+# 8 open-source Airflow alternatives, compared by use case
 
 [Apache Airflow](https://airflow.apache.org/) is a data orchestration tool. It is used to build, schedule, and monitor workflows.{/* truncate */} Open source since its inception as a project at [Airbnb in 2014](https://airflow.apache.org/docs/apache-airflow/stable/project.html), Airflow has an active community and is a leading authority in the field of job orchestration.
 
@@ -71,9 +71,8 @@ There's no need to go too far; for similar strengths, Luigi has more weaknesses 
 
 The main advantage of Prefect over Airflow is the intuitiveness of the platform: Prefect is devilishly simple and onboarding is easily accomplished. Besides that, you can expect the [same features](https://www.prefect.io/prefect-vs-airflow) as Airflow (cron-based scheduling, retries, etc.)
 
-Prefect also goes further than Airflow in monitoring your tasks, but it's important to note that Prefect's [monitoring](/docs/compared_to/prefect#observability-and-monitoring) is done through a [cloud platform](https://docs.prefect.io/latest/cloud/) that requires subscription. Many of the features necessary for its proper functioning are only available under Prefect Cloud:
-
-![Prefect cloud features](../../docs/assets/compared_to/prefect_cloud_features.webp 'Prefect cloud features')
+Prefect also goes further than Airflow in [monitoring](/docs/compared_to/prefect#observability-and-monitoring) your tasks: Prefect open source includes a self-hostable server and UI for monitoring runs.
+User accounts, RBAC, SSO and audit logs are [Prefect Cloud](https://www.prefect.io/prefect/cloud) features.
 
 In terms of performance, Prefect is the second slowest job orchestrator we have [benchmarked](/docs/misc/benchmarks/competitors) (alongside Airflow, Temporal, and Windmill) but it is much faster than Airflow and closer to the best-in-class (taking 4.872 seconds to complete 40 lightweight tasks, compared to 56 for Airflow and 2.429 for Windmill Dedicated worker).
 
@@ -92,6 +91,8 @@ If we were to compare Dagster with [Prefect](#prefect), perhaps Dagster is a bit
 ![Dagster Global Asset Lineage](https://docs.dagster.io/assets/images/exampleco-global-asset-lineage-1dd2bc3b65f549cba1445462f73d3ac7.png "Dagster Global Asset Lineage")
 > Dagster Global Asset Lineage ([source](hhttps://docs.dagster.io/guides/build/assets/asset-selection-syntax/examples))
 
+To learn more about Dagster, you can check out our [comparison between Dagster and Windmill](/compare/dagster).
+
 ### Temporal
 
 With [Temporal](https://github.com/temporalio/temporal), you move into the realm of developers, moving away from the domain strictly reserved for data engineering. Temporal is a runtime that aims to ensure the durable execution of your application code, notably through fault tolerance (Temporal promises to "reduce failure by 10-100x").
@@ -109,6 +110,8 @@ In terms of performance, Temporal performs very well according to [benchmarks](/
 
 ![Temporal recent workflows](https://learn.temporal.io/assets/images/select-workflow-execution-in-ui-501d8ad72ecdd8d5a8ae1dddf7852591.png "Temporal recent workflows")
 > Temporal recent workflows ([source](https://learn.temporal.io/assets/images/select-workflow-execution-in-ui-501d8ad72ecdd8d5a8ae1dddf7852591.png))
+
+To learn more about Temporal, you can check out our [comparison between Temporal and Windmill](/compare/temporal).
 
 ### Kedro
 
@@ -156,6 +159,8 @@ Compared to Airflow and the solutions mentioned here, Windmill stands out in the
 ![Windmill product](./product.webp "Windmill product")
 
 > Windmill product ([source](/))
+
+For a section-by-section comparison of Windmill and Airflow, see [Windmill vs Airflow](/compare/airflow).
 
 ### Mage AI
 

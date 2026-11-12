@@ -18,6 +18,8 @@ import DocCard from '@site/src/components/DocCard';
 
 [Prefect](https://prefect.io/) outperformed [Airflow](../airflow/index.mdx) in most benchmarks, especially in long-running tasks, but still exhibited noticeable assignment delays and orchestration latency. It’s adequate for moderate workloads, but not optimized for high-frequency or highly parallel use cases.
 
+For a comparison that goes beyond performance, see [Windmill vs Prefect](../../../../compared_to/prefect.mdx).
+
 ## Prefect setup
 
 We set up Prefect version 2.14.4. We wrote our own simple docker compose since we couldn't find a recommended one in Prefect's documentation. We chose to use Postgresql as a database, as it is the recommended option for production usecases.

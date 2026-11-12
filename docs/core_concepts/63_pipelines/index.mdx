@@ -15,6 +15,7 @@ Pipelines are in alpha. The entry points are deliberately kept out of the way wh
 A pipeline is a set of scripts in the same [folder](../8_groups_and_folders/index.mdx) that are wired together by the data they read and write. Instead of assembling steps by hand in a [flow](../../flows/1_flow_editor.mdx), you declare a few comment annotations at the top of each script and Windmill infers the execution graph from [asset](../52_assets/index.mdx) lineage: when a script writes an asset, every script that reads that asset is triggered automatically.
 
 Pipelines are a modern take on asset-based data orchestration, in the spirit of [dbt](https://www.getdbt.com/) and [Dagster](https://dagster.io/): you describe assets and their lineage rather than wiring tasks by hand. The difference is what powers them - [DuckDB](https://duckdb.org/) (and managed [DuckLake](../11_persistent_storage/ducklake.mdx) tables) as the analytics engine for transformations and materializations, and Windmill itself for orchestration, scheduling and compute, so every step is an ordinary Windmill script that runs on your own workers.
+The [Windmill vs Dagster](/compare/dagster) and [Windmill vs dbt](/compare/dbt) comparisons go through the differences in detail.
 
 ### The canonical stack: DuckDB + DuckLake + materialize
 

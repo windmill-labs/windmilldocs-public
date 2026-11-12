@@ -1,19 +1,29 @@
 ---
 slug: using-kubectl-to-restart-a-kubernetes-pod
-title: Restarting a Kubernetes Pod with Kubectl
+title: 'Restart Kubernetes pods with kubectl rollout restart deployment'
 authors: [edwindmiller]
 tags: ['Kubernetes']
-description: 'An introduction to Kubernetes pods and why you might need to restart them.'
+description: 'How do I restart Kubernetes pods with kubectl? Run kubectl rollout restart deployment for a rolling restart, or scale, delete or replace pods.'
 image: ./k8s.png
 ---
 
-# Restarting a Kubernetes Pod with Kubectl
+# Restart Kubernetes pods with kubectl rollout restart deployment
 
 ![Restarting a Kubernetes Pod with Kubectl](./k8s.png "Restarting a Kubernetes Pod with Kubectl")
 
 In the [Kubernetes](https://kubernetes.io/) world, the smallest API object we deal with is the [pod](https://kubernetes.io/docs/concepts/workloads/pods/).{/* truncate */} Think of it as the basic building block of Kubernetes. A pod represents a running application process within a cluster and contains one or more containers along with shared resources like storage and network. 
 
 The status of a pod provides a snapshot of its current lifecycle stage. There are five stages in total. But what happens when something goes awry with your pod? Perhaps a bug causes an unexpected termination. In such cases, you'll need to restart your Kubernetes pod. This guide will show you how to do just that using [kubectl](https://kubernetes.io/docs/reference/kubectl/).
+
+The short answer: to restart the pods of a Deployment, run
+
+```bash
+kubectl rollout restart deployment <deployment_name> -n <namespace>
+```
+
+Kubernetes then replaces the pods gradually, following the Deployment's rolling update strategy, instead of stopping them all at once.
+You can follow the restart with `kubectl rollout status deployment <deployment_name> -n <namespace>`.
+The sections below cover this command and the other ways to restart a pod.
 
 ## Why Would You Need to Restart a Pod?
 
@@ -48,7 +58,7 @@ kubectl scale deployment shop --replicas=2 -n service
 
 And voila! Your Kubernetes pods have successfully restarted.
 
-## Option 2: kubectl rollout restart
+## Option 2: kubectl rollout restart deployment
 
 While the first method is quick, the simplest way to restart Kubernetes pods is using the `rollout restart` command. This command kills one pod at a time, relying on the ReplicaSet to scale up new pods. It's the ideal approach because your application won't be affected or go down.
 

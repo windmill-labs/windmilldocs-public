@@ -5,6 +5,8 @@ description: How does Windmill compare to Kestra for workflow orchestration, per
 import DocCard from '@site/src/components/DocCard';
 import TaskDurationBarChart from '@site/src/components/TaskDurationBarChart';
 import { BenchmarkVisualization } from '@site/src/components/BenchmarkVisualization';
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
 # Alternative to Kestra for workflow orchestration
 
@@ -14,19 +16,65 @@ import { BenchmarkVisualization } from '@site/src/components/BenchmarkVisualizat
 
 We have tested and conducted performance benchmarks on Kestra, and this page outlines our conclusions. Please note that the content is written by Windmill; feel free to [contact us](../misc/6_getting_help/index.mdx) for any requests or modifications.
 
-For a section-by-section read of both products, with the plan each feature needs on either side, see the [full side-by-side comparison of Windmill and Kestra](/compare/kestra).
-
+- [Windmill vs Kestra at a glance](#windmill-vs-kestra-at-a-glance)
+- [Who each platform is built for](#who-each-platform-is-built-for)
 - [Open source](#open-source)
 - [Language support and dependencies](#language-support-and-dependencies)
 - [Architecture and development experience](#architecture-and-development-experience)
+- [Data, resources and secrets](#data-resources-and-secrets)
+- [Integrations](#integrations)
+- [Migration and lock-in](#migration-and-lock-in)
 - [Features comparison](#features-comparison)
+- [Enterprise requirements](#enterprise-requirements)
 - [Performance](#performance)
 - [Pricing](#pricing)
 - [Conclusion](#conclusion)
 
+## Windmill vs Kestra at a glance
+
+Windmill is an open-source workflow engine and developer platform to build and orchestrate internal software: [scripts](../script_editor/index.mdx), [workflows](../flows/1_flow_editor.mdx), [data pipelines](../core_concepts/27_data_pipelines/index.mdx), [AI agents](../core_concepts/54_ai_agents/index.mdx) and internal apps.
+It is made for engineers who want full code flexibility and a [local development](../advanced/4_local_development/index.mdx) experience, both to build internal software and to manage the underlying infrastructure.
+
+Kestra is an open-source workflow orchestrator for data, AI and infrastructure pipelines.
+Flows are declarative YAML, backed by a catalog of 2,600+ plugins.
+It suits teams that prefer configuration over imperative code and already think in YAML DAGs (Airflow, dbt, Kubernetes).
+
+Both platforms orchestrate workflows.
+The difference is what else you can build on the same runtime.
+
+| What you can build | Windmill | Kestra |
+| --- | --- | --- |
+| [Workflows](../flows/1_flow_editor.mdx): chain scripts into flows with branching, retries and approval steps | Yes | Yes |
+| [Data pipelines](../core_concepts/27_data_pipelines/index.mdx): ETL, syncs and scheduled data jobs with parallel branches | Yes | Yes |
+| [Scripts](../script_editor/index.mdx): standalone functions exposed as APIs, webhooks or cron jobs without a wrapping workflow | Yes | No |
+| [AI agent workflows](../core_concepts/54_ai_agents/index.mdx): agents that call tools, branch on outputs and run as workflows | Yes | Yes |
+| [AI sandboxes](../core_concepts/68_ai_sandbox/index.mdx) and [volumes](../core_concepts/67_volumes/index.mdx): isolated environments with persistent volumes for running agents | Yes | No |
+| [Low-code internal apps](../apps/0_app_editor/index.mdx): drag-and-drop dashboards and admin tools with built-in components | Yes | Partial (Enterprise Apps, defined in YAML) |
+| [Full-code internal apps](../full_code_apps/index.mdx): custom dashboards and admin tools built in React or Svelte | Yes | No |
+| [Scheduled tasks](../core_concepts/1_scheduling/index.mdx): cron jobs with retries, error handling and alerting | Yes | Yes |
+
+Windmill is built to centralize and orchestrate internal software in one place.
+Scripts, workflows, data pipelines, full-code apps, AI agents and operator UIs run on a single runtime, with shared resources, auth and observability.
+Kestra focuses on workflow orchestration, so you bring your own stack for dashboards, internal apps and agent front-ends.
+
+## Who each platform is built for
+
+Windmill is built for developer-led teams where engineers own the platform end to end: code, Git, local development, workspace forks, code review, CI/CD, AI coding tools and infrastructure as code.
+Non-developers consume what engineers build through [auto-generated UIs](../core_concepts/6_auto_generated_uis/index.mdx), custom apps and run-only [workspace roles](../core_concepts/16_roles_and_permissions/index.mdx#workspace-roles).
+Reading or editing the flow logic itself still requires comfort with code.
+
+Kestra is designed for teams that prefer declarative YAML over imperative code.
+Data, ops and SRE engineers already comfortable with config files (Kubernetes manifests, dbt configs, Airflow DAGs) onboard faster than they would on a code-first platform.
+Anyone comfortable reading YAML can inspect flows.
+Meaningful edits still require understanding plugin task types, Pebble templating and trigger configs, which is its own technical skill.
+
+Non-technical users can only partially author workflows on Windmill: it has a visual flow editor and auto-generated UIs, but authoring steps still involves writing code.
+Kestra's declarative YAML is a better fit for teams already comfortable with config files.
+Neither platform makes non-technical authoring frictionless.
+
 ## Open source
 
-Both Windmill and [Kestra](https://github.com/kestra-io/kestra) are fully open source and can be self-hosted. They both offer an easy installation process through [Docker](https://www.docker.com/), with pre-populated tutorial flows to help users get started.
+Both Windmill and [Kestra](https://github.com/kestra-io/kestra) have an open-source core that can be self-hosted, with Enterprise features sold separately. They both offer an easy installation process through [Docker](https://www.docker.com/), with pre-populated tutorial flows to help users get started.
 
 Windmill provides and integrates into its platform a [public community Hub](https://hub.windmill.dev/) where users share useful and proven scripts, flows, and applications.
 
@@ -44,6 +92,13 @@ Windmill provides and integrates into its platform a [public community Hub](http
 	/>
 </div>
 
+### Licenses
+
+Windmill's open-source core is AGPLv3, which requires source availability for network-exposed modifications.
+Kestra's open-source core is Apache 2.0, which is more permissive if you plan to modify and redistribute.
+Both are free to self-host for unmodified use, and both offer a managed cloud.
+If the license permissiveness of the core is a hard constraint, Kestra is ahead on this point.
+
 ## Language support and dependencies
 
 Kestra provides [native support](https://kestra.io/docs/scripts) for Python, R, Node.js, Julia, Ruby, Shell, and PowerShell scripts. Additional language support is available through Docker containers. While this offers flexibility, there are some key differences in how dependencies are handled:
@@ -51,6 +106,12 @@ Kestra provides [native support](https://kestra.io/docs/scripts) for Python, R, 
 - In Kestra, dependency caching and pre-installed [dependencies](https://kestra.io/docs/scripts/installing-dependencies) need to be managed manually by the user
 - Windmill automatically handles [dependency](../advanced/6_imports/index.mdx) installation and caching, allowing developers to focus on writing code
 - Windmill supports [TypeScript](../getting_started/0_scripts_quickstart/1_typescript_quickstart/index.mdx), [Python](../getting_started/0_scripts_quickstart/2_python_quickstart/index.mdx), [Go](../getting_started/0_scripts_quickstart/3_go_quickstart/index.mdx), [Bash](../getting_started/0_scripts_quickstart/4_bash_quickstart/index.mdx), [SQL](../getting_started/0_scripts_quickstart/5_sql_quickstart/index.mdx) and more [languages](../getting_started/0_scripts_quickstart/index.mdx) natively
+
+Windmill runs TypeScript (Deno, Bun, Node.js), Python, Go, Bash, SQL, PowerShell, PHP, Rust and more (20+ languages in total).
+Any npm, PyPI, Go, Maven or Cargo package is a first-class import with automatic dependency resolution and a per-script lockfile, and relative imports work across Python and TypeScript scripts in the same workspace.
+
+Kestra runs its script languages through the `io.kestra.plugin.scripts.*` plugins.
+Each runs inside a Docker container with a configurable image, so packages install via pip, npm, gem and similar tools during the task.
 
 ![Script languages](../../static/images/script_languages.png 'Script languages')
 
@@ -94,6 +155,52 @@ In Windmill, a step is simply a script in a language—nothing more. From the fl
 
 ![Windmill flow example](../assets/compared_to/flow_windmill_kestra.webp 'Windmill flow example')
 
+Windmill parses the function signature of each script to generate its input UI, JSON schema and argument types.
+Arguments pass between flow steps as direct return values, with no templating.
+Besides the visual flow editor, you can define a workflow programmatically in Python or TypeScript with [workflows as code](../core_concepts/31_workflows_as_code/index.mdx), using native try/catch, parallel branches and the language's own control flow.
+
+In Kestra, scripts in Python, Node.js, R, Shell and other languages can be saved as <a href="https://kestra.io/docs/concepts/namespace-files" rel="nofollow">namespace files</a>, but a script can't run on its own.
+Every execution happens as a task inside a YAML flow, which defines inputs, outputs, dependencies and triggers.
+There is no standalone script primitive with its own UI or API endpoint.
+
+<Tabs className="unique-tabs" lazy>
+<TabItem value="windmill-low-code" label="Windmill: low-code DAG" attributes={{className: "text-xs p-4 !mt-0 !ml-0"}}>
+
+Compose steps visually as a DAG with branches, loops and approval steps.
+Each step can be written in 20+ languages.
+
+<video
+	className="border-2 rounded-lg object-cover w-full h-full dark:border-gray-800"
+	controls
+	src="/img/platform/workflow-editor/platform-flow-every-step-is-a-script.webm"
+/>
+
+</TabItem>
+<TabItem value="windmill-as-code" label="Windmill: workflow as code" attributes={{className: "text-xs p-4 !mt-0 !ml-0"}}>
+
+Define the workflow programmatically in Python or TypeScript with native try/catch, parallel branches and full language control flow.
+
+<video
+	className="border-2 rounded-lg object-cover w-full h-full dark:border-gray-800"
+	controls
+	src="/img/platform/workflow-editor/platform-flow-workflow-as-code.webm"
+/>
+
+</TabItem>
+<TabItem value="kestra-yaml" label="Kestra: YAML" attributes={{className: "text-xs p-4 !mt-0 !ml-0"}}>
+
+Author flows as declarative YAML.
+Each task is a plugin reference with inputs, outputs and triggers configured in the flow definition.
+
+<video
+	className="border-2 rounded-lg object-cover w-full h-full dark:border-gray-800"
+	controls
+	src="/img/compare/kestra-yaml-editor.webm"
+/>
+
+</TabItem>
+</Tabs>
+
 This video shows how to create the same flow in Kestra and Windmill. It does not cover advanced features but focuses on the flow creation experience. For advanced benchmarks, see [Performance](#performance).
 
 <iframe
@@ -118,6 +225,18 @@ Windmill is designed to integrate seamlessly with your existing tool stack and p
 
 Although Kestra offers an alternative for some of these features ([Version control with Git](https://kestra.io/docs/version-control-cicd/git), [Server CLI](https://kestra.io/docs/server-cli)), it does not allow for as seamless an integration with your existing tools.
 
+With Windmill, you run scripts locally with the CLI and keep native language tooling (LSP, type-checking, linting), the VS Code extension and AI coding tools such as Claude Code and Codex.
+Kestra provides a YAML schema with validation in its VS Code and JetBrains plugins, and a local server for running flows before deploy.
+
+### Git and CI
+
+In Windmill, scripts, flows, apps, resources, variables, secrets, schedules, folders, groups and permissions are all files in Git, deployed with the [CLI](../advanced/3_cli/index.mdx) and [Git sync](../advanced/11_git_sync/index.mdx) (see [infrastructure as code](../core_concepts/57_infrastructure_as_code/index.mdx)).
+Internal tooling runs like application code: pull requests, reviews, rollbacks and CI/CD.
+
+In Kestra, the open-source `SyncFlows` and `SyncNamespaceFiles` <a href="https://kestra.io/docs/version-control-cicd/git" rel="nofollow">Git tasks</a> and the <a href="https://kestra.io/docs/kestra-cli/kestractl" rel="nofollow">`kestractl` CLI</a> deploy flows and namespace files from a repository; syncing apps, blueprints, unit tests and dashboards is Enterprise.
+Managing users, groups, roles and service accounts with `kestractl` is also Enterprise.
+In open source, users and tenant settings live in the UI or behind the API.
+
 <div className="grid grid-cols-2 gap-6 mb-4">
 	<DocCard
 		title="Local development"
@@ -125,6 +244,112 @@ Although Kestra offers an alternative for some of these features ([Version contr
 		href="/docs/advanced/local_development"
 	/>
 </div>
+
+## Data, resources and secrets
+
+Windmill has [data tables](../core_concepts/11_persistent_storage/data_tables.mdx) with SQL queries, versioning and a browse and edit UI.
+[Resources](../core_concepts/3_resources_and_types/index.mdx) (typed JSON for credentials, connection info and configs) and [variables](../core_concepts/2_variables_and_secrets/index.mdx) (individual secrets) are reusable across scripts, flows and apps.
+They are encrypted at rest, scoped with folders and groups for access control, and versioned in Git.
+[External secret backends](../core_concepts/2_variables_and_secrets/index.mdx#secret-storage-backends) such as Vault and AWS Secrets Manager are available on [Enterprise Edition](/pricing).
+
+In Kestra, S3 access goes through the `io.kestra.plugin.aws.s3.*` plugin.
+Per-task input and output files and a built-in KV store cover smaller values, and there is no dedicated data tables primitive.
+The open-source edition ships <a href="https://kestra.io/docs/concepts/secret" rel="nofollow">basic secrets</a> as base64-encoded environment variables.
+The UI secret manager, namespace- and tenant-scoped secrets, and external backends (Vault, AWS Secrets Manager) are Kestra Enterprise features.
+
+## Integrations
+
+### Connecting to external systems
+
+In Windmill, any npm, PyPI, Go or Maven package is a first-class import with automatic per-script dependency resolution and lockfiles.
+There is no plugin layer in between: you call the vendor's own SDK, with type inference and auto-completion in the editor.
+50+ pre-built [resource types](../integrations/0_integrations_on_windmill.mdx) cover common databases (Postgres, Snowflake, BigQuery), SaaS (Slack, Stripe, GitHub, Notion, OpenAI) and infrastructure (S3, Redis, Kafka).
+You paste an API key into a typed form, and the resource is shared across scripts, flows and apps, encrypted at rest.
+The community [Hub](https://hub.windmill.dev/) has reusable scripts and flows for common tasks.
+
+Kestra has a curated <a href="https://kestra.io/plugins" rel="nofollow">catalog of 2,600+ plugins</a>, with official connectors for Snowflake, BigQuery, dbt, Airbyte, Salesforce, Databricks and most common data-stack tools.
+Each plugin bundles tasks, triggers and connection types that you reference by their fully qualified name in the flow YAML, with configuration that lives in Git alongside the flow.
+Internally a task can wrap SQL, Python, shell or an API call; from the flow definition's perspective the surface is uniform YAML.
+
+Windmill does not have a curated plugin catalog the size of Kestra's.
+The trade-off is that in Windmill the package ecosystems themselves act as the catalog.
+For mainstream data-pipeline tools that Kestra has official plugins for, Kestra is often easier to get started with.
+
+<Tabs className="unique-tabs" lazy>
+<TabItem value="windmill-imports" label="Windmill: imports" attributes={{className: "text-xs p-4 !mt-0 !ml-0"}}>
+
+Type `import stripe` in the script editor and run.
+Windmill detects the import, resolves the version and pins it in a per-script lockfile, with no venv, no `pip install` and no restart.
+
+<video
+	className="border-2 rounded-lg object-cover w-full h-full dark:border-gray-800"
+	controls
+	src="/img/platform/script-editor/platform-script-real-dependencies.webm"
+/>
+
+</TabItem>
+<TabItem value="kestra-plugins" label="Kestra: plugins" attributes={{className: "text-xs p-4 !mt-0 !ml-0"}}>
+
+Pick from a catalog of 2,600+ plugins for data-stack tools.
+Each plugin is a task type you reference by its fully qualified name in the flow YAML.
+
+<video
+	className="border-2 rounded-lg object-cover w-full h-full dark:border-gray-800"
+	controls
+	src="/img/compare/kestra-integrations.webm"
+/>
+
+</TabItem>
+</Tabs>
+
+### Receiving events
+
+Windmill has native [triggers](../triggers/index.mdx) for HTTP, cron, Kafka, NATS, Postgres CDC, SQS, MQTT, SMTP and WebSocket.
+Each trigger is configured in the UI: set the topic, subject or path, attach it to a script or flow, and Windmill handles the connection, replay and consumer-group state.
+Every script also gets an HTTP endpoint and a [webhook](../core_concepts/4_webhooks/index.mdx) URL, so most receive paths need no glue code.
+[Kafka](../triggers/5_kafka_triggers/index.mdx), [NATS](../triggers/6_nats_triggers/index.mdx) and [SQS](../triggers/7_sqs_triggers/index.mdx) triggers are self-hosted Enterprise features, and [Postgres](../triggers/4_postgres_triggers/index.mdx) and [MQTT](../triggers/8_mqtt_triggers/index.mdx) triggers are not available on Windmill Cloud.
+
+Kestra has six core <a href="https://kestra.io/docs/workflow-components/triggers" rel="nofollow">trigger</a> types: Schedule (cron), Flow (run on another flow's completion), Webhook, Polling (check an external system on a cadence), Realtime (react to events with millisecond latency) and MCP Tool (expose a flow as a tool on a Kestra MCP server).
+Plugin-based triggers extend the same model to Kafka, AMQP, JMS, MQTT and S3 events.
+
+### Extending the platform
+
+In Windmill, a new integration is a script with a new import: save and run, with no restart and no image rebuild.
+This works the same in the web editor, the [CLI](../advanced/3_cli/index.mdx) and [Git sync](../advanced/11_git_sync/index.mdx).
+Custom logic can be exposed as a typed script or packaged as a [resource type](../core_concepts/3_resources_and_types/index.mdx) for shared use.
+
+Kestra has three options.
+You can write a Java plugin against the Kestra SDK and ship it as a JAR alongside the worker.
+You can drop to an inline Python, Node or shell script inside a flow for one-off logic.
+Or you can save code as namespace files and call them from any flow in that namespace, the closest analogue to shared scripts.
+
+## Migration and lock-in
+
+Both platforms solve workflow orchestration with a queue-based, event-driven architecture, so the mental model transfers.
+There is no automated converter from Kestra YAML to Windmill today.
+Migration is a manual rewrite where each Kestra task becomes a Windmill script or flow step.
+Most ported workflows end up shorter because Windmill passes arguments directly between steps and auto-generates input UIs.
+Workflows that rely on specific Kestra plugins for exotic systems may require replacing those plugins with equivalent SDK calls in code.
+
+### Getting in
+
+In Windmill, you paste a function body into the [script editor](../script_editor/index.mdx), and Windmill infers the arguments, generates a UI and handles dependencies.
+There is no YAML to learn.
+Triggers, schedules, variables and apps migrate one by one.
+
+In Kestra, if you already think in YAML DAGs (Airflow), the mental model transfers.
+Each task becomes a plugin reference, with scripts inline or as files.
+
+### Getting out
+
+Windmill step logic is standard TypeScript, Python, Go, Bash or SQL that runs anywhere.
+The CLI exports the full workspace as plain files.
+What you lose when leaving Windmill is the runtime, not the step code.
+
+Leaving Kestra depends on what your flows use.
+Inline Python, Node or Shell scripts port cleanly, since the code body is standard.
+Ecosystem plugins (`io.kestra.plugin.snowflake.*`, `stripe.*`, etc.) need rewriting against the vendor's SDK.
+Built-in flow primitives (subflows, retries, conditionals) and Pebble templating (`{{ inputs.x }}`) also need reimplementing on the new platform.
 
 ## Features comparison
 
@@ -139,6 +364,9 @@ However, there are a few features where they stand out from each other.
 - Large number of trigger types through [plugins](https://kestra.io/plugins)
 - [Backfill](https://kestra.io/docs/concepts/backfill) capabilities
 - Simple architecture where a script is treated as a one-step flow, only one editor
+- A curated catalog of 2,600+ plugins with official connectors for mainstream data-stack tools (see [Integrations](#integrations))
+- Declarative YAML that teams used to config files (Kubernetes, dbt, Airflow DAGs) can read and onboard to quickly (see [Who each platform is built for](#who-each-platform-is-built-for))
+- An Apache 2.0 open-source core, more permissive than Windmill's AGPLv3 for redistribution (see [Licenses](#licenses))
 
 ### What Windmill offers additionally
 
@@ -148,6 +376,17 @@ However, there are a few features where they stand out from each other.
 - [Low-code App Editor](../apps/0_app_editor/index.mdx) and [full-code apps](../full_code_apps/index.mdx) (React/Svelte) for building UIs
 - Reusable [variables, secrets](../core_concepts/2_variables_and_secrets/index.mdx), and [resources](../core_concepts/3_resources_and_types/index.mdx)
 - Built-in worker [logs and metrics](../core_concepts/9_worker_groups/index.mdx#queue-metrics) (EE only)
+
+## Enterprise requirements
+
+Both platforms cover the enterprise basics: RBAC, SSO, audit logs and SOC 2.
+
+| | Windmill | Kestra |
+| --- | --- | --- |
+| Observability | Real-time streaming logs, inputs, outputs and duration for every run, and a trace ID on every job. Built-in worker logs and metrics are EE only. | Execution logs, task-level timings, metrics via OpenTelemetry and dashboards |
+| Audit logs | [Audit logs](../core_concepts/14_audit_logs/index.mdx) of who ran, edited or deployed what. See the [pricing page](/pricing) for the plans that include them. | Tracks platform events and user activity, Enterprise only |
+| Security | SOC 2 Type II report covering the Enterprise Edition. [RBAC](../core_concepts/16_roles_and_permissions/index.mdx), [SSO](../core_concepts/15_authentication/index.mdx) for up to 10 users, encrypted secrets at rest and sandboxed script execution in open source. Uncapped SSO and advanced access controls (SCIM, SAML) are EE. | RBAC, SSO (SAML, OIDC) and secret manager integrations are Enterprise only. Kestra Cloud is SOC 2 compliant. |
+| Multi-tenancy and isolation | Multiple isolated [workspaces](../core_concepts/16_roles_and_permissions/index.mdx#workspace) on the same instance, each with its own users, resources, secrets and access controls. The self-hosted Community Edition is capped at 3 workspaces; unlimited is EE. | Single tenant in open source. Namespaces organize flows but share the same users, secrets and access controls across the whole instance. Tenant isolation is Enterprise only. |
 
 ## Performance
 
@@ -163,6 +402,12 @@ Also, Windmill has a [transparent API](https://app.windmill.dev/openapi.html#/),
 We have conducted [benchmarks](../misc/3_benchmarks/index.mdx) to measure our performance against our competitors.
 
 In normal mode, Windmill is slightly faster than Kestra, while in [dedicated worker](../core_concepts/25_dedicated_workers/index.mdx) mode, Windmill is 3x faster.
+For heavy-duty tasks that run for minutes, per-task overhead is a rounding error and the gap disappears.
+
+Kestra is queue-based and horizontally scalable, with per-task overhead from JVM startup, plugin loading and state persistence.
+That overhead is negligible for multi-minute tasks.
+Windmill is faster for short, high-volume workloads like webhooks, alerts and small scripts, while Kestra is a good fit for long-running data tasks where per-task overhead doesn't matter.
+See the [Kestra benchmark](../misc/3_benchmarks/competitors/kestra/index.mdx) for the setup and results.
 
 <div className="grid">
 	<BenchmarkVisualization
@@ -189,6 +434,7 @@ Windmill has a transparent pricing policy, with clear steps for implementation. 
 
 Windmill is cheaper at scale and can be used for free at any scale thanks to its open source nature.
 
+Kestra Enterprise adds SSO, multi-tenancy, audit logs and advanced RBAC.
 As of November 18, 2024, Kestra does not disclose its Enterprise pricing (see below):
 
 ![Kestra pricing](../assets/compared_to/kestra_pricing.webp 'Kestra pricing')
@@ -208,6 +454,15 @@ As of November 18, 2024, Kestra does not disclose its Enterprise pricing (see be
 
 ## Conclusion
 
+Windmill and Kestra solve orchestration with two different grammars.
+Kestra models a workflow as a declarative YAML flow where every task is a plugin reference.
+Windmill models a workflow as a graph of real scripts where each script is also a standalone primitive with its own UI, API endpoint and scheduler.
+
+Kestra can be a good fit if your team already thinks in YAML DAGs, your workload is mainstream data orchestration that its plugin catalog already covers, and Apache 2.0 licensing of the core matters for redistribution.
+The switching cost is asymmetric: Windmill step logic is standard code that runs anywhere after you leave, while Kestra flows built on ecosystem plugins and Pebble templating have to be rewritten on any other platform.
+
 Kestra offers a solid foundation for workflow orchestration with its extensive plugin system. We believe that Windmill is a more intuitive solution for developers: the user doesn't need to "learn" a new framework but simply write code in the language they already know, using the [tools](#developer-tools) they are already familiar with (VS Code, GitHub, etc.). Dependencies are automatically handled and all settings are in an intuitive UI, not in a YAML file that only a few developers in your organization are familiar with.
 
 The choice between the two may come down to specific needs: if you're looking for a pure workflow orchestration tool with extensive plugins, Kestra might be sufficient. However, if you need a more complete platform that includes UI building, automated dependency management, and intuitive development experience, Windmill would be the better choice.
+
+If you're deciding between the two, the fastest way to judge is to spend an afternoon in each.
