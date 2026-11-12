@@ -6,7 +6,7 @@ description: How do I view and search worker and server logs directly from the W
 
 View logs from any [workers](../9_worker_groups/index.mdx) or servers directly within the service logs section of the [search modal](../35_search_bar/index.mdx).
 
-![Service logs](./service_logs.png "Service logs")
+![Service logs](./service_logs.webp "Service logs")
 
 
 Windmill provides direct access to the logs emitted by containers, removing the need to manually retrieve them from Docker or other container platforms. This enables monitoring services without needing to leave the Windmill environment.
@@ -22,7 +22,7 @@ You can view them from the [Workers](../9_worker_groups/index.mdx) page, in part
 
 On the left menu, you can navigate to Service logs.
 
-![Service Logs On Menu](./service_logs_menu.png)
+![Service Logs On Menu](./service_logs_menu.webp)
 
 ## Log search
 
@@ -34,7 +34,7 @@ You can type any string on the search bar to query logs, the hosts that matched 
 
 If you select a host, you will get the most recent lines that match your query (limited to 1000). This is very similar to what you would expect from a graphana setup.
 
-![Search results](./service_log_search_results.png)
+![Search results](./service_log_search_results.webp)
 
 
 Queries are parsed by Tantivy's [QueryParser](https://docs.rs/tantivy/latest/tantivy/query/struct.QueryParser.html), which lets you build relatively complex and useful queries. For example, you can try searching:

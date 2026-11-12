@@ -310,14 +310,14 @@ def main(): # add the parameters you expect from the preprocessor
 
 Once a preprocessor is created, you should see a new tab in the right panel of the editor that allows you to test the preprocessor with a sample request.
 
-![Test script preprocessor](./test_script_preprocessor.png 'Test script preprocessor')    
+![Test script preprocessor](./test_script_preprocessor.webp 'Test script preprocessor')    
 
 ### Flow preprocessor 
 
 For [flows](../../flows/1_flow_editor.mdx), the idea is similar but the preprocessor is a standalone step that returns only a `preprocessor` function.
 To create a preprocessor for a flow, click on the plus button above the `Input` step:
 
-![Add flow preprocessor](./add_flow_preprocessor.png 'Add flow preprocessor')    
+![Add flow preprocessor](./add_flow_preprocessor.webp 'Add flow preprocessor')    
 
 The returned object determines the parameter values passed to the flow.
 For instance, returning `{ b: 1, a: 2 }` in the preprocessor will call the flow with `a = 2` and `b = 1`, assuming the flow has two inputs called `a` and `b`.

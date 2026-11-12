@@ -120,7 +120,7 @@ If you have existing schedules using the legacy cron syntax, you can migrate the
 This will update the schedule to use the new cron syntax. Note, you will not be able to revert to the legacy syntax.
 <br />
 
-![Migrate to croner](./17_migrate_to_croner.png 'Migrate to croner')
+![Migrate to croner](./17_migrate_to_croner.webp 'Migrate to croner')
 :::
 
 ## Set a schedule
@@ -135,7 +135,7 @@ There can only be one primary schedule per script or flow.
 
 From the script [settings](../../script_editor/settings.mdx), toggle on 'Schedule enabled' and [Deploy](../0_draft_and_deploy/index.mdx) the script.
 
-![Primary schedule](./primary_schedule.png 'Primary schedule')
+![Primary schedule](./primary_schedule.webp 'Primary schedule')
 
 ### Other schedules
 
@@ -205,7 +205,7 @@ and either schedule in [cron](https://crontab.guru) or in Basic mode that will a
 
 Fill in the inputs, toggle the Schedule Enabled option, save, and you're all set!
 
-![Save and schedule](./4-inputs-toggle.png 'Save and schedule')
+![Save and schedule](./4-inputs-toggle.webp 'Save and schedule')
 
 ## Schedule app reports
 
@@ -319,7 +319,7 @@ export async function main(scheduled_for: string): Promise<boolean> {
 
 From the schedule configuration, select your validation script in the "Dynamic skip" section.
 
-![Dynamic skip configuration](./dynamic_skip.png 'Dynamic skip configuration')
+![Dynamic skip configuration](./dynamic_skip.webp 'Dynamic skip configuration')
 
 :::info
 
@@ -345,7 +345,7 @@ Configure the email.
 
 And watch your mailbox.
 
-![Receive the email](./9-receive-email.png 'Receive the email')
+![Receive the email](./9-receive-email.webp 'Receive the email')
 
 <br />
 
@@ -393,7 +393,7 @@ From a script or flow's page (after being [deployed](../0_draft_and_deploy/index
 
 Go the the script or flow's page, click on the `Advanced` button, fill in the date and time, choose to "Override Worker group tag", or pick a specific [worker group tag](../9_worker_groups/index.mdx#set-tags-to-assign-specific-queues), and click on `Run`.
 
-![Schedule to run later](./16_schedule_to_run_later.png 'Schedule to run later')
+![Schedule to run later](./16_schedule_to_run_later.webp 'Schedule to run later')
 
 You can see the future runs in the [Runs menu](../../core_concepts/5_monitor_past_and_future_runs/index.mdx), with toggle 'Planned later'. You can find the created_at date when the run was scheduled on from the API [get job endpoint](https://app.windmill.dev/openapi.html#tag/job/GET/w/{workspace}/jobs_u/get/{id}) .
 

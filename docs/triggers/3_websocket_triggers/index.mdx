@@ -15,9 +15,9 @@ Specify the URL of the WebSocket server. Instead of a static URL, you can also s
 This is useful when you need to pass an authentication query parameter to the connect URL.
 The runnable must return a string.
 
-![WebSocket URL and runnable](./static_url.png 'WebSocket static URL')
+![WebSocket URL and runnable](./static_url.webp 'WebSocket static URL')
 
-![WebSocket URL as runnable result](./runnable_url.png 'WebSocket URL as runnable result')
+![WebSocket URL as runnable result](./runnable_url.webp 'WebSocket URL as runnable result')
 
 Once the URL set, select the runnable that should be triggered by this trigger.
 The received WebSocket message will be passed to the runnable as a string argument called `msg`.
@@ -81,7 +81,7 @@ The static string field is in JSON format and will be stringified before sending
 The runnable can return a string or a JSON object, which will be stringified before sending.
 The messages are sent in the order they are specified.
 
-![Initial messages](./initial_messages.png 'Initial messages')
+![Initial messages](./initial_messages.webp 'Initial messages')
 
 ### Filters
 
@@ -148,7 +148,7 @@ When enabled, Windmill sends a configurable message at a fixed interval through 
 - **Message**: The message to send. You can use the `{{state}}` placeholder to include a value extracted from incoming messages.
 - **State field** (optional): A top-level JSON field to extract from every incoming message. The extracted value replaces `{{state}}` in the heartbeat message.
 
-![Heartbeat configuration](./heartbeat.png 'Heartbeat configuration for Discord Gateway')
+![Heartbeat configuration](./heartbeat.webp 'Heartbeat configuration for Discord Gateway')
 
 #### Examples
 

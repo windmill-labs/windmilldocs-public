@@ -19,7 +19,7 @@ DuckDB in Windmill supports automatic column detection on S3 objects. You can qu
 />
 <br />
 
-![Integration between DuckDB and Windmill](../assets/integrations/duckdb.png 'Run a DuckDB script with Windmill')
+![Integration between DuckDB and Windmill](../assets/integrations/duckdb.webp 'Run a DuckDB script with Windmill')
 
 ## Azure Blob Storage support
 

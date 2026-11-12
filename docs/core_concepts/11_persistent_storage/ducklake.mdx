@@ -31,7 +31,7 @@ Prerequisites:
 
 Go to `workspace settings` -> `Object storage (S3)` and configure a Ducklake :
 
-![Ducklake settings](./ducklake_images/ducklake_settings.png 'Ducklake settings')
+![Ducklake settings](./ducklake_images/ducklake_settings.webp 'Ducklake settings')
 
 ## Using Ducklake in scripts
 
@@ -94,7 +94,7 @@ SELECT * FROM friend WHERE id = $user_id;
 </Tabs>
 
 You can use the Ducklake button in the editor bar for convenience, which will insert the necessary statements for you.
-![S3 content](./ducklake_images/ducklake_button.png 'S3 content')
+![S3 content](./ducklake_images/ducklake_button.webp 'S3 content')
 
 ## DuckDB example
 
@@ -135,7 +135,7 @@ INSERT INTO messages
 
 In your Ducklake settings, clicking the "Explore" button will open the database manager. You can perform all CRUD operations through the UI or with the SQL Repl.
 
-![Explore ducklake](./ducklake_images/ducklake_db_manager.png 'Explore ducklake')
+![Explore ducklake](./ducklake_images/ducklake_db_manager.webp 'Explore ducklake')
 
 ## Scheduled maintenance
 
@@ -151,7 +151,7 @@ A Ducklake grows unboundedly by default: every write advances a snapshot, and fr
 
 Maintenance is configured per lake from the Maintenance column of the Ducklake settings, in `workspace settings` -> `Object storage (S3)`:
 
-![Ducklake maintenance settings](./ducklake_images/ducklake_maintenance.png 'Ducklake maintenance settings')
+![Ducklake maintenance settings](./ducklake_images/ducklake_maintenance.webp 'Ducklake maintenance settings')
 
 - Scheduled maintenance: enables maintenance for this lake. Snapshot expiry always runs when maintenance is enabled.
 - Snapshot retention (days): how long snapshots are kept before being expired. Defaults to 7 days.
@@ -190,8 +190,8 @@ Most workloads under 1 TB do not need a managed data warehouse. Ducklake on a si
 
 If you explore your catalog database, you will see that Ducklake created some tables for you. These metadata tables store information about your data and where it is located in S3 :
 
-![Catalog database](./ducklake_images/ducklake_catalog_db.png 'Catalog database')
+![Catalog database](./ducklake_images/ducklake_catalog_db.webp 'Catalog database')
 
 If you explore your selected workspace storage you will see your tables and their contents as columnar, parquet files :
 
-![S3 content](./ducklake_images/ducklake_s3_content.png 'S3 content')
+![S3 content](./ducklake_images/ducklake_s3_content.webp 'S3 content')

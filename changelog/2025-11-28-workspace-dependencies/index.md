@@ -4,7 +4,7 @@ version: v1.586.0
 title: Workspace Dependencies
 tags: ['Core concepts', 'Dependencies', 'Script editor']
 description: Centralized dependency management at the workspace level for shared dependency files across scripts.
-image: ./workspace-dependencies.png
+image: ./workspace-dependencies.webp
 features:
   [
     'Centralized dependency management with shared dependency files stored in /dependencies directory.',

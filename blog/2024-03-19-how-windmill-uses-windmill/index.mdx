@@ -21,7 +21,7 @@ To showcase some examples of what can be done with Windmill, here are a few use 
 
 We try to build a self-serve product with [transparent pricing](/pricing) and very [clear steps for upgrading](/docs/enterprise/plans_details). We have created several automations on Stripe to automatically generate an Enterprise Edition license key upon each subscription, send it by email to the customer, and inform our dedicated channels on Discord. We are also informed when a trial is converted or when it churns (in theory only, of course). We have similar automations for the Team plans on the Cloud, adjusting workspaces based on Stripe subscription status. Additionally, a [schedule](/docs/core_concepts/scheduling) is used to report Team plan usage to Stripe.
 
-![Stripe billing](./stripe_billing.png "Stripe billing")
+![Stripe billing](./stripe_billing.webp "Stripe billing")
 
 ## Schedule app report usage platform
 
@@ -31,9 +31,9 @@ From there, we can centralize all of this in a dashboard with several pieces of 
 
 This dashboard is sent to our team daily on a [schedule](/docs/core_concepts/scheduling) thanks to the [App Report](/docs/apps/schedule_reports) feature, which sends the PDF or PNG of a given app according to a configured frequency.
 
-![Discord report](./discord_report.png "Discord report")
+![Discord report](./discord_report.webp "Discord report")
 
-![Enterprise report](./ee_report.png "Enterprise report")
+![Enterprise report](./ee_report.webp "Enterprise report")
 
 ## Approval flow to send shared messages to Slack and Discord
 
@@ -47,13 +47,13 @@ We created a flow to:
 2. Through an [approval step](/docs/flows/flow_approval), return all the channels and let the user choose which channels to send the message to.
 3. Send the message to each selected channel.
 
-![Approval](./approval.png "Approval")
+![Approval](./approval.webp "Approval")
 
-![Slack message](./slack_message.png "Slack message")
+![Slack message](./slack_message.webp "Slack message")
 
 The whole flow can be found on [Windmill Hub](https://hub.windmill.dev/flows/53/list-slack-channels-and-send-shared-message-to-selected-channels).
 
-[![Slack flow](./slack_flow.png "Slack flow")](https://hub.windmill.dev/flows/53/list-slack-channels-and-send-shared-message-to-selected-channels)
+[![Slack flow](./slack_flow.webp "Slack flow")](https://hub.windmill.dev/flows/53/list-slack-channels-and-send-shared-message-to-selected-channels)
 
 It takes as input:
 
@@ -65,7 +65,7 @@ It takes as input:
 
 A very [similar flow is used for Discord](https://hub.windmill.dev/flows/54/list-discord-channels-and-send-shared-message-in-thread), the only difference is that it splits the message to [create a thread of several messages](https://hub.windmill.dev/scripts/discord/7123/create-discord-thread-and-send-messages-discord#approved) (due to the darn character limit on Discord).
 
-![Discord thread](./discord_thread.png "Discord thread")
+![Discord thread](./discord_thread.webp "Discord thread")
 
 ## Git sync
 
@@ -73,8 +73,8 @@ Like any team, we can make mistakes, and like most developers, we are used to Gi
 
 That's why our internal workspace at Windmill is synced with a GitHub repository using the [Git sync](/docs/advanced/git_sync) feature.
 
-![Git sync 1](./git_sync1.png "Git sync 1")
+![Git sync 1](./git_sync1.webp "Git sync 1")
 
-![Git sync 2](./git_sync2.png "Git sync 2")
+![Git sync 2](./git_sync2.webp "Git sync 2")
 
 In this way, each new deployment in our workspace is automatically committed to our GitHub. For the most critical scripts, we have set up a git workflow so that scripts deployed on our staging workspace [create a Pull Request on GitHub before being deployed on the production workspace](/docs/advanced/deploy_gh_gl).

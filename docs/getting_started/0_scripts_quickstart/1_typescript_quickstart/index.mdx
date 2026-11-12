@@ -116,7 +116,7 @@ the editor itself. The right-side [previews the UI](../../../core_concepts/6_aut
 generate from the Script's signature - this will be visible to the users of the
 Script. You can preview that UI, provide input values, and [test your script](#instant-preview--testing) there.
 
-![Demo TS](./demo_ts.png 'Demo TS')
+![Demo TS](./demo_ts.webp 'Demo TS')
 
 <div className="grid grid-cols-2 gap-6 mb-4">
 	<DocCard
@@ -246,7 +246,7 @@ The only thing you need to do is to select `TypeScript (Bun)` as the runtime and
 //nodejs
 ```
 
-![Nodejs Compatibility](./nodejs_compatibility.png 'Nodejs Compatibility')
+![Nodejs Compatibility](./nodejs_compatibility.webp 'Nodejs Compatibility')
 
 This method is an escape hatch for using another runtime (NodeJS), but it is slower than Bun's default mode since it resorts to Bun under the hood.
 
@@ -343,7 +343,7 @@ One way to write distributed programs that execute distinct jobs is to use [flow
 
 Another approach is to write a program that defines the jobs and their dependencies, and then execute that program directly in your script. This is known as [workflows as code](../../../core_concepts/31_workflows_as_code/index.mdx). Wrap your orchestration function with `workflow()` and annotate task functions with `task()`. Each task runs as a separate job with its own logs and timeline entry, while the workflow suspends between tasks (releasing its worker slot).
 
-![Flow as code in TypeScript](./flow_as_code_ts.png 'Flow as code in TypeScript')
+![Flow as code in TypeScript](./flow_as_code_ts.webp 'Flow as code in TypeScript')
 
 All details at:
 

@@ -167,7 +167,7 @@ To skip resolution for pre-installed packages, add them to the **PIP local depen
 
 Each entry is treated as a **regex pattern**, so `pandas` matches `pandas`, `pandas==1.5`, etc. You can also use the `PIP_LOCAL_DEPENDENCIES` environment variable (comma-separated) as an alternative to the UI.
 
-![Python runtime settings](../../core_concepts/9_worker_groups/python_runtime_settings.png 'Python runtime settings')
+![Python runtime settings](../../core_concepts/9_worker_groups/python_runtime_settings.webp 'Python runtime settings')
 
 For example, if you pre-install `pandas` and `numpy` into `global-site-packages`, add both to the PIP local dependencies list so scripts that `import pandas` or `import numpy` won't trigger a PyPI resolution for those packages.
 

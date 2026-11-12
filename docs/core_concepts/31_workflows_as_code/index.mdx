@@ -10,7 +10,7 @@ import DocCard from '@site/src/components/DocCard';
 
 [Flows](../../flows/1_flow_editor.mdx) are not the only way to write distributed programs that execute distinct jobs. Workflows as code let you define orchestration logic directly in [TypeScript](../../getting_started/0_scripts_quickstart/1_typescript_quickstart/index.mdx) or [Python](../../getting_started/0_scripts_quickstart/2_python_quickstart/index.mdx), using familiar language constructs like functions, conditionals, and loops, while Windmill handles checkpointing, parallelism, and fault tolerance.
 
-![WAC editor](./wac-editor-1.png)
+![WAC editor](./wac-editor-1.webp)
 
 Each `task()` call runs as a separate [job](../20_jobs/index.mdx) with its own logs, resources, and timeline entry. The workflow suspends between tasks (releasing its [worker](../9_worker_groups/index.mdx) slot entirely) and resumes from a checkpoint when child jobs complete. This means a single worker can run workflows with any number of parallel tasks without deadlocking.
 
@@ -102,7 +102,7 @@ async def main(url: str):
 </TabItem>
 </Tabs>
 
-![WAC editor](./wac-editor-2.png)
+![WAC editor](./wac-editor-2.webp)
 
 ## How it works
 
@@ -128,7 +128,7 @@ Windmill workflows keep nothing in memory between steps. The parent job is marke
 - Workers are free to process other jobs while your workflow waits
   :::
 
-![Suspended  WAC](./suspend.png)
+![Suspended  WAC](./suspend.webp)
 
 ## Core primitives
 
@@ -415,7 +415,7 @@ async def main():
 </TabItem>
 </Tabs>
 
-![parallel](./parallel.png)
+![parallel](./parallel.webp)
 
 ### Using `parallel()`
 
@@ -875,7 +875,7 @@ def main(data: list):
 
 Modules are synced with the CLI and included in the script hash for proper versioning. Each module can have its own dependencies, and locks are tracked per-module.
 
-![modules](./modules.png)
+![modules](./modules.webp)
 
 ## Task options
 

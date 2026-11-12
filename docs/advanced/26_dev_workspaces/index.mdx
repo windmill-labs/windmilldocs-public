@@ -48,7 +48,7 @@ A dev workspace can itself be paired with a dev workspace, giving a promotion ch
 
 Every dev workspace in a chain must carry a distinct label. A chain shares its git sync repositories, so two dev workspaces on the same label would deploy to the same branch and overwrite each other. The label picker therefore only offers the labels still free in the chain, and once all eight are taken the **Dev workspace** tab drops the attach form and points you at the existing chain instead. Attaching a workspace that already has dev workspaces of its own brings them into the chain, so the attach is refused when one of them holds a label the chain would then use twice.
 
-![Environment label picker in a chain](./dev_workspace_label_picker.png 'Attaching a dev workspace to a workspace that is itself a dev workspace, with the label picker offering only the labels still free in the chain')
+![Environment label picker in a chain](./dev_workspace_label_picker.webp 'Attaching a dev workspace to a workspace that is itself a dev workspace, with the label picker offering only the labels still free in the chain')
 
 Fork nesting is capped independently of the labels: the chain cannot go deeper than `MAX_FORK_DEPTH` levels below the root workspace (5 by default).
 

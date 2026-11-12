@@ -20,7 +20,7 @@ By default, every worker is the same and interchangeable. However, there are oft
 
 You can assign groups to flows and flow steps to be executed on specific queues. The name of those queues are called tags. Worker groups listen to those tags.
 
-![Workers page](./workers_page.png 'Workers page')
+![Workers page](./workers_page.webp 'Workers page')
 
 In the [Community Edition](/pricing), worker management is done using tags that can be respectively assigned to workers (through the [env variable](#how-to-assign-worker-tags-to-a-worker-group) `WORKER_TAGS`) and scripts or flows, so that the workers listen to specific jobs queues.
 
@@ -106,7 +106,7 @@ Worker only require a database URL and can thus be spawned in separate VPCs if n
 You can assign groups to flows and flow steps to be executed on specific queues. The name of those queues are called tags. Worker groups listen to those tags.
 
 <img
-	src={require('./tags_and_queues.png').default}
+	src={require('./tags_and_queues.webp').default}
 	alt="Tags and Queues infographics"
 	title="Tags and Queues infographics"
 	width="75%"
@@ -171,7 +171,7 @@ Button `Reset to all tags` will reset the tags of [_default_](#default-worker-gr
 
 Button `Reset to all tags minus native ones` will reset the tags of [_default_](#default-worker-group) worker group to a given worker group.
 
-![Reset to tags buttons](./reset_tags.png 'Reset to tags buttons')
+![Reset to tags buttons](./reset_tags.webp 'Reset to tags buttons')
 
 To make custom tags available from the UI, go to the dedicated "Workers" tab on the workspace and click on the "Assignable Tags" button:
 
@@ -296,13 +296,13 @@ The worker group listening to that tag must be able to resolve every lock: it ne
 
 You can set an alert to receive notification via Email, Slack, or Microsoft Teams when the number of running workers in a group falls below a given number. It's available in the worker group config.
 
-![Workers alerts Slack](./critical_alert_slack.png 'Workers alerts Slack')
+![Workers alerts Slack](./critical_alert_slack.webp 'Workers alerts Slack')
 
 Enable 'Send an alert when the number of alive workers falls below a given threshold', and enter a number of workers below which the notification will be sent.
 
 You need to configure [Critical alert channels](../37_critical_alerts/index.mdx) to receive notifications.
 
-![Workers alerts](./workers_alerts.png 'Workers alerts')
+![Workers alerts](./workers_alerts.webp 'Workers alerts')
 
 <div className="grid grid-cols-2 gap-6 mb-4">
 	<DocCard
@@ -315,7 +315,7 @@ You need to configure [Critical alert channels](../37_critical_alerts/index.mdx)
 ## Create worker group config
 
 <img
-	src={require('./wg_config_infographics.png').default}
+	src={require('./wg_config_infographics.webp').default}
 	alt="Worker group config infographics"
 	title="Worker group config infographics"
 	width="75%"
@@ -361,7 +361,7 @@ The toggle sets `paused: true` in the worker group config, which can also be set
 
 Configure Python-specific settings at the worker group level.
 
-![Python runtime settings](./python_runtime_settings.png 'Python runtime settings')
+![Python runtime settings](./python_runtime_settings.webp 'Python runtime settings')
 
 - **Additional Python paths**: extra directories to add to `sys.path` at runtime, making any Python modules in those directories importable by scripts.
 - **PIP local dependencies**: regex patterns for packages that the [dependency resolver](../../advanced/15_dependencies_in_python/index.mdx) should skip during lockfile generation. Use this for packages pre-installed on the worker (e.g. via [global site-packages](../../advanced/8_preinstall_binaries/index.mdx#global-site-packages) or a custom Docker image) so that their `import` lines don't trigger PyPI resolution. Can also be set via the `PIP_LOCAL_DEPENDENCIES` environment variable (comma-separated).
@@ -383,7 +383,7 @@ Configure Python-specific settings at the worker group level.
 
 Add static and dynamic environment variables that will be passed to jobs handled by this worker group. Dynamic environment variable values will be loaded from the worker host environment variables while static environment variables will be set directly from their values below.
 
-![Environment variables passed to jobs](./environment_variables_passed_to_jobs.png 'Environment variables passed to jobs')
+![Environment variables passed to jobs](./environment_variables_passed_to_jobs.webp 'Environment variables passed to jobs')
 
 <div className="grid grid-cols-2 gap-6 mb-4">
 	<DocCard
@@ -454,7 +454,7 @@ Workers in a group can also be restarted via the API endpoint `POST /api/setting
 
 <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
 	<img
-		src={require('../../advanced/8_preinstall_binaries/init_scripts.png').default}
+		src={require('../../advanced/8_preinstall_binaries/init_scripts.webp').default}
 		alt="Worker scripts Infographics"
 		title="Worker scripts Infographics"
 		width="70%"
@@ -479,7 +479,7 @@ They are as fast as running the same logic in a forloop, but keep the benefit of
 
 Dedicated workers / High throughput is a [Cloud plans & Self-Hosted Enterprise Edition](/pricing) feature.
 
-![Dedicated Workers Infographics](../25_dedicated_workers/infographic.png 'Dedicated Workers Infographics')
+![Dedicated Workers Infographics](../25_dedicated_workers/infographic.webp 'Dedicated Workers Infographics')
 
 <div className="grid grid-cols-2 gap-6 mb-4">
 	<DocCard
@@ -512,7 +512,7 @@ windmill_worker:
 
 View logs from any workers or servers directly within the service logs section of the search modal.
 
-![Service logs](../36_service_logs/service_logs.png 'Service logs')
+![Service logs](../36_service_logs/service_logs.webp 'Service logs')
 
 <div className="grid grid-cols-2 gap-6 mb-4">
 	<DocCard
@@ -551,13 +551,13 @@ Metrics are available under "Queue metrics" button on the Workers page.
 
 Only tags for jobs that have been delayed by more than 3 seconds in the last 14 days are included in the graph.
 
-![Queue Metrics](./queue_metrics.png 'Queue Metrics')
+![Queue Metrics](./queue_metrics.webp 'Queue Metrics')
 
 ### Queue metric alerts
 
 [Enterprise Edition](/pricing) users can set up [Critical alerts](../37_critical_alerts/index.mdx) on the [Queue Metrics page](#queue-metrics), and be notified when the number of delayed jobs in a queue is above a certain threshold for more than a configured amount of time. The "cooldown" parameter determines the minimum duration between two consecutive alerts if the number of waiting jobs are fluctuating around the configured threshold.
 
-![Queue Metrics](./queue_metrics_alert.png 'Queue Metrics Alert')
+![Queue Metrics](./queue_metrics_alert.webp 'Queue Metrics Alert')
 
 ## Process isolation and security
 

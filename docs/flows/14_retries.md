@@ -73,6 +73,6 @@ When enabled, the flow will continue to the next step after going through all th
 
 By default, each step is set to "Stop on error and propagate error up".
 
-![Continue on error step](../assets/flows/continue_on_error1.png "Continue on error step")
+![Continue on error step](../assets/flows/continue_on_error1.webp "Continue on error step")
 
-![Continue on error flow](../assets/flows/continue_on_error2.png "Continue on error flow")
+![Continue on error flow](../assets/flows/continue_on_error2.webp "Continue on error flow")

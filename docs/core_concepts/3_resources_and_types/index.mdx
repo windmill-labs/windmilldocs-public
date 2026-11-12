@@ -21,7 +21,7 @@ needs to implement. Schemas implement the
 
 This is how Windmill connects to any third-party system: pick one of the 200+ resource types available on the [Hub](https://hub.windmill.dev/resource_types), or [define your own](#create-a-resource-type) for anything internal or not yet covered. There are no vendor-branded connectors - the resource type is the integration.
 
-![Recap Resources and Types](./recap_resources_and_types.png 'Recap Resources and Types')
+![Recap Resources and Types](./recap_resources_and_types.webp 'Recap Resources and Types')
 
 Resources can also hold configuration that is not a connection: an [AI agent](../54_ai_agents/index.mdx#reusable-agents) saved for reuse across flows is stored as an `ai_agent` resource, with its own editor.
 
@@ -85,7 +85,7 @@ injected into Scripts and workers; they are simply not resolved inside Resource 
 
 Resources can be assigned a description. It supports markdown.
 
-![Resource description](./resource_description.png 'Resource description')
+![Resource description](./resource_description.webp 'Resource description')
 
 :::tip
 
@@ -152,7 +152,7 @@ You will be asked to fill Name, Integration (the corresponding service it intera
 
 Verified Resource types on the Hub are directly added to the list of available Resource types on each new Windmill instance synced with the Hub.
 
-![Share resource type](./new_resource_type_hub.png)
+![Share resource type](./new_resource_type_hub.webp)
 
 A resource type can also travel with a [Hub project](../../misc/1_share_on_hub/index.md#resource-dependencies) when you publish a folder or sub-folder. There, exporting a type's definition is an explicit per-type opt-in, meant for custom types the Hub does not already define.
 
@@ -505,7 +505,7 @@ If the resource passed here as a reference does not come from a static [Resource
 
 The toggle "Static resource select only / Resources from users allowed" can be found for each runnable input when the [source](../../apps/2_connecting_components/index.mdx) is an [eval](../../apps/3_app-runnable-panel.mdx#evals).
 
-![Static resource select only / Resources from users allowed](../../assets/apps/0_app_editor/resources_from_users.png 'Static resource select only / Resources from users allowed')
+![Static resource select only / Resources from users allowed](../../assets/apps/0_app_editor/resources_from_users.webp 'Static resource select only / Resources from users allowed')
 
 <div className="grid grid-cols-2 gap-6 mb-4">
 	<DocCard
@@ -524,13 +524,13 @@ In certain scenarios it is useful to store data as a a text file, with a format 
 
 You first need to create the resource type. You will find a toggle to indicate this file is a text file, turn it on. You can then enter the file extension that will define the file format. In this example we will choose `ini` and create a type to represent Ansible Inventories.
 
-![Create a Text File Resource Type](./create_text_file_resource_type.png)
+![Create a Text File Resource Type](./create_text_file_resource_type.webp)
 
 Under the hood, this resource type is just like others, but the schema only has a `content` field where the file contents are stored. Additionally, the format that you input will be used to display the contents on the frontend and also when pulling with the CLI and create a type to represent Ansible Inventories.
 
 Now you can create the resource by adding a resource and searching your newly created resource type:
 
-![Create a Text File Resource](./create_text_file_resource.png)
+![Create a Text File Resource](./create_text_file_resource.webp)
 
 As you will notice, the format specified will be used for syntax highlighting when editing and displaying this file. When pulling this resource on the CLI, you will find two files: `<resource_name>.resource.file.ini` and `<resource_name>.resource.yaml`.
 
@@ -559,12 +559,12 @@ Simulate API interactions locally by using a JSON file to store and retrieve var
 ## Database manager
 
 The Manager button will show up for every database resource in the Resources tab:
-![Database Manager Button](./database_manager_button.png)
+![Database Manager Button](./database_manager_button.webp)
 
 You can explore and manage your database tables with all CRUD operations. You can create and delete tables with support for foreign keys.  
 If you need finer control, you can use the SQL interactive REPL on the bottom.
 
-![Database Manager](./database_manager.png)
+![Database Manager](./database_manager.webp)
 
 ### Worker tag
 

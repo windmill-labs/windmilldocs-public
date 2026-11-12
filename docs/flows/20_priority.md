@@ -6,7 +6,7 @@ description: How do I prioritize specific flow steps in the Windmill execution q
 
 Prioritize a flow step in the execution queue.
 
-![Set flow priority](../assets/flows/flow_priority.png "Set flow priority")
+![Set flow priority](../assets/flows/flow_priority.webp "Set flow priority")
 
 By enabling "Priority", jobs scheduled from this step when the flow is executed are labeled as high priority and take precedence over the other jobs in the jobs queue.
 

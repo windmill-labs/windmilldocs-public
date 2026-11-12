@@ -100,7 +100,7 @@ The folder argument is optional: when run from inside an `f/<folder>` directory,
 | `--no-open` | Do not open the browser automatically; the URL is printed so the caller (e.g. an AI agent) can hand it to you. |
 | `--frontend <origin>` | Origin serving the `/pipeline_dev` page (e.g. `http://localhost:3000` for a locally-run frontend). Defaults to the workspace remote; use it when the remote's deployed frontend predates the dev page. |
 
-![wmill pipeline dev rendering the local pipeline graph live](../../core_concepts/63_pipelines/pipeline_dev_view.png 'Local pipeline dev preview in the browser')
+![wmill pipeline dev rendering the local pipeline graph live](../../core_concepts/63_pipelines/pipeline_dev_view.webp 'Local pipeline dev preview in the browser')
 
 ## Generating pipeline documentation
 

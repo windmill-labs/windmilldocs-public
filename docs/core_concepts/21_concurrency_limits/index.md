@@ -46,13 +46,13 @@ In YAML, set `on_concurrency_limit: fail` in a script's `.script.yaml` metadata,
 
 [Concurrency limit of a script](../../script_editor/concurrency_limit.mdx) can be set from the [Settings](../../script_editor/settings.mdx) menu. Pick "Runtime" and then "Concurrency limits" and define a time window, max number of executions of the script within that time window and optionally a custom concurrency key.
 
-![Concurrency limit](../../assets/code_editor/concurrency_limit.png)
+![Concurrency limit](../../assets/code_editor/concurrency_limit.webp)
 
 ### Concurrency limit of a flow
 
 From the Flow Settings Advanced menu, pick "Concurrency limits" and define a time window, a max number of executions of the flow within that time window and optionally a custom concurrency key.
 
-![Concurrency limit of flow](../../assets/flows/concurrency_flow.png "Concurrency limit of flow")
+![Concurrency limit of flow](../../assets/flows/concurrency_flow.webp "Concurrency limit of flow")
 
 ### Concurrency limit of scripts within flow
 
@@ -60,4 +60,4 @@ The Concurrency limit operates globally and across flow runs. It involves two ke
 
 Concurrency limit can be set for each step of a flow in the `Advanced` menu, on tab "Runtime" - "Concurrency".
 
-![Concurrency limit Scripts within Flow](../../assets/code_editor/concurrency_limit_flow.png "Concurrency limit Scripts within Flow")
+![Concurrency limit Scripts within Flow](../../assets/code_editor/concurrency_limit_flow.webp "Concurrency limit Scripts within Flow")

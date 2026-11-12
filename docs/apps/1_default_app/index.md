@@ -10,7 +10,7 @@ Make sure the default app is [shared with all those members](../../core_concepts
 
 Set up the app from workspace settings:
 
-![Set up default app](./set_default_app.png "Set up default app")
+![Set up default app](./set_default_app.webp "Set up default app")
 
 They will have it open right when logging into the workspace:
 

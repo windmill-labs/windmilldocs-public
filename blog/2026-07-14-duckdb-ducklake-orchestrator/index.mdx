@@ -34,7 +34,7 @@ turns out to be once DuckLake is doing the hard storage work underneath. We buil
 it as [Windmill pipelines](/docs/core_concepts/pipelines), so read this as a
 partisan argument, but we have tried to keep every claim concrete.
 
-![A Windmill pipeline: assets are the nodes, scripts are the edges](./pipeline_graph.png 'A Windmill pipeline: assets as nodes, scripts as edges')
+![A Windmill pipeline: assets are the nodes, scripts are the edges](./pipeline_graph.webp 'A Windmill pipeline: assets as nodes, scripts as edges')
 
 ## What DuckLake gives you, and where it stops
 
@@ -169,9 +169,9 @@ to give you falls out of the partition itself:
 - **No first-run special case** - every run is "process partition P". There is no
   "empty table versus existing table" branch to reason about.
 
-![Backfill range picker with per-partition status](./backfill_range_preview.png 'Backfill range picker with per-partition status preview')
+![Backfill range picker with per-partition status](./backfill_range_preview.webp 'Backfill range picker with per-partition status preview')
 
-![Partition status grid](./partition_status_grid.png 'Which partitions exist, which are missing or failed')
+![Partition status grid](./partition_status_grid.webp 'Which partitions exist, which are missing or failed')
 
 The subtle part of any partitioned system is where the partition value comes
 from. Windmill resolves it once, at the top of a chain, and carries it
@@ -225,7 +225,7 @@ and server-side on deploy. Select a column and you get its full upstream and
 downstream set across every script in the graph, which is the "what breaks if I
 rename this" question answered from parsed SQL.
 
-![Column-to-column lineage inferred from SQL](./column_lineage_view.png 'Column-to-column lineage inferred from SQL')
+![Column-to-column lineage inferred from SQL](./column_lineage_view.webp 'Column-to-column lineage inferred from SQL')
 
 <DocCard
 	title="Column-level lineage"
@@ -287,7 +287,7 @@ Cascaded runs also record the snapshot ids of their inputs, so for any slice you
 can answer which exact version of each upstream produced it, which is effectively a
 lockfile for data.
 
-![Snapshot history and query-at-version preview](./time_travel_history.png 'Time-travel over a managed DuckLake asset')
+![Snapshot history and query-at-version preview](./time_travel_history.webp 'Time-travel over a managed DuckLake asset')
 
 History keyed by business time rather than by commit is a different question: not
 "what did the table look like at snapshot N" but "which version of this customer
@@ -373,7 +373,7 @@ annotation puts a fresh/stale verdict on a node, and on
 gives you the "run this node and everything downstream" and "run everything up to
 this node" gestures without a separate node-selection grammar.
 
-![Bounding a cascade to a chosen end node](./selective_execution.png 'Selective execution')
+![Bounding a cascade to a chosen end node](./selective_execution.webp 'Selective execution')
 
 ## The local loop, and keeping dev data out of prod
 
@@ -401,7 +401,7 @@ parent through read-only defer views. So you can iterate on a single node agains
 real upstream data, without rebuilding everything, and without a dev run ever
 writing to production.
 
-![Copy-on-write workspace forks: a parent lake with orders_raw, customers, dim_customer and orders_daily all materialized, and a fork that reads the first three through read-only defer views (amber deferred chips) while orders_daily, the one table you rebuilt, is materialized as the fork's own copy (emerald fork chip)](./workspace_forks_cow.png 'Copy-on-write forks: only the rebuilt table is materialized in the fork; the rest read through to the read-only parent')
+![Copy-on-write workspace forks: a parent lake with orders_raw, customers, dim_customer and orders_daily all materialized, and a fork that reads the first three through read-only defer views (amber deferred chips) while orders_daily, the one table you rebuilt, is materialized as the fork's own copy (emerald fork chip)](./workspace_forks_cow.webp 'Copy-on-write forks: only the rebuilt table is materialized in the fork; the rest read through to the read-only parent')
 
 ## When single-node DuckDB is the right call, and when it isn't
 

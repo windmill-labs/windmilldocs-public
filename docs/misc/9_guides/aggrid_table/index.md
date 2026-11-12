@@ -114,7 +114,7 @@ const defaultColumnProperties = {
 return columnDef.map((col) => ({ ...defaultColumnProperties, ...col }));
 ```
 
-![Column Def Script](./column_def1.png )
+![Column Def Script](./column_def1.webp )
 
 #### Create a select button
 

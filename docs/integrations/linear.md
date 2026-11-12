@@ -10,7 +10,7 @@ import ResourceUsage from './_resource_usage.mdx';
 
 To integrate Linear to Windmill, you need to save the following elements as a [resource](../core_concepts/3_resources_and_types/index.mdx).
 
-![Add Linear Resource](../assets/integrations/add-linear.png "Add Linear Resource")
+![Add Linear Resource](../assets/integrations/add-linear.webp "Add Linear Resource")
 
 | Property | Type   | Description                                                             | Default | Required | Where to Find                                                                                      |
 | -------- | ------ | ----------------------------------------------------------------------- | ------- | -------- | -------------------------------------------------------------------------------------------------- |

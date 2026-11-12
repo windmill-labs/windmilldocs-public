@@ -62,7 +62,7 @@ wmill sync pull
 
 Configure your [`wmill.yaml`](../3_cli/sync.mdx#wmillyaml) file with the desired filter settings before pushing to Git.
 
-![Pull workspace](./pull_workspace.png 'Pull workspace')
+![Pull workspace](./pull_workspace.webp 'Pull workspace')
 
 2. Create a Git repository (in the example, on GitHub) and push the initial workspace content:
 
@@ -89,7 +89,7 @@ You now have your Windmill workspace on a GitHub repository.
 The GitHub App and the GitLab token are the two ways Windmill holds the repository's credential itself, which is what unlocks the managed features below: [instant pull over a webhook](#webhooks), [pull and merge requests opened on deploy](#in-app-pull-request-creation), and diff previews on [pull requests](#pull-request-diff-checks) and [merge requests](#merge-request-diff-previews).
 A token written into the URL is a plain git remote: it syncs on deploy and by polling, and nothing else.
 
-![Git sync Setup](./git_sync_setup.png 'Git sync Setup')
+![Git sync Setup](./git_sync_setup.webp 'Git sync Setup')
 
 If you chose Option A (empty repository), use the "Initialize Git repository" operation to automatically:
 
@@ -100,7 +100,7 @@ If the repository already contains a `wmill.yaml` file, the settings will be aut
 
 **Configuration settings**: Git sync filter settings are pulled from the [`wmill.yaml`](../3_cli/sync.mdx#wmillyaml) file in your repository. Once the connection is saved, you can update settings by changing `wmill.yaml` and pulling the settings via the corresponding button.
 
-![Git sync Settings](./settings_pull.png 'Git sync Settings Pull')
+![Git sync Settings](./settings_pull.webp 'Git sync Settings Pull')
 
 ### Signing commits with GPG
 
@@ -128,7 +128,7 @@ gpg --armor --export-secret-keys <key_id>
 
 In the Windmill workspace "Git Sync" settings, edit the "GPG key" field with the GPG private key. Use the email address associated with the key and set the passphrase if you added one.
 
-![GPG key](./add_gpg_key.png 'GPG key')
+![GPG key](./add_gpg_key.webp 'GPG key')
 
 :::caution Key ID and Email
 

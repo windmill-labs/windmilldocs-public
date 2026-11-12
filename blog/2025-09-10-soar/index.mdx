@@ -157,7 +157,7 @@ After presenting Windmill's approach to security automation to [FEMA's](https://
 > **Try it yourself**: All the scripts, flows, and configurations shown in this example are available in our [GitHub repository](https://github.com/alpetric/windmill-soar). You can deploy the complete SOAR demo to your own Windmill instance and test the workflows with realistic mock services.
 
 <br />
-![SOAR Incident Response Flow](./flow.png "Complete SOAR workflow from IDS alert to remediation")
+![SOAR Incident Response Flow](./flow.webp "Complete SOAR workflow from IDS alert to remediation")
 
 ### The Trigger: IDS Alert Webhook
 
@@ -173,7 +173,7 @@ E.g. an intrusion detection system detects suspicious activity and sends a webho
 
 The first phase is enrichment. Typical SOAR playbooks query sources like SIEM, IAM/HR/CMDB, EDR/NDR/AV, MDM/NAC, and threat intel (IP/domain/hash), plus geo/WHOIS and audit logs to add context and reduce false positives. In Windmill, each enrichment is its own flow step that runs in parallel across multiple workers; failures are isolated and do not block the rest. [Error handling](/docs/core_concepts/error_handling) is built in and can be configured per step.
 
-![SOAR Incident Response Flow](./collection.png "Collection phase")
+![SOAR Incident Response Flow](./collection.webp "Collection phase")
 
 In this example, Windmill immediately launches five parallel enrichment flow steps:
 
@@ -216,7 +216,7 @@ The analysis phase is where SOAR playbooks combine all the collected signals to 
 
 In this workflow, the outputs from Phase 1 are combined into a risk score and severity level.
 
-![SOAR Incident Response Flow](./analysis.png "Analysis phase")
+![SOAR Incident Response Flow](./analysis.webp "Analysis phase")
 
 Our example uses a basic heuristic that produces a numeric risk score and severity. It's intentionally simple and transparent: each signal contributes a fixed weight, and thresholds are easy to tune. Teams often start here and later evolve weights or swap in a learned model.
 
@@ -287,7 +287,7 @@ The enrichment outputs are consolidated into a structured prompt for ChatGPT or 
 
 This is where Windmill's [AI Agent flow step](/docs/core_concepts/ai_agents) comes into play. An AI flow step can use tools (e.g calling VirusTotal, a Threat Intelligence API, etc.) as well as outputs from other steps to generate a structured response based on an output schema provided.
 
-![SOAR Incident Response Flow](./ai_flow_step.png "AI-powered incident summary")
+![SOAR Incident Response Flow](./ai_flow_step.webp "AI-powered incident summary")
 
 **Automatic Ticket Creation**
 
@@ -297,7 +297,7 @@ The flow then creates a ticket in Linear or ServiceNow with the generated summar
 
 Response covers notification, ticketing, and containment: disable or lock accounts, revoke sessions/keys, quarantine devices, block indicators (firewall/EDR/SWG), reset credentials, and update ACLs. SOAR playbooks often gate destructive actions behind approvals. In Windmill, [flows](/docs/getting_started/flows_quickstart) branch by severity, pause for [approvals](/docs/flows/flow_approval) in [Slack](/docs/integrations/slack) or [Teams](/docs/integrations/teams) when needed, and then fan out actions in parallel with retries and full audit trails.
 
-![SOAR Incident Response Flow](./response.png "Analysis phase")
+![SOAR Incident Response Flow](./response.webp "Analysis phase")
 
 In this example, based on the calculated risk score, Windmill branches out the remediation steps:
 
@@ -318,7 +318,7 @@ In this example, based on the calculated risk score, Windmill branches out the r
 - Automatic device quarantine  
 - Emergency Slack notification with dashboard link
 
-![Slack Approval Workflow](./slack.png "Interactive Slack approval for high-severity incidents")
+![Slack Approval Workflow](./slack.webp "Interactive Slack approval for high-severity incidents")
 
 ### Investigation Dashboard: Live Context and Controls
 
@@ -326,7 +326,7 @@ This dashboard gives analysts a single place to review the incident, understand 
 
 It is built with [Windmill's app builder](/docs/apps/app_editor) and connects directly to flow steps' data, SQL, and REST APIs. Components are bound to the run, which keeps the view in sync as enrichment completes and decisions are made. Actions on the page can trigger scripts and flows with approvals when needed.
 
-![SOAR Incident Response Flow](./app.png "Analysis phase")
+![SOAR Incident Response Flow](./app.webp "Analysis phase")
 
 **Incident Overview Panel**
 The dashboard opens with a live threat summary produced by the AI analysis, paired with a risk score that highlights the main contributing factors. It also surfaces the user and device context pulled from identity systems so analysts immediately see who is impacted and how.

@@ -36,9 +36,9 @@ To make the assistant more effective, we've introduced three specialized modes: 
 Navigation mode is ideal for discovering Windmill's features and understanding how the platform works. It's especially helpful for new users, providing quick guidance and links to the [docs](/docs/intro).
 For more advanced users, it's still useful for uncovering less obvious functionalities without needing to search manually.
 
-![Navigation mode](./navigation_mode.png "Navigation mode")
+![Navigation mode](./navigation_mode.webp "Navigation mode")
 
-![Navigation mode 2](./navigation_mode_2.png "Navigation mode 2")
+![Navigation mode 2](./navigation_mode_2.webp "Navigation mode 2")
 
 ### Script mode
 
@@ -52,7 +52,7 @@ These actions are tuned to the situation, helping you move faster with fewer ste
 You can also choose to apply or discard specific parts of a suggestion.
 This granular apply/reject is built directly into the Monaco editor and makes AI suggestions easier to manage - not a flashy feature, just a necessary one.
 
-![Script mode](./script_mode.png "Script mode")
+![Script mode](./script_mode.webp "Script mode")
 
 ### Flow mode
 

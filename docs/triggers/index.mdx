@@ -107,7 +107,7 @@ You can also [automatically generate](../core_concepts/6_auto_generated_uis/inde
 
 For full control over your UI, build [full-code apps](../full_code_apps/index.mdx) with React or Svelte. Your frontend calls backend runnables that run on Windmill workers, giving you framework-level flexibility while keeping Windmill's execution, permissions and logging.
 
-![Full-code app demo](../getting_started/9_full_code_apps_quickstart/full_code_app_demo.png 'Full-code app demo')
+![Full-code app demo](../getting_started/9_full_code_apps_quickstart/full_code_app_demo.webp 'Full-code app demo')
 
 <div className="grid grid-cols-2 gap-6 mb-4">
 	<DocCard
@@ -139,7 +139,7 @@ Flows are basically sequences of scripts that execute one after another or [in p
 
 Flows themselves can be triggered from other flows. This is called inner flows.
 
-![Inner flows](./inner_flow.png "Inner flows")
+![Inner flows](./inner_flow.webp "Inner flows")
 
 <div className="grid grid-cols-2 gap-6 mb-4">
 	<DocCard
@@ -154,7 +154,7 @@ Flows themselves can be triggered from other flows. This is called inner flows.
 
 Flows are not the only way to write distributed programs that execute distinct jobs. Another approach is to write a program that defines the jobs and their dependencies, and then execute that program within a [Python](../getting_started/0_scripts_quickstart/2_python_quickstart/index.mdx) or [TypeScript](../getting_started/0_scripts_quickstart/1_typescript_quickstart/index.mdx) script. This is known as workflows as code.
 
-![Flow as code](../core_concepts/31_workflows_as_code/wac-editor-1.png)
+![Flow as code](../core_concepts/31_workflows_as_code/wac-editor-1.webp)
 
 <div className="grid grid-cols-2 gap-6 mb-4">
 	<DocCard
@@ -452,17 +452,17 @@ When a trigger is in suspended mode, it continues to accept payloads and queue j
 
 To enable suspended mode, toggle the "Suspend job execution" option in the trigger settings:
 
-![Enable suspended mode](./enable_suspended_mode.png)
+![Enable suspended mode](./enable_suspended_mode.webp)
 
 ### Managing suspended jobs
 
 You can review all suspended jobs by clicking the "See suspended jobs" button:
 
-![Open suspended jobs](./open_suspended_jobs_button.png)
+![Open suspended jobs](./open_suspended_jobs_button.webp)
 
 This opens a table showing all queued jobs for the trigger:
 
-![Suspended jobs table](./suspended_jobs_table.png)
+![Suspended jobs table](./suspended_jobs_table.webp)
 
 From this table, you can:
 - Resume individual jobs to execute them
@@ -474,7 +474,7 @@ From this table, you can:
 
 If you modify the trigger's configuration (such as changing the runnable, retry settings, or error handler) and save, resumed jobs will run using the updated configuration:
 
-![Reassigned suspended jobs](./reassigned_suspended_jobs.png)
+![Reassigned suspended jobs](./reassigned_suspended_jobs.webp)
 
 :::warning
 If your old runnable had a preprocessor, the new one should have one too (and vice versa), as the arguments format differs based on whether a preprocessor is present.

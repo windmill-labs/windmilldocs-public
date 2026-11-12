@@ -79,7 +79,7 @@ wmill flow run <remote_path> [options]
 | `-s, --silent` |            | Do not output anything other then the final output. Useful for scripting.      |
 | `--tag`        | `tag`      | Override the [worker tag](../../core_concepts/9_worker_groups/index.mdx#set-tags-to-assign-specific-queues) the run is dispatched to, instead of the flow's default tag. Useful to route a run to specific workers (for example dev workers instead of prod). |
 
-![CLI arguments](../../assets/cli/cli_arguments.png "CLI arguments")
+![CLI arguments](../../assets/cli/cli_arguments.webp "CLI arguments")
 
 :::tip Inspecting flow runs after completion
 Use `wmill job get <job_id>` to see a hierarchical step tree with status and durations, or `wmill job logs <job_id>` to see aggregated logs from all steps. See [Jobs](./job.md) for details.

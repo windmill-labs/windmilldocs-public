@@ -52,7 +52,7 @@ Scripts consist of 2 parts:
 
 When stored in a code repository, these 2 parts are stored separately at `<path>.playbook.yml` and `<path>.script.yaml`
 
-![Ansible in Windmill](./create_ansible_script.png)
+![Ansible in Windmill](./create_ansible_script.webp)
 
 ## Settings
 
@@ -82,7 +82,7 @@ Now click on the code editor on the left side.
 
 In order to make Ansible playbooks compatible with the Windmill environment and script model, there is some extra information preceding the start of the playbook that can be entered. Because of this, an Ansible playbook in Windmill will typically look like this:
 
-![Ansible in Windmill](./ansible_script_ide.png)
+![Ansible in Windmill](./ansible_script_ide.webp)
 
 ```yml
 ---
@@ -160,7 +160,7 @@ extra_vars:
       type: string
 ```
 
-![Parsing Yaml and generating UI](./extra_vars_ui.png)
+![Parsing Yaml and generating UI](./extra_vars_ui.webp)
 
 The type definition is inspired and tries to follow the [OpenAPI Data Types standard](https://swagger.io/docs/specification/data-models/data-types/). Note that not all features / types are supported, the best way to know what is supported is to test it out in the Web IDE.
 
@@ -183,7 +183,7 @@ extra_vars:
     resource_type: postgresql
 ```
 
-![Postgres Resource UI](./postgres_ui.png)
+![Postgres Resource UI](./postgres_ui.webp)
 
 Under the hood, Windmill will pass these variables using the `--extra-vars` flag to Ansible, so you can expect the according behavior.
 
@@ -242,7 +242,7 @@ To create similar resource type, refer to [creating plain text resources](../../
 
 After adding this in the Web IDE, you will see a new `inventory.ini` argument pop up. You can then select or create a new ansible_inventory resource.
 
-![inventory ui](./inventory_ui.png)
+![inventory ui](./inventory_ui.webp)
 
 If you don't want one of the inputs of the script be the inventory, you can pin a specific resource to the script by specifying its path. In this case you don't need to specify the resource_type anymore:
 
@@ -631,7 +631,7 @@ One way to write distributed programs that execute distinct jobs is to use [flow
 
 Another approach is to write a program that defines the jobs and their dependencies, and then execute that program directly in your script. This is known as [workflows as code](../../../core_concepts/31_workflows_as_code/index.mdx).
 
-![Flow as code in Python](../../../core_concepts/31_workflows_as_code/wac-editor-1.png "Flow as code in Python")
+![Flow as code in Python](../../../core_concepts/31_workflows_as_code/wac-editor-1.webp "Flow as code in Python")
 
 All details at:
 

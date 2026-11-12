@@ -10,7 +10,7 @@ import ResourceUsage from './_resource_usage.mdx';
 
 To integrate Notion to Windmill, save a [token](https://developers.notion.com/reference/create-a-token) within a Notion [resource](../core_concepts/3_resources_and_types/index.mdx).
 
-![Add Notion Resource](../assets/integrations/add-notion.png "Add Notion Resource")
+![Add Notion Resource](../assets/integrations/add-notion.webp "Add Notion Resource")
 
 To create a token, on Notion go to the [My integrations](https://www.notion.so/my-integrations) page, create a new integration and associate it with the proper workspace.
 

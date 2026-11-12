@@ -9,6 +9,6 @@ This also applies to a flow step that has failed: the error will not be accessib
 
 The deletion is irreversible.
 
-![Lifetime / Delete after use](../assets/flows/flow_lifetime.png "Lifetime / Delete after use")
+![Lifetime / Delete after use](../assets/flows/flow_lifetime.webp "Lifetime / Delete after use")
 
 This feature is exclusive to [Cloud plans and Self-Hosted Enterprise](/pricing).

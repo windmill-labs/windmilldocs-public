@@ -8,7 +8,7 @@ description: How do I connect MS SQL Server to Windmill? Query and manage SQL Se
 
 Windmill provides a framework to support MS SQL databases, either with native SQL scripts or through TypeScript for raw queries.
 
-![Integration between MS SQL and Windmill](../assets/integrations/windmill_and_mssql.png 'Connect a MS SQL instance with Windmill')
+![Integration between MS SQL and Windmill](../assets/integrations/windmill_and_mssql.webp 'Connect a MS SQL instance with Windmill')
 
 ## Authentication methods
 

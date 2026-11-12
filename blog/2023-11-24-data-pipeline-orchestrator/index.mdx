@@ -66,18 +66,18 @@ In most cases, S3 is a well-suited storage and Windmill now provides a basic yet
 
 The first step is to define an [S3 resource](/docs/integrations/s3) in Windmill and assign it to be the Workspace S3 bucket in the workspace settings.
 
-![S3 workspace settings](./workspace_s3_settings.png 'S3 workspace settings')
+![S3 workspace settings](./workspace_s3_settings.webp 'S3 workspace settings')
 
 From now on, Windmill will be connected to this bucket and you'll have easy access to it from the code editor and the job run details. If a script takes as input a `s3object`, you will see in the input form on the right a button helping you choose the file directly from the bucket.
 Same for the result of the script. If you return an `s3object` containing a [key](/docs/core_concepts/rich_display_rendering#s3) `s3` pointing to a file inside your bucket, in the result panel there will be a button to open the bucket explorer to visualize the file.
 
-![Windmill code editor](./s3_object_code_editor.png 'Windmill code editor')
+![Windmill code editor](./s3_object_code_editor.webp 'Windmill code editor')
 
 🤔 So, what happens when I click on this button? Am I redirected to S3?
 
 Better than that! You can browse the bucket content and even visualize file content without leaving Windmill!
 
-![S3 bucket explorer](./bucket_explorer.png 'S3 bucket explorer')
+![S3 bucket explorer](./bucket_explorer.webp 'S3 bucket explorer')
 
 Clicking on one of those buttons, a drawer will open displaying the content of the workspace bucket. You can select any file to get its metadata and if the format is common, you'll see a preview. In the above picture, for example, we're showing a Parquet file, which is very convenient to quickly validate the result of a script.
 

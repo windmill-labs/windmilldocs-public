@@ -8,6 +8,6 @@ description: How do I connect MySQL to Windmill? Query and manage MySQL database
 
 Windmill provides a framework to support MySQL databases, either with native SQL scripts or through TypeScript for raw queries.
 
-![Integration between MySQL and Windmill](../assets/integrations/mysql_header.png 'Connect a MySQL instance with Windmill')
+![Integration between MySQL and Windmill](../assets/integrations/mysql_header.webp 'Connect a MySQL instance with Windmill')
 
 Please refer to the [SQL Getting started section](../getting_started/0_scripts_quickstart/5_sql_quickstart/index.mdx).

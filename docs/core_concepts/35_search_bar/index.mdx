@@ -8,11 +8,11 @@ import DocCard from '@site/src/components/DocCard';
 
 Every workspace has a Search bar to navigate through it.
 
-![Search bar](./search_bar.png "Search bar")
+![Search bar](./search_bar.webp "Search bar")
 
 It can be triggered with shortcut `Ctrl + K` & `⌘k` on Mac, or with Search button from sidebar. From here you can select from the options with the mouse or browse with the arrow keys.
 
-![Search button](./search_button.png "Search button")
+![Search button](./search_button.webp "Search button")
 
 Every workspace member has access to this feature. Trigger pages are only listed for [roles](../16_roles_and_permissions/index.mdx#workspace-roles) that see triggers.
 
@@ -38,7 +38,7 @@ With a special prefix key, you can search across:
 - [Content](#content-search) of scripts, flows and apps with key `#` (without [Enterprise Edition](/pricing), content search will only search among 10 scripts, 3 flows, 3 apps and 3 resources).
 - [Logs](#searching-logs) with key `!`.
 
-![Search across runs](./run_search.png "Search across runs")
+![Search across runs](./run_search.webp "Search across runs")
 > Search across runs with key `>`.
 
 ### Searching runs
@@ -49,7 +49,7 @@ Full text search is a feature available in Windmill EE, however, note that it is
 
 You can search through completed runs by selecting the option on the search menu, or by prefixing your search with `>`.
 
-![Full text job search](./search_jobs.png)
+![Full text job search](./search_jobs.webp)
 
 Queries are parsed by Tantivy's [QueryParser](https://docs.rs/tantivy/latest/tantivy/query/struct.QueryParser.html), which lets you build relatively complex and useful queries. For example, you can try searching:
 

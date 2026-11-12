@@ -12,11 +12,11 @@ Everybody having access to a Windmill instance is considered a User.
 
 Recap of how roles within an instance and a workspace are structured:
 
-![Recap Instances and Members](./instance_members.png 'Recap Instances and Members')
+![Recap Instances and Members](./instance_members.webp 'Recap Instances and Members')
 
 Recap of how are permissioned items (scripts, flows, apps, resources, variables, schedules, jobs) within a workspace:
 
-![Recap Item Permissions](./permissions.png 'Recap Item Permissions')
+![Recap Item Permissions](./permissions.webp 'Recap Item Permissions')
 
 ## Users
 
@@ -254,7 +254,7 @@ A path is either inside a user space `u/<user>/<path>` or inside a folder `f/<fo
 
 You can modify paths, but this may break other dependent entities. For scripts, flows, and apps, you will see a warning with a list of affected entities:
 
-![Path Renaming](./path_renaming.png 'Path Renaming')
+![Path Renaming](./path_renaming.webp 'Path Renaming')
 
 ### Extra permissions
 
@@ -264,9 +264,9 @@ Extra permissions can be given to a user or a group, with the possibility to giv
 
 For scripts, flows, apps and variables, those extra permissions are also tracked in source as an `extra_perms` map, so they can be reviewed and deployed like the rest of the workspace through [Git sync](../../advanced/11_git_sync/index.mdx#granular-permissions) or the [CLI](../../advanced/3_cli/sync.mdx#granular-permissions-extra_perms).
 
-![Extra Permissions](./share.png 'Extra Permissions')
+![Extra Permissions](./share.webp 'Extra Permissions')
 
-![Share Menu](./share_menu.png 'Share Menu')
+![Share Menu](./share_menu.webp 'Share Menu')
 
 ### Example of permissions
 
@@ -284,7 +284,7 @@ Here the new SQL Resource is being given access to a folder `data_team`...
 
 Also, [extra permission](#extra-permissions) was given to Ruben as viewer.
 
-![Extra Permissions Example](./extra_example.png 'Extra Permissions Example')
+![Extra Permissions Example](./extra_example.webp 'Extra Permissions Example')
 
 <br />
 
@@ -330,11 +330,11 @@ When removing a user, you can reassign all their items to another user or [folde
 
 From **Workspace settings** > **Users**, click **Remove** on a user. The modal shows what they own, what runs on their behalf, and what references their paths. Pick a target user or folder, confirm, and everything is moved in one step.
 
-![Offboard user](./offboard_user.png 'Offboard user')
+![Offboard user](./offboard_user.webp 'Offboard user')
 
 You can also use **Reassign** to transfer ownership without removing the user — useful when moving personal scripts into shared folders.
 
-![Reassign user items](./reassign_user_items.png 'Reassign user items')
+![Reassign user items](./reassign_user_items.webp 'Reassign user items')
 
 If the target already has items at the same paths, the operation is blocked until you resolve the conflicts.
 
@@ -342,4 +342,4 @@ If the target already has items at the same paths, the operation is blocked unti
 
 [Superadmins](#superadmin) can offboard a user across all workspaces at once from **Instance settings** > **Users**, with a different reassignment target per workspace.
 
-![Global offboard](./global_offboard.png 'Reassign user items globally')
+![Global offboard](./global_offboard.webp 'Reassign user items globally')

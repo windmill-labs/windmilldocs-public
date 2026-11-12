@@ -20,7 +20,7 @@ Data tables are queryable as a **typed** schema from TypeScript, Python and Duck
 
 Go to `workspace settings` -> `Data Tables` and configure a Data Table :
 
-![Data Table settings](./datatable_images/datatable_settings_1.png 'Data Table settings')
+![Data Table settings](./datatable_images/datatable_settings_1.webp 'Data Table settings')
 
 Superadmins can use a [Custom instance database](/docs/core_concepts/custom_instance_database) and get started with no setup.
 
@@ -82,7 +82,7 @@ SELECT * FROM friend WHERE id = $user_id;
 
 In workspace settings, we recommend configuring a single primary data table (and at most a few secondary ones), and using schemas to organize your data. This is not about the number of SQL tables inside a data table, which is unlimited. There is no hard limit either way.
 
-![Data Table schemas](./datatable_images/datatable_schemas.png 'Data Table schemas')
+![Data Table schemas](./datatable_images/datatable_schemas.webp 'Data Table schemas')
 
 You can reference schemas normally with the `schema.table` syntax, or set the default search path with this syntax (Python / Typescript) :
 
@@ -161,12 +161,12 @@ Data tables are **assets** in Windmill.
 When you reference a data table in a script, Windmill automatically parses the code and detects them.
 You can then click on it and explore the data table in the Database Explorer.
 
-![Data Table asset](./datatable_images/datatable_asset.png 'Data Table asset')
+![Data Table asset](./datatable_images/datatable_asset.webp 'Data Table asset')
 
 Windmill auto detects if the data table was used in Read (SELECT ... FROM) or Write mode (UPDATE, DELETE ...).
 Assets are displayed as asset nodes in flows, making it easy to visualize data dependencies between scripts.
 
-![Data Table asset flow](./datatable_images/datatable_asset_flow.png 'Data Table asset flow')
+![Data Table asset flow](./datatable_images/datatable_asset_flow.webp 'Data Table asset flow')
 
 ### Database Studio integration
 
@@ -213,7 +213,7 @@ Go to `workspace settings` -> `Data Tables` and click **Migrations** next to a d
 
 Running or reverting a migration out of order (one that has earlier un-run migrations, or later applied ones) asks for confirmation first, and deletions always confirm.
 
-![Migrations modal](./datatable_images/migrations_modal.png 'Migrations modal')
+![Migrations modal](./datatable_images/migrations_modal.webp 'Migrations modal')
 
 ### From the CLI
 
@@ -280,7 +280,7 @@ Here's how to set this up.
 
 Go to **Workspace settings > Data Tables**, click **Manage** on your data table to open the Database Manager, then click the menu on the data table in the left pane and select **Roles**.
 
-![Roles menu](./datatable_images/roles_menu.png 'Roles menu')
+![Roles menu](./datatable_images/roles_menu.webp 'Roles menu')
 
 Check 'Put this data table under roles'.
 The `admin` role is the connection the data table used before roles: it owns every existing table, reads every row and ignores grants and row-level security.
@@ -293,7 +293,7 @@ It starts as the default role with everyone in the workspace as tenant, so turni
 Click **Add role** and create a role called `analytics`.
 Assign the folder `f/analytics_f` to it.
 
-![Analytics role](./datatable_images/roles_analytics.png 'Analytics role')
+![Analytics role](./datatable_images/roles_analytics.webp 'Analytics role')
 
 Now anyone with permissions on `analytics_f` can use the `analytics` role, but it has no privileges yet.
 
@@ -302,12 +302,12 @@ Now anyone with permissions on `analytics_f` can use the `analytics` role, but i
 Exit the Roles drawer.
 Click the menu on the `analytics` schema and select **Access**.
 
-![Schema access menu](./datatable_images/schema_access_menu.png 'Schema access menu')
+![Schema access menu](./datatable_images/schema_access_menu.webp 'Schema access menu')
 
 Grant `SELECT` on all tables in the schema, and enable the same grant for tables created in the future (default privileges).
 `USAGE` on the schema is granted automatically since it's required to access tables.
 
-![ACL editor with SELECT grant](./datatable_images/acl_select_grant.png 'ACL editor with SELECT grant')
+![ACL editor with SELECT grant](./datatable_images/acl_select_grant.webp 'ACL editor with SELECT grant')
 
 #### Step 4: test access from scripts
 
@@ -374,18 +374,18 @@ SELECT * FROM company_data.salaries;
 What remains is to remove `Everyone` from the tenants of `admin`, so that only workspace admins and superadmins can use it.
 Doing only that would leave a user who is neither a workspace admin nor in `analytics_f` with no role, unable to open the Database Manager at all.
 
-![Database Manager error](./datatable_images/dbm_no_role_error.png 'Database Manager error')
+![Database Manager error](./datatable_images/dbm_no_role_error.webp 'Database Manager error')
 
 So first create a role called `everyone`, assign `*` (everyone in the workspace) as tenant, and make it the default role.
 Then remove `Everyone` from the tenants of `admin`.
 
-![Everyone role](./datatable_images/roles_everyone.png 'Everyone role')
+![Everyone role](./datatable_images/roles_everyone.webp 'Everyone role')
 
 Grant `SELECT` on the `public` schema.
 
 Now all users can access the `public` schema in the Database Manager.
 
-![Restricted user view](./datatable_images/dbm_restricted_view.png 'Restricted user view')
+![Restricted user view](./datatable_images/dbm_restricted_view.webp 'Restricted user view')
 
 Because `everyone` is now the default role, a call to `wmill.datatable('your_datatable')` that names no role connects as `everyone`, plus `analytics` when the identity the job runs as is in `analytics_f`.
 See [connections that name no role](#connections-that-name-no-role).
@@ -395,7 +395,7 @@ See [connections that name no role](#connections-that-name-no-role).
 Users may want to create schemas for their apps.
 Grant `CREATE` on the database to the `everyone` role so they can create new schemas.
 
-![ACL editor with CREATE grant](./datatable_images/acl_create_grant.png 'ACL editor with CREATE grant')
+![ACL editor with CREATE grant](./datatable_images/acl_create_grant.webp 'ACL editor with CREATE grant')
 
 ### Connections that name no role
 

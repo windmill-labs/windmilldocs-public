@@ -28,7 +28,7 @@ Teams had to build custom CI/CD pipelines around Windmill's CLI sync, managing b
 Every time you deploy an item in Windmill, it automatically commits and pushes to your configured Git repository. Pull from Git to update your workspace. Supports GitHub, GitLab, Bitbucket, and Azure DevOps.
 
 
-![Git sync settings](./git_sync_settings.png)
+![Git sync settings](./git_sync_settings.webp)
 
 Configure Git sync from workspace settings. Path filters let you sync only what matters. Type filters control which resource types are included.
 
@@ -47,11 +47,11 @@ Three ways to bring changes back:
 1. **Deploy UI**: deploy individual items from the fork to the parent workspace directly from the Windmill UI.
 
 
-![Deploy UI](./deploy_ui.png)
+![Deploy UI](./deploy_ui.webp)
 
 2. **Merge UI**: merge all changes at once with conflict detection, no Git sync required.
 
-![Merge UI](./merge_ui.png)
+![Merge UI](./merge_ui.webp)
 
 3. **Git merge**: use your preferred Git workflow (PRs, code review) to merge the fork branch.
 
@@ -63,7 +63,7 @@ Workspace forks will soon support [data tables](/docs/core_concepts/persistent_s
 
 On merge, Windmill queries the full data table schema, detects differences, and generates SQL migrations automatically.
 
-![Data table fork migration](./datatable_fork_migration.png)
+![Data table fork migration](./datatable_fork_migration.webp)
 
 ## Why we built it this way
 

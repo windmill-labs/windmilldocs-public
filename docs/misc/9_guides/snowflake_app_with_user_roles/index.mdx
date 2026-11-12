@@ -77,7 +77,7 @@ The goal is to use OAuth to dynamically retrieve the credentials for the end-use
 1. After creating a new app in your Windmill workspace, add a **User Resource Input** component.
 2. For "Resource Type," enter `snowflake_oauth`.
 3. Enable **Express OAuth Setup** by toggling the option.
-   ![Settings for User Resource Input](./user_resource_input.png)
+   ![Settings for User Resource Input](./user_resource_input.webp)
 
 4. In the UI editor, click the plus icon (+) to authenticate with your Snowflake account and test the connection.
 
@@ -88,7 +88,7 @@ This component allows the app to use end-user credentials via an interactive OAu
 Next, create a **Background Runnable** to retrieve the available tables based on the user’s Snowflake role.
 
 1. Create a new **Background Runnable** of type "Snowflake."
-   ![Settings for Background Runnable](./background_runnable_1.png)
+   ![Settings for Background Runnable](./background_runnable_1.webp)
 
 2. Enter a Snowflake query to list available tables:
 
@@ -100,7 +100,7 @@ Next, create a **Background Runnable** to retrieve the available tables based on
 
 4. Enable the toggle **resource from users allowed** to grant access to user-linked resources. Note that this resource is passed as a reference and won’t be accessible to the app publisher.
 
-   ![Settings for Background Runnable](./background_runnable_2.png)
+   ![Settings for Background Runnable](./background_runnable_2.webp)
 
 5. Click the **Run** button to test the query and view the results.
 
@@ -124,7 +124,7 @@ Now, add a **Rich result** component to show the table content based on the sele
 3. Connect the **Rich result**’s "table_name" field to the **Select** component created in Step 2.
 4. Enable the toggle **resource from users allowed** to grant access to user-linked resources. Note that this resource is passed as a reference and won’t be accessible to the app publisher.
 
-   ![Settings for Rich result](./rich_result.png)
+   ![Settings for Rich result](./rich_result.webp)
 
 4. The component will automatically populate with data from the selected table.
 
@@ -135,9 +135,9 @@ Now, we’ll see how the displayed data changes based on the logged-in user’s 
 1. Click the **Preview** button to switch to the end-user preview mode.
 2. Use the plus icon (+) to log in as a privileged user (e.g., **hr_user**) and view the content of the `SALARIES` table.
 
-   ![View as HR user](./hr_view.png)
+   ![View as HR user](./hr_view.webp)
 
 3. Log out by clicking the logout button next to the plus icon, then log in as the restricted user (e.g., **support_user**). You should now see only the `LIMITED_SALARIES` table.
 
-   ![View as Support user](./support_view.png)
+   ![View as Support user](./support_view.webp)
 

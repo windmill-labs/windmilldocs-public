@@ -137,7 +137,7 @@ Write-Debug "Raw result: $($result | ConvertTo-Json -Depth 1)"
 $result | ConvertTo-Json
 ```
 
-![Auto-generated form with CmdletBinding parameters: Verbose/Debug toggles and ErrorAction dropdown](./cmdletbinding_params.png)
+![Auto-generated form with CmdletBinding parameters: Verbose/Debug toggles and ErrorAction dropdown](./cmdletbinding_params.webp)
 
 ### Private Azure Artifacts modules
 
@@ -282,7 +282,7 @@ await wmill.requestInteractiveTeamsApproval({
 });
 ```
 
-![Interactive Teams approval with input fields and Resume/Cancel buttons](./teams_approval.png)
+![Interactive Teams approval with input fields and Resume/Cancel buttons](./teams_approval.webp)
 
 **Error alerts**: flow failures send notifications to Teams with full error context.
 
@@ -359,7 +359,7 @@ Write-Verbose "Querying AD for user: $Username"
 
 In the flow editor, the agent step wires these tools together with a system prompt and iterates over affected users:
 
-![AI agent step in a Windmill flow with PowerShell, MSSQL, and Teams tools](./agent_step.png)
+![AI agent step in a Windmill flow with PowerShell, MSSQL, and Teams tools](./agent_step.webp)
 
 The agent calls `get_ad_user_info`, sees the account is locked, calls `get_event_log_errors` to check for related authentication failures, runs `query_app_errors` for today's errors, and compiles a report. If it finds critical issues, it calls `send_teams_alert` to escalate. Each tool runs on the appropriate worker: PowerShell and MSSQL on the Windows worker with domain credentials, TypeScript on any available worker.
 

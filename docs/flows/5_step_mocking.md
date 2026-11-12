@@ -30,11 +30,11 @@ There are two ways to control step execution:
 You can access and manage step results in two ways:
 1. Directly by clicking on the step bottom arrow in the flow view for quick access.
 
-![Bottom arrow](../assets/flows/bottom_arrow.png "Bottom arrow")
+![Bottom arrow](../assets/flows/bottom_arrow.webp "Bottom arrow")
 
 2. From the step's `Test this step` menu.
 
-![Test this step](../assets/flows/test_this_step.png "Test this step")
+![Test this step](../assets/flows/test_this_step.webp "Test this step")
 
 ## Features
 
@@ -47,17 +47,17 @@ You can access and manage step results in two ways:
 
 Pin any successful run result to reuse it.
 
-![Pin result](../assets/flows/pin_result.png "Pin result")
+![Pin result](../assets/flows/pin_result.webp "Pin result")
 
 You can edit pinned data by overriding pin functionality (you can still test the step).
 
-  ![Override pin](../assets/flows/override_pin.png "Override pin")
+  ![Override pin](../assets/flows/override_pin.webp "Override pin")
 
 ### Mocking
 
 You can also edit the mocked value directly.
 
-  ![Direct editing](../assets/flows/direct_editing.png "Direct editing")
+  ![Direct editing](../assets/flows/direct_editing.webp "Direct editing")
   
 [Test step](./18_test_flows.mdx) functionality remains available even with pinned results.
 

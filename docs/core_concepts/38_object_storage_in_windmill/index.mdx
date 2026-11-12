@@ -14,7 +14,7 @@ At the [workspace level](#workspace-object-storage), what is exclusive to the [E
 
 Additionally, for [instance integration](#instance-object-storage), the Enterprise version offers advanced features such as large-scale log management and distributed dependency caching.
 
-![Object storage in Windmill](./object_storage_in_windmill.png 'Object storage in Windmill')
+![Object storage in Windmill](./object_storage_in_windmill.webp 'Object storage in Windmill')
 
 Workspace object storage is also used as the backend for [volumes](../67_volumes/index.mdx), which provide persistent file storage for scripts.
 
@@ -22,7 +22,7 @@ Workspace object storage is also used as the backend for [volumes](../67_volumes
 
 Connect your Windmill workspace to your S3 bucket, Azure Blob storage, or GCS bucket to enable users to read and write from S3 without having to have access to the credentials. When you reference S3 objects in your code, Windmill automatically tracks these data flows through the [Assets](../52_assets/index.mdx) feature for better pipeline visibility.
 
-![Workspace object storage infographic](../11_persistent_storage/s3_infographics.png 'Workspace object storage infographic')
+![Workspace object storage infographic](../11_persistent_storage/s3_infographics.webp 'Workspace object storage infographic')
 
 On the Community Edition, total workspace storage is limited to 10GiB per workspace. There is no per-file size limit: files of any individual size can be uploaded as long as total usage stays under the quota. Writes that would exceed the quota are rejected, but reads and deletes are never blocked, so an over-quota workspace can always free up space. Current usage is displayed in the workspace settings under S3 Storage, with a button to recount it by listing the storage. The bucket browser will also not work for buckets containing more than 20 files. Consider upgrading to Windmill [Enterprise Edition](/pricing) for unlimited workspace storage.
 
@@ -32,7 +32,7 @@ The Community Edition quota counts all objects under the configured storage loca
 
 Once you've created an [S3, Azure Blob, or Google Cloud Storage resource](../../integrations/s3.mdx) in Windmill, go to the workspace settings > S3 Storage. Select the resource and click Save.
 
-![S3 storage workspace settings](../11_persistent_storage/workspace_settings.png)
+![S3 storage workspace settings](../11_persistent_storage/workspace_settings.webp)
 
 From now on, Windmill will be connected to this bucket and you'll have easy access to it from the code editor and the job run details. If a script [takes as input](#take-a-file-as-input) a `s3object`, you will see in the input form on the right a button helping you choose the file directly from the bucket.
 Same for the result of the script. If you return an `s3object` containing a [key](../19_rich_display_rendering/index.mdx#s3) `s3` pointing to a file inside your bucket, in the result panel there will be a button to open the bucket explorer to visualize the file.
@@ -84,13 +84,13 @@ In this case, permissions will be ignored when users interact with the S3 bucket
 
 When a script accepts a S3 file as input, it can be directly uploaded or chosen from the bucket explorer.
 
-![S3 file uploader](../11_persistent_storage/file_upload.png)
+![S3 file uploader](../11_persistent_storage/file_upload.webp)
 
-![S3 bucket browsing](../11_persistent_storage/bucket_browsing.png)
+![S3 bucket browsing](../11_persistent_storage/bucket_browsing.webp)
 
 When a script outputs a S3 file, it can be downloaded or previewed directly in Windmill's UI (for displayable files like text files, CSVs, images, PDFs, and parquet files).
 
-![S3 file download](../18_files_binary_data/s3_file_output.png)
+![S3 file download](../18_files_binary_data/s3_file_output.webp)
 
 Even though the whole file is downloadable, the backend only sends the rows that the frontend needs for the preview. This means that you can manipulate objects of infinite size, and the backend will only return what is necessary.
 
@@ -102,7 +102,7 @@ export async function main() {
 }
 ```
 
-![S3 list of files download](../19_rich_display_rendering/s3_array.png 'S3 list of files download')
+![S3 list of files download](../19_rich_display_rendering/s3_array.webp 'S3 list of files download')
 
 :::warning
 
@@ -220,7 +220,7 @@ def main():
 </TabItem>
 </Tabs>
 
-![Read S3 file](../18_files_binary_data/s3_file_input.png)
+![Read S3 file](../18_files_binary_data/s3_file_input.webp)
 
 Certain file types, typically parquet files, can be [directly rendered by Windmill](../19_rich_display_rendering/index.mdx).
 
@@ -272,23 +272,23 @@ def main(input_file: S3Object):
 
 The [auto-generated UI](../6_auto_generated_uis/index.mdx) will display a file uploader:
 
-![S3 file uploader](./s3_file_input.png 'S3 file uploader')
+![S3 file uploader](./s3_file_input.webp 'S3 file uploader')
 
 or you can fill path manually if you enable 'Raw S3 object input':
 
-![S3 Raw Object Input](./s3_raw_object_input.png 'S3 Raw Object Input')
+![S3 Raw Object Input](./s3_raw_object_input.webp 'S3 Raw Object Input')
 
 and access bucket explorer if [resource permissions](#resources-permissions) allow it:
 
-![S3 Bucket Explorer](./s3_bucket_explorer.png 'S3 Bucket Explorer')
+![S3 Bucket Explorer](./s3_bucket_explorer.webp 'S3 Bucket Explorer')
 
 That's also the recommended way to [pass](../../flows/16_architecture.mdx) S3 files as input to steps within [flows](../../flows/1_flow_editor.mdx).
 
-![S3 file input in flow](./s3_file_input_in_flow.png 'S3 file input in flow')
+![S3 file input in flow](./s3_file_input_in_flow.webp 'S3 file input in flow')
 
-![S3 file input in flow 1](./s3_file_input_in_flow_1.png 'S3 file input in flow 1')
+![S3 file input in flow 1](./s3_file_input_in_flow_1.webp 'S3 file input in flow 1')
 
-![S3 file input in flow 2](./s3_file_input_in_flow_2.png 'S3 file input in flow 2')
+![S3 file input in flow 2](./s3_file_input_in_flow_2.webp 'S3 file input in flow 2')
 
 ### Create a file from S3 or object storage within a script
 
@@ -354,7 +354,7 @@ def main(s3_file_path: str):
 </TabItem>
 </Tabs>
 
-![Write to S3 file](../18_files_binary_data/s3_file_output.png)
+![Write to S3 file](../18_files_binary_data/s3_file_output.webp)
 
 For more info on how to use files and S3 files in Windmill, see [Handling files and binary data](../18_files_binary_data/index.mdx).
 
@@ -427,11 +427,11 @@ Signed S3 objects are supported by the [Image](../../apps/4_app_configuration_se
 
 Under [Enterprise Edition](/pricing), instance object storage offers advanced features to enhance performance and scalability at the [instance](../../advanced/18_instance_settings/index.mdx) level. This integration is separate from the [Workspace object storage](#workspace-object-storage) and provides solutions for large-scale log management and distributed dependency caching.
 
-![Instance object storage infographic](./instance_object_storage_infographic.png 'Instance object storage infographic')
+![Instance object storage infographic](./instance_object_storage_infographic.webp 'Instance object storage infographic')
 
 This can be configured from the [instance settings](../../advanced/18_instance_settings/index.mdx#instance-object-storage), with configuration options for S3, Azure Blob, Google Cloud Storage, or AWS OIDC. For each you will find a button to test settings from a server or from a worker.
 
-![S3/Azure for Python/Go cache & large logs](../../core_concepts/20_jobs/s3_azure_cache.png 'S3/Azure for Python/Go cache & large logs')
+![S3/Azure for Python/Go cache & large logs](../../core_concepts/20_jobs/s3_azure_cache.webp 'S3/Azure for Python/Go cache & large logs')
 
 #### S3
 
@@ -534,7 +534,7 @@ Job results, logs, codebases and app assets keep using the instance object stora
 
 [Logs are stored in S3](../36_service_logs/index.mdx) if S3 instance object storage is configured. This option provides more scalable storage and is ideal for larger-scale deployments or where long-term log retention is important.
 
-![Service logs](../36_service_logs/service_logs.png 'Service logs')
+![Service logs](../36_service_logs/service_logs.webp 'Service logs')
 
 <div className="grid grid-cols-2 gap-6 mb-4">
 	<DocCard

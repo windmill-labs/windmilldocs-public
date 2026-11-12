@@ -10,7 +10,7 @@ import TabItem from '@theme/TabItem';
 
 This guide walks you through building your first [full-code app](../../full_code_apps/index.mdx). We'll create a React app from the Windmill UI, explore the scaffolded code, add a second backend runnable, and wire both into a polished frontend.
 
-![Full code apps](./full_code_app_demo.png 'Full code apps')
+![Full code apps](./full_code_app_demo.webp 'Full code apps')
 
 Full-code apps give you complete control over your UI with React or Svelte, while Windmill handles backend execution, permissions and deployment.
 
@@ -37,7 +37,7 @@ Full-code apps give you complete control over your UI with React or Svelte, whil
 
 From your [Windmill](../00_how_to_use_windmill/index.mdx) home page, click **New** and select **App (full-code)**.
 
-![Pick full-code app](./pick_raw_app.png 'Pick full-code app')
+![Pick full-code app](./pick_raw_app.webp 'Pick full-code app')
 
 In the setup dialog:
 
@@ -45,7 +45,7 @@ In the setup dialog:
 2. Choose a Data configuration. Here we'll use a new datatable. It's not required for apps to have a datatable, it will be used only in a [dedicated section](#step-5-use-a-data-table-for-persistence) of the quickstart.
 3. Start the app 'without AI'. Or just enter a prompt and start with AI, and you're done for the quickstart :)
 
-![Pick React framework](./pick_react.png 'Pick React framework')
+![Pick React framework](./pick_react.webp 'Pick React framework')
 
 The [UI editor](../../full_code_apps/6_ui_editor/index.mdx) opens with a scaffolded project.
 
@@ -92,7 +92,7 @@ f/folder/my_app.raw_app/
     └── a.ts              # Sample backend runnable code
 ```
 
-![Default App.tsx](./default_tsx.png 'Default App.tsx')
+![Default App.tsx](./default_tsx.webp 'Default App.tsx')
 
 ### The default App.tsx
 
@@ -148,7 +148,7 @@ export async function main(x: string) {
 
 You can preview your UI by selecting 'App.tsx' to see it in the right pane, or by clicking 'Preview' in the UI editor for a fullscreen view. If you're using the CLI, open `http://localhost:4000` in your browser to access the app. When you click the button, it sends a request to the backend and displays the returned result.
 
-![Default backend runnable](./default_backend.png 'Default backend runnable')
+![Default backend runnable](./default_backend.webp 'Default backend runnable')
 
 ### How it works
 
@@ -171,7 +171,7 @@ export async function main(x: number) {
 }
 ```
 
-![Multiply runnable](./multiply.png 'Multiply runnable')
+![Multiply runnable](./multiply.webp 'Multiply runnable')
 
 Now add a second runnable - this time in [Python](../../getting_started/0_scripts_quickstart/2_python_quickstart/index.mdx) as you can mix languages within the same app:
 
@@ -179,7 +179,7 @@ Now add a second runnable - this time in [Python](../../getting_started/0_script
 2. Select **Python** as the language
 3. Name it `b` and give it the summary "Get timestamp"
 
-![Choose language](./choose_language.png 'Choose language')
+![Choose language](./choose_language.webp 'Choose language')
 
 Paste this code:
 
@@ -197,7 +197,7 @@ def main(format: str):
         return str(now)
 ```
 
-![Get timestamp runnable](./get_timestamp.png 'Get timestamp runnable')
+![Get timestamp runnable](./get_timestamp.webp 'Get timestamp runnable')
 
 As you can see, the [auto-generated UI](../../core_concepts/6_auto_generated_uis/index.mdx) updated with the new input name (`format`).
 
@@ -442,9 +442,9 @@ button.primary:hover:not(:disabled) {
 
 See the preview in the right part of the screen of App.tsx (or click 'Preview' in the UI editor to see it in full screen, or check `http://localhost:4000` if using the CLI) to see the result. Try clicking each button individually, then "Run both" to see parallel execution.
 
-![Updated App.tsx](./updated_tsx.png 'Updated App.tsx')
+![Updated App.tsx](./updated_tsx.webp 'Updated App.tsx')
 
-![Index CSS](./index_css.png 'Index CSS')
+![Index CSS](./index_css.webp 'Index CSS')
 
 :::info Svelte
 If you chose Svelte 5 instead of React, the same pattern applies. Import `backend` from `./wmill` and use Svelte's `$state` and `$effect` for reactivity. See the [frontend reference](../../full_code_apps/3_frontend/index.mdx) for Svelte examples.
@@ -484,7 +484,7 @@ So far our runnables compute values on the fly. Full-code apps can also read and
 
 First, make sure a database is configured in your workspace. Go to **Workspace settings** > **Data Tables** and set up a database connection (or use the [Custom instance database](../../core_concepts/53_custom_instance_database/index.mdx) if available).
 
-![Create table](./create_table.png 'Create table')
+![Create table](./create_table.webp 'Create table')
 
 ### Add a table to your app
 
@@ -502,7 +502,7 @@ Let's create a new table:
    - `created_at` — `TIMESTAMP`, default `now()`
 5. Click **Create table**
 
-![Create table columns](./create_table_2.png 'Create table columns')
+![Create table columns](./create_table_2.webp 'Create table columns')
 
 The table is now whitelisted for your app. You can view its schema and data from the Data section.
 
@@ -517,7 +517,7 @@ For the database resource, pick the same resource as the one configured in your 
 SELECT * FROM app_demo.computation_logs ORDER BY created_at DESC LIMIT 10;
 ```
 
-![Get logs runnable](./get_logs.png 'Get logs runnable')
+![Get logs runnable](./get_logs.webp 'Get logs runnable')
 
 From the frontend, call it like any other runnable:
 
@@ -551,9 +551,9 @@ From local files, the `.pg.sql` extension tells Windmill to run the script as a 
 
 Click the **Deploy** button in the toolbar. Each deployment creates a new version of your app.
 
-![Deploy](./deploy.png 'Deploy')
+![Deploy](./deploy.webp 'Deploy')
 
-![Deployed app](./deployed_app.png 'Deployed app')
+![Deployed app](./deployed_app.webp 'Deployed app')
 
 ### From the CLI
 

@@ -57,11 +57,11 @@ To sum up roughly, [workflows](/docs/flows/flow_editor) in Windmill are state ma
 
 Because every Windmill script already defines its inputs through a [JSON schema](/docs/core_concepts/json_schema_and_parsing), they naturally become tool definitions that AI agents can understand. The agent examines each tool's schema, understands its capabilities and required parameters, then reasons about which tools to use based on the user's request. No separate tool registration or documentation needed - the schema that defines how a script works is the same schema that tells the agent what the tool does.
 
-![Script tools](./script_tool.png "Define your tool in any language")
+![Script tools](./script_tool.webp "Define your tool in any language")
 
 **MCP integration**: Through [Model Context Protocol](https://modelcontextprotocol.io/docs/getting-started/intro) support, agents can also connect to external MCP servers: file system browsers, database interfaces, API integrations, and custom business logic servers. This extends the agent beyond Windmill's internal capabilities to any MCP-compatible service.
 
-![MCP tool](./mcp.png "Connect to MCP servers")
+![MCP tool](./mcp.webp "Connect to MCP servers")
 
 ### Triggering AI agent workflows
 
@@ -108,7 +108,7 @@ You can find the full documentation [here](/docs/core_concepts/ai_agents).
 
 **Image support**: AI agent steps support [images](/docs/core_concepts/ai_agents#user_attachments-optional) as both input and output. Provide images for the agent to analyze, or have the agent generate images in response to your request. Generated images are automatically stored in your workspace's S3-compatible [object storage](/docs/core_concepts/object_storage_in_windmill), making them immediately available for subsequent workflow steps.
 
-![Image output](./image_output.png "Generate images seamlessly")
+![Image output](./image_output.webp "Generate images seamlessly")
 
 ## Technical challenges
 

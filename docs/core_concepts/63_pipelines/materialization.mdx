@@ -260,7 +260,7 @@ Snapshots are kept forever by default. If [scheduled maintenance](../11_persiste
 
 Snapshots are also recorded on the *read* side of the [cascade](./index.mdx#triggering-a-pipeline). When a run is dispatched because an upstream asset was written, Windmill captures the current DuckLake snapshot id of each of the run's direct upstream assets at dispatch time and stores it on the job. The run detail page then shows a read-only **Upstream snapshots** panel: one row per upstream asset (`<asset> @ <snapshot_id>`, plus the partition when the upstream is [partitioned](./partitioning.mdx)), with a copy button per row that puts the matching time-travel clause on your clipboard.
 
-![Upstream snapshots panel on a cascade-dispatched run](./upstream_snapshots_panel.png 'Upstream snapshots panel on a cascade-dispatched run')
+![Upstream snapshots panel on a cascade-dispatched run](./upstream_snapshots_panel.webp 'Upstream snapshots panel on a cascade-dispatched run')
 
 This answers "what data did this run actually see?" long after the upstream tables have moved on. When a nightly report comes out wrong, open its run, read `ducklake://main/raw_orders @ 34 · partition 2026-07-04`, and query the input exactly as the run saw it by pasting the copied clause into any DuckDB script:
 
@@ -279,7 +279,7 @@ Notes on semantics:
 
 Selecting a materialized `ducklake://` asset in the pipeline graph shows its **partition-status grid** — which partitions are materialized, their snapshot id, row count, and time — along with the producer's latest run and its data-test results.
 
-![Partition-status grid for a materialized asset](./partition_status_grid.png 'Partition-status grid for a materialized asset')
+![Partition-status grid for a materialized asset](./partition_status_grid.webp 'Partition-status grid for a materialized asset')
 
 From there, **Backfill** re-runs the materialization for a range of partitions; range backfill is an [Enterprise Edition](/pricing) feature (single-partition runs with an explicit `partition` argument remain available in all editions).
 
@@ -287,7 +287,7 @@ The Backfill button opens a range picker that previews the status of every parti
 
 Range backfill enumerates time [partition kinds](./partitioning.mdx#partition-kinds) only (`daily`, `hourly`, `weekly`, `monthly`), honours the spec's `start` anchor (partitions before it are not enumerated), and caps a single backfill at 1000 partitions. `dynamic` partitions cannot be enumerated over a range - backfill them one at a time with an explicit `partition` argument.
 
-![Backfill range picker previewing missing, failed and materialized partitions](./backfill_range_preview.png 'Backfill range picker with partition-status preview')
+![Backfill range picker previewing missing, failed and materialized partitions](./backfill_range_preview.webp 'Backfill range picker with partition-status preview')
 
 The same backfill works headlessly from the CLI by passing an explicit partition per run: `wmill pipeline run <folder> --partition 2026-06-30` (see [local development](./index.mdx#local-development)).
 
@@ -354,9 +354,9 @@ On top of asset-to-asset lineage, Windmill tracks **column-to-column** lineage f
 
 The deployed pipeline graph shows a **columns ×N** badge on the write edge into a materialized asset; hovering it lists every mapping, and selecting the asset opens a column-to-column diagram in the details pane.
 
-![Column-lineage badge on a pipeline write edge](./pipeline_graph_columns.png 'A columns badge on a write edge')
+![Column-lineage badge on a pipeline write edge](./pipeline_graph_columns.webp 'A columns badge on a write edge')
 
-![Column-to-column lineage diagram in the asset details pane](./column_lineage_view.png 'Column-to-column lineage diagram')
+![Column-to-column lineage diagram in the asset details pane](./column_lineage_view.webp 'Column-to-column lineage diagram')
 
 When inference cannot reach a mapping — a polyglot transform (Python/TS/Bash has no SQL AST), dynamic SQL (`${sql.raw(...)}`), or a mis-inferred edge — declare it explicitly with `// column`:
 
@@ -459,7 +459,7 @@ WHERE amount <= 0;
 
 When a test fails, the result does not just report a count: each failed test also captures a **sample of its violating rows**, so you can see which rows broke the check without re-running the SELECT by hand. In the run view, each failed test expands into a table of its sample rows, with CSV download.
 
-![Failed data tests with one test expanded into its violating-rows sample table](./data_test_violating_rows.png 'A failed test expanded into its violating-rows sample')
+![Failed data tests with one test expanded into its violating-rows sample table](./data_test_violating_rows.webp 'A failed test expanded into its violating-rows sample')
 
 Samples are bounded and best-effort:
 

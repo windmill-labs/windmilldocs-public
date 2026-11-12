@@ -48,7 +48,7 @@ For GitHub, the OAuth scopes used are `repo` and `read:user`.
 A superadmin can share the [instance-level](../../advanced/18_instance_settings/index.mdx) Google and GitHub OAuth apps.
 A workspace that configures no OAuth app of its own then uses the instance's, without its credentials being exposed to workspace admins.
 
-![Instance gworkspace settings](./instance_gworkspace.png "Instance-level gworkspace settings with shared credentials toggle and redirect URI")
+![Instance gworkspace settings](./instance_gworkspace.webp "Instance-level gworkspace settings with shared credentials toggle and redirect URI")
 
 For Nextcloud, you also need to provide the base URL of your Nextcloud instance.
 
@@ -101,7 +101,7 @@ When creating a Nextcloud trigger, pick a script or flow (or use **Create from t
   - Calendar events: object created, moved, trashed, restored, or changed in a Nextcloud calendar
   - File/folder events: node created, changed, or written
 
-![Nextcloud trigger configuration](./nextcloud_trigger.png "Nextcloud trigger creation with event type selection")
+![Nextcloud trigger configuration](./nextcloud_trigger.webp "Nextcloud trigger creation with event type selection")
 
 ### Event payload
 
@@ -149,7 +149,7 @@ When creating a Google trigger, pick a script or flow (or use **Create from temp
   - **All changes** - watch all changes across your Google Drive (fires whenever any file is created, modified, or deleted)
 - **Calendar** (Calendar only) - select a calendar from your Google account to watch for event changes
 
-![Google trigger configuration](./google_trigger.png "Google trigger creation with trigger type and watch mode selection")
+![Google trigger configuration](./google_trigger.webp "Google trigger creation with trigger type and watch mode selection")
 
 Both use push notifications via Google watch channels. Windmill automatically renews channels before they expire. The expiration period differs by service: 24 hours for Drive, 7 days for Calendar.
 

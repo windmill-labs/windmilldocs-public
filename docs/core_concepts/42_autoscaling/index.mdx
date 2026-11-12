@@ -14,7 +14,7 @@ You configure a minimum and maximum number of [workers](../9_worker_groups/index
 
 Autoscaling is configured in each [worker group](../9_worker_groups/index.mdx) config under "Autoscaling". It takes the following configuration:
 
-![Autoscaling](./config.png)
+![Autoscaling](./config.webp)
 
 ### Rules
 
@@ -126,7 +126,7 @@ Look for the non-default ServiceAccount name.
 
 After configuring RBAC using either method above, you can hit "Check Health" to verify everything is configured properly:
 
-![Healthy autoscaling configuration](./healthy_k8s_config.png)
+![Healthy autoscaling configuration](./healthy_k8s_config.webp)
 
 The health check also probes the optional pods permissions used for [pod-deletion-cost annotations](#scale-in-prefers-idle-workers) and logs a non-fatal warning if they are missing: autoscaling stays fully functional, it just loses the idle-pods-first preference on scale-in.
 
@@ -175,7 +175,7 @@ The goal is to have just enough workers to handle the current workload (represen
 ## Autoscaling events
 
 Autoscaling events can be viewed under the worker group details:
-![Autoscaling events](./events.png)
+![Autoscaling events](./events.webp)
 
 ## Billing
 

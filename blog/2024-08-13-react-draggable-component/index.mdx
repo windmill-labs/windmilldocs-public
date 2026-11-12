@@ -27,7 +27,7 @@ Please note that this is a general tutorial that does not cover any aspect of th
 
 Several libraries are available for creating draggable components in [React](https://react.dev/), including [`react-draggable`](https://github.com/react-grid-layout/react-draggable).
 
-![React Draggable GitHub](./react_github.png "React Draggable GitHub")
+![React Draggable GitHub](./react_github.webp "React Draggable GitHub")
 
 React Draggable offers a straightforward and customizable approach to building components that handle their own draggable state. It encapsulates a React component within a `<Draggable>` wrapper. This allows customization of component behavior through specific props. For instance, the `axis` prop can restrict movement to just the horizontal or vertical plane, while the `bounds` prop can confine the draggable area within specified limits.
 
@@ -57,7 +57,7 @@ npm install react-draggable
 npm start
 ```
 
-![Development Server](./development_server.png "Development Server")
+![Development Server](./development_server.webp "Development Server")
 
 ### Developing the Components and Structuring Them
 
@@ -115,7 +115,7 @@ function App() {
 export default App;
 ```
 
-![Initial App](./app_no_styling.png "Initial App")
+![Initial App](./app_no_styling.webp "Initial App")
 
 ### Styling
 
@@ -165,7 +165,7 @@ To enhance the visual clarity of the components, you can introduce some [CSS](ht
 
 Applying these styles will visually transform the app to appear in the following manner:
 
-![Style One Card](./style_one_card.png "Style One Card")
+![Style One Card](./style_one_card.webp "Style One Card")
 
 ### Add cards to the list
 
@@ -197,7 +197,7 @@ This approach generates a `<Card>` for each entry in the `cards` array, assignin
 
 Upon viewing the updated app in the browser, it will look something like this:
 
-![List of cards](./list_of_cards.png "List of cards")
+![List of cards](./list_of_cards.webp "List of cards")
 
 Although the `title` of each card is passed as a prop to the `<Card>` components, it isn't yet displayed because the `Card.jsx` still uses static content.
 
@@ -220,7 +220,7 @@ Ensure to pass the `props` to the `<Card>` function.
 
 With this change, each card's header should now correctly display its `title`:
 
-![Cards title](./cards_title.png "Cards title")
+![Cards title](./cards_title.webp "Cards title")
 
 Before working on the `content` section of each `<Card>`, we will introduce draggability to the cards.
 
@@ -267,7 +267,7 @@ While the drag-and-drop functionality is now active, checking the console reveal
 ```
 Warning: findDOMNode is deprecated in StrictMode. findDOMNode was passed an instance of Draggable which is inside StrictMode. Instead, add a ref directly to the element you want to reference.
 ```
-![findDOMNode Warning](./warning.png "findDOMNode Warning")
+![findDOMNode Warning](./warning.webp "findDOMNode Warning")
 
 This warning arises because React Draggable employs the deprecated `findDOMNode` method, and Create React App operates in strict mode by default. According to the error message, this issue can be resolved by attaching a `ref` directly to the targeted element.
 
@@ -308,7 +308,7 @@ First, add a simple form to `List.jsx`. The form contains a text box where the u
 </div>
 ```
 
-![Add card](./add_card.png "Add card")
+![Add card](./add_card.webp "Add card")
 
 To improve the form's appearance, we can add some more styles in `App.css`:
 
@@ -333,7 +333,7 @@ button:hover {
   padding: 5px;
 ```
 
-![Add card with style](./add_card_style.png "Add card with style")
+![Add card with style](./add_card_style.webp "Add card with style")
 
 This form has no functionality yet, but we'll hook it up so that typing in the text box sets the new card variable, and pushing the button adds that new card to the list.
 
@@ -429,7 +429,7 @@ To further refine the interface, add styles to the `<textarea>` in `App.css`:
 
 Here is how the editable card looks in action:
 
-![Edit card](./edit_card.png "Edit card")
+![Edit card](./edit_card.webp "Edit card")
 
 ### Adding a Drag Handle to the Cards
 

@@ -25,7 +25,7 @@ Once deployed, scripts, flows and apps will be visible, editable and/or runnable
 Drafts are user-scoped and automatically saved to the database whenever you make changes in the editor. The script, flow, app, and raw app editors all display an **Autosave indicator** that shows when your changes are being saved.
 Resources are drafted the same way, [saved AI agents](../54_ai_agents/index.mdx#editing-a-saved-agent) included; testing a flow runs the drafts of the agents it links, and deploying it offers to deploy them.
 
-![Autosave indicator](./autosave_indicator.png "Autosave indicator")
+![Autosave indicator](./autosave_indicator.webp "Autosave indicator")
 
 The autosave is intelligently debounced to avoid data loss while preventing excessive requests. Your work is continuously preserved without needing to manually click a save button.
 
@@ -40,7 +40,7 @@ Previously, drafts were workspace-scoped (shared among all users in the workspac
 When multiple users are working on the same item, you can see who else is currently editing it. Each user's draft is saved separately, allowing parallel work without overwriting each other's changes.
 
 <!-- PLACEHOLDER: Replace with screenshot of the editor showing other users working on the same item, with a UI element indicating their presence -->
-![Concurrent editing](./concurrent_editing.png "Concurrent editing")
+![Concurrent editing](./concurrent_editing.webp "Concurrent editing")
 
 You can view another user's version as JSON or fork their version to start working from their changes. This basic synchronization mechanism helps resolve race conditions when multiple people work on the same item.
 
@@ -66,7 +66,7 @@ Windmill includes basic conflict detection to prevent accidental overwrites:
 - **Deployed version conflicts**: If you are editing an item from a draft and someone else deploys a new version of that item since you last saved, you will be prompted to choose whether to keep working on your draft or load the latest deployed version.
 
 <!-- PLACEHOLDER: Replace with screenshot of the conflict detection dialog showing options to keep draft or load deployed version -->
-![Conflict detection](./conflict_detection.png "Conflict detection")
+![Conflict detection](./conflict_detection.webp "Conflict detection")
 
 ### AI session drafts
 
@@ -86,7 +86,7 @@ Scripts and flows can be added a Deployment message on each deployment. You can 
 
 If you want to have several versions of the same runnable, just fork it with the `Fork` button on the drop down menu of `Deploy`. Past versions can be retrieved from the `History` menu with "Restore as fork" or "Redeploy with that version" buttons.
 
-![Deployment History](../../assets/script_editor/deployment_history.png 'Deployment History')
+![Deployment History](../../assets/script_editor/deployment_history.webp 'Deployment History')
 
 > Deployment History of a flow.
 
@@ -108,7 +108,7 @@ Visualize changes between your [current draft](#draft) and the [latest deployed 
 
 You can also use the diff toggle to quickly check the code changes of an inline script between your current draft and the deployed version code.
 
-![Diff toggle](./quick_diff.png 'Diff toggle')
+![Diff toggle](./quick_diff.webp 'Diff toggle')
 
 ## Special case: Deployed versions of scripts
 

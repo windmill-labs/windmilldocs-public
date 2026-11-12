@@ -48,7 +48,7 @@ The rich table display does not require a specific key and will be enabled for [
 
 You can also force table display with a key ([table-col](#table-column), [table-row](#table-row), [table-row-object](#table-row-object)).
 
-![Default](./default.png 'Rich Table Display')
+![Default](./default.webp 'Rich Table Display')
 
 #### Example
 
@@ -70,7 +70,7 @@ def main() -> List[Dict[str, str]]:
     return pokemon_data
 ```
 
-![Rich Table Display](./rich_table_display.png "Rich Table Display")
+![Rich Table Display](./rich_table_display.webp "Rich Table Display")
 
 #### Force column order
 
@@ -96,7 +96,7 @@ def main() -> List[Dict[str, str]]:
     return pokemon_data
 ```
 
-![Rich Table Display Ordered](./rich_table_display_ordered.png "Rich Table Display Ordered")
+![Rich Table Display Ordered](./rich_table_display_ordered.webp "Rich Table Display Ordered")
 
 Additionally, you can force column orders with a variable, for example `columns` in
 
@@ -125,9 +125,9 @@ export async function main(): Promise<Array<{ "Pokemon name": string, "Type": st
 }
 ```
 
-![Columns not ordered](./columns_not_ordered.png "Columns not ordered")
+![Columns not ordered](./columns_not_ordered.webp "Columns not ordered")
 
-![Columns ordered](./columns_ordered.png "Columns ordered")
+![Columns ordered](./columns_ordered.webp "Columns ordered")
 
 ### Table column
 
@@ -145,7 +145,7 @@ or
 return { "table-col": { "foo": [42, 8], "bar": [38, 12] } }
 ```
 
-![Rich display Table Column](./table-col.png "Rich display Table Column")
+![Rich display Table Column](./table-col.webp "Rich display Table Column")
 
 ### Table row
 
@@ -163,7 +163,7 @@ or
 return { "table-row": [ [ "foo", "bar" ], [ 42, 38 ], [ 8, 12 ] ] }
 ```
 
-![Rich display Table Row](./table-row.png "Rich display Table Row")
+![Rich display Table Row](./table-row.webp "Rich display Table Row")
 
 ### Table row object
 
@@ -177,7 +177,7 @@ List of columns is not mandatory but it allows [forcing their order](#force-colu
 return [ { "foo": 42, "bar": 38 }, { "foo": 8, "bar": 12 } ]
 ```
 
-![Rich display Table Row Object 1](./table-row-object-1.png "Table Row Object 1")
+![Rich display Table Row Object 1](./table-row-object-1.webp "Table Row Object 1")
 
 or
 
@@ -185,7 +185,7 @@ or
 return [ ["foo", "bar" ], { "foo": 42, "bar": 38 }, { "foo": 8, "bar": 12 } ]
 ```
 
-![Rich display Table Row Object 2](./table-row-object-2.png "Table Row Object 2")
+![Rich display Table Row Object 2](./table-row-object-2.webp "Table Row Object 2")
 
 ## S3
 
@@ -197,7 +197,7 @@ return { "s3": "path/to/file" }
 
 When a script outputs a S3 file, it can be downloaded or previewed directly in Windmill's UI (for displayable files like text files, CSVs, images, PDFs or parquet files).
 
-![S3 file download](../18_files_binary_data/s3_file_output.png "S3 file download")
+![S3 file download](../18_files_binary_data/s3_file_output.webp "S3 file download")
 
 Even though the whole file is downloadable, the backend only sends the rows that the frontend needs for the preview. This means that you can manipulate objects of infinite size, and the backend will only return what is necessary.
 
@@ -209,7 +209,7 @@ export async function main() {
 }
 ```
 
-![S3 list of files download](./s3_array.png "S3 list of files download")
+![S3 list of files download](./s3_array.webp "S3 list of files download")
 
 Learn more at:
 
@@ -229,7 +229,7 @@ The `html` key allows returning the value as HTML.
 return { "html": "<div>...</div>" }
 ```
 
-![Rich display HTML](./html.png "Rich display HTML")
+![Rich display HTML](./html.webp "Rich display HTML")
 
 ## Markdown
 
@@ -245,7 +245,7 @@ or
 return { "md": "## Hello World\nNice to meet you" }
 ```
 
-![Rich display Markdown](./markdown.png "Rich display Markdown")
+![Rich display Markdown](./markdown.webp "Rich display Markdown")
 
 ## File
 
@@ -255,7 +255,7 @@ The `file` key allows returning an option to download a file.
 return { "file": { "content": encode(file), "filename": "data.txt" } }
 ```
 
-![Rich display File](./file.png "Rich display File")
+![Rich display File](./file.webp "Rich display File")
 
 ## PDF
 
@@ -274,7 +274,7 @@ return { "pdf": base64Pdf }
 ```
 
 
-![Rich display PDF](./pdf.png "Rich display PDF")
+![Rich display PDF](./pdf.webp "Rich display PDF")
 
 ## PNG
 
@@ -292,7 +292,7 @@ or
 return { "png": base64Image }
 ```
 
-![Rich display PNG](./png.png "Rich display PNG")
+![Rich display PNG](./png.webp "Rich display PNG")
 
 ## JPEG
 
@@ -310,7 +310,7 @@ or
 return { "jpeg": base64Image }
 ```
 
-![Rich display JPEG](./jpeg.png "Rich display JPEG")
+![Rich display JPEG](./jpeg.webp "Rich display JPEG")
 
 ## GIF
 
@@ -341,7 +341,7 @@ The `svg` key allows returning the value as an SVG image.
 return { "svg": "<svg>...</svg>" }
 ```
 
-![Rich display SVG](./svg.png "Rich display SVG")
+![Rich display SVG](./svg.webp "Rich display SVG")
 
 
 ## Error
@@ -352,7 +352,7 @@ The `error` key allows returning the value as an error message.
 return { "error": { "name": "418", "message": "I'm a teapot", "stack": "Error: I'm a teapot" }}
 ```
 
-![Rich display Error](./error.png "Rich display Error")
+![Rich display Error](./error.webp "Rich display Error")
 
 ## Resume
 
@@ -362,7 +362,7 @@ The `resume` key allows returning an [approval](../../flows/11_flow_approval.mdx
 return { "resume": "https://example.com", "cancel": "https://example.com", "approvalPage": "https://example.com" }
 ```
 
-![Rich display Resume](./approval.png "Rich display Resume")
+![Rich display Resume](./approval.webp "Rich display Resume")
 
 ## Map
 
@@ -371,7 +371,7 @@ The `map` key allows returning a map with a given location.
 ```ts
 return { "map": { lat: 40, lon: 0, zoom: 3, markers: [{lat: 50.6, lon: 3.1, title: "Home", radius: 5, color: "yellow", strokeWidth: 3, strokeColor: "Black"}]}}
 ```
-![Rich display map](./rich_display_map.png "Rich display map")
+![Rich display map](./rich_display_map.webp "Rich display map")
 
 ## Render all
 
@@ -380,4 +380,4 @@ The `render_all` key allows returning all results with their specific format.
 ```ts
 return { "render_all": [ { "json": { "a": 1 } }, { "table-col": { "foo": [42, 8], "bar": [38, 12] }} ] }
 ```
-![Rich display Render All](./render_all.png "Rich display Render All")
+![Rich display Render All](./render_all.webp "Rich display Render All")

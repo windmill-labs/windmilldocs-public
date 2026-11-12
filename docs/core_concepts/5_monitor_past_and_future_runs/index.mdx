@@ -36,7 +36,7 @@ The green (respectively, red) dots being the tasks that succeeded (respectively,
 
 You can filter the view per datetime, toggle "CRON schedules" to disable the display of past [scheduled](../1_scheduling/index.mdx) jobs and "Planned later" to disable the display of [schedules](../1_scheduling/index.mdx) planned for later.
 
-![Time series](./1-runs-menu.png 'Time series')
+![Time series](./1-runs-menu.webp 'Time series')
 
 > All past and future runs of the workspace are visible from the menu.
 
@@ -44,7 +44,7 @@ You can filter the view per datetime, toggle "CRON schedules" to disable the dis
 
 The graph can represent jobs on their Duration (default) or by Concurrency, meaning the number of concurrent jobs at a given time.
 
-![Aggregated view by concurrency](aggregated_concurrency.png "Aggregated view by concurrency")
+![Aggregated view by concurrency](aggregated_concurrency.webp "Aggregated view by concurrency")
 
 > Graphical view by concurrent jobs.
 
@@ -52,7 +52,7 @@ The graph can represent jobs on their Duration (default) or by Concurrency, mean
 
 Clicking on each run in the menu opens a run page where you can view the run's state, inputs, and success/failure reasons.
 
-![Details per run](./2-detail-per-run.png 'Details per run')
+![Details per run](./2-detail-per-run.webp 'Details per run')
 
 > View of a past run.
 
@@ -104,7 +104,7 @@ You can adjust the level of details by picking playing with filters on:
 
 Example of filters in use:
 
-![Filters](./4-filters.png 'Filters')
+![Filters](./4-filters.webp 'Filters')
 
 > Here were filtered successful runs from August 2023 which returned `{"baseNumber": 11}`.
 
@@ -112,13 +112,13 @@ Example of filters in use:
 
 Filter by worker, labels or tags support wildcards (*) by enabling `allow wildcards (*)` in the filter.
 
-![Allow wildcards](./allow_wildcards.png 'Allow wildcards')
+![Allow wildcards](./allow_wildcards.webp 'Allow wildcards')
 
 > Enable wildcards to filter a [label](#jobs-labels)
 
 You can also filter by argument directly from a script / flow [deployed](../0_draft_and_deploy/index.mdx) page.
 
-![Filter by argument](./filter_by_argument.png 'Filter by argument')
+![Filter by argument](./filter_by_argument.webp 'Filter by argument')
 
 ## Jobs labels
 
@@ -134,7 +134,7 @@ export async function main() {
 
 Jobs can be filtered by labels in the Runs menu to monitor specific groups of jobs.
 
-![Run labels](./runs_labels.png 'Run labels')
+![Run labels](./runs_labels.webp 'Run labels')
 
 ## Invisible runs
 
@@ -149,7 +149,7 @@ You may choose to re-run the job on their original script version or the latest 
 
 In the example below, we choose to re-run the job on the latest version of the script. We use the original bannedAt value when available, but bannedAt was not defined in older versions, so we fallback to the job original scheduled date. We also transform the username by adding a `@` prefix.
 
-![Batch re-run Example](./batch-reruns-example.png 'Batch re-run Example')
+![Batch re-run Example](./batch-reruns-example.webp 'Batch re-run Example')
 
 Multiple jobs may have run different versions of a script, which may have different schemas. Checking for the script hash narrows the type of the input, which allows the linter to show you the correct input type depending on the script version. Windmill will automatically generate code like this by default:
 

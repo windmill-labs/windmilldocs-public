@@ -24,7 +24,7 @@ A dbt project on Windmill carries no connection of its own. Warehouses are confi
 
 The name is also the warehouse's identity in the asset graph - every model becomes `dbt://<warehouse>/<schema>/<name>` - so two projects pointing at the same warehouse share their nodes instead of drawing two disconnected islands.
 
-![Workspace settings, dbt tab: a warehouses table with Name, Resource and Target columns - `main` on a Postgres resource with target `prod`, and `lake` on a dbt_profile resource](./warehouse_settings.png 'Warehouses configured under Workspace settings -> dbt')
+![Workspace settings, dbt tab: a warehouses table with Name, Resource and Target columns - `main` on a Postgres resource with target `prod`, and `lake` on a dbt_profile resource](./warehouse_settings.webp 'Warehouses configured under Workspace settings -> dbt')
 
 A warehouse points at one of two kinds of resource.
 
@@ -111,7 +111,7 @@ Two paths deploying to the same script path is an error rather than a silent ove
 
 A dbt script is a project rather than a body of code, so it opens in an editor shaped like one: a file tree, the descriptor, the run arguments and the model graph. Picking dbt in the new-script language picker seeds a minimal project - `wm_dbt.yaml`, `dbt_project.yml` and one model - and an imported project opens the same way.
 
-![The dbt editor: project file tree, the open model, and the Models pane showing a graph parsed from the editor](./dbt_editor.png 'The dbt editor, with a graph parsed from the buffer')
+![The dbt editor: project file tree, the open model, and the Models pane showing a graph parsed from the editor](./dbt_editor.webp 'The dbt editor, with a graph parsed from the buffer')
 
 The header names the project folder, its [engine](#engines) and the warehouse its assets are keyed on, and flags a descriptor that does not parse. The tree adds and removes files - `.sql`, `.py`, `.yml`, `.yaml`, `.csv` and `.md` - all but `dbt_project.yml`, which cannot be deleted since it is what makes the bundle a project. Selecting a file opens it with the grammar its extension implies, and the descriptor sits at the root of the tree.
 
@@ -152,7 +152,7 @@ Each `{{ placeholder }}` the descriptor interpolates in `vars` becomes one more 
 
 While a run is in flight, the run page shows each model's state on the project graph: green as nodes finish, spinners on the ones still building, and failures with the nodes dbt skipped behind them. When it ends, every node carries its status, timing, row count and dbt's own message, so a partial failure is legible without reading the log. Live per-model progress is `dbt-core-1x` only; the other two engines settle every node from `run_results.json` when the invocation ends (see [Engines](#engines)).
 
-![A dbt run page: the project graph with each model's status, and a result summary reading 4 passed, 1 failed, 1 skipped of 6 nodes, with the failing model's database error](./dbt_run_live.png 'A run page: per-model status on the graph, and the failure that skipped its downstream')
+![A dbt run page: the project graph with each model's status, and a result summary reading 4 passed, 1 failed, 1 skipped of 6 nodes, with the failing model's database error](./dbt_run_live.webp 'A run page: per-model status on the graph, and the failure that skipped its downstream')
 
 Test failures honor dbt's own `severity`: an `error` test fails the job and names the failing node, a `warn` test surfaces without failing it. Selecting a model on the run page shows its SQL and fully-qualified relation, and `Preview rows` dispatches a `dbt show` for exactly that node.
 
@@ -249,7 +249,7 @@ A project that keeps its own `profiles.yml` runs unchanged - point `profile.prof
 
 Every model, seed, snapshot and source the project declares becomes an [asset](../../../core_concepts/52_assets/index.mdx) named `dbt://<warehouse>/<schema>/<name>`, with the project's `ref()` lineage as edges between them. Models, seeds and snapshots are writes; sources are reads. Each node carries its materialization (`view`, `table`, `incremental`, `snapshot`, `seed`), its tags, its column metadata (the descriptions the project declares, or the [analyzed column schema](#column-level-lineage) when it asks for one) and its data tests, and the script node is badged with the number of models it materializes.
 
-![The asset graph of a folder holding two dbt projects: source nodes, model nodes badged view or table, and ref() lineage running between the two projects through a shared table](./dbt_asset_graph.png 'Two dbt projects in one folder, meeting on the table one writes and the other reads')
+![The asset graph of a folder holding two dbt projects: source nodes, model nodes badged view or table, and ref() lineage running between the two projects through a shared table](./dbt_asset_graph.webp 'Two dbt projects in one folder, meeting on the table one writes and the other reads')
 
 The workspace graph is written at deploy time, so redeploying is what refreshes it. A descriptor that is dynamic by construction (a `{{ }}` placeholder in `vars`, or a `$var:` value in `env`) can select a different model set per run, so those runs re-parse and each run page shows the models that run actually built. The editor's own [Refresh models](#refreshing-the-model-graph) draws from a parse of the buffer instead, which is why it can show a project that has never been deployed and why its graph stays inside that editing session.
 

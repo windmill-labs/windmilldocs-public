@@ -59,7 +59,7 @@ This can be done by users with both View rights on the deployed-from workspace a
 
 You can deploy one by one flows, scripts (including each script within flow), variables and resources. Or toggle more than one and "Deploy all".
 
-![Deploy to staging/prod](./deploy_to_staging_prod.png 'Deploy to staging/prod')
+![Deploy to staging/prod](./deploy_to_staging_prod.webp 'Deploy to staging/prod')
 
 Items are called:
 
@@ -67,8 +67,8 @@ Items are called:
 - "New" if the item will be created with the deployment.
 - "diff" if the item was already deployed previously. This opens a difference viewer tab where you can see differences with the previous version.
 
-![Diff menu](./diff_menu.png 'Diff menu')
-![Diff menu2](./diff_menu2.png 'Diff menu2')
+![Diff menu](./diff_menu.webp 'Diff menu')
+![Diff menu2](./diff_menu2.webp 'Diff menu2')
 
 ### Shareable page
 
@@ -76,13 +76,13 @@ A static page is created for each potential deployment to Staging/Prod.
 
 This can be useful for non-admins (for example, members whose [role](../16_roles_and_permissions/index.mdx#workspace-roles) cannot author what is deployed) to share a page to properly-permissioned users to have them review or do the deployment.
 
-![Shareable link](./shareable_link.png 'Shareable link')
+![Shareable link](./shareable_link.webp 'Shareable link')
 
 > Even users who are not admin can see the "Deploy to staging/prod", from where they can get the link of the shareable page.
 
 <br/>
 
-![Shareable page](./shareable_page.png 'Shareable page')
+![Shareable page](./shareable_page.webp 'Shareable page')
 
 > This page then allows users with the right permissions to deploy the given items.
 
@@ -189,9 +189,9 @@ A converted workspace is parent-managed, as [attaching a dev workspace](../../ad
 
 A fork already deploys into the workspace it was forked from, so the per-item UI above needs no setup there. On top of it, a fork-specific Compare & Deploy page shows exactly the items that were modified, and lets you update the fork as well as deploy from it.
 
-{/* TODO: replace merge_ui.png - it predates the page being renamed from "Merge workspaces" to "Compare & Deploy". New screenshot: the Compare & Deploy page of a fork, with the "Deploy to prod" / "Update current" direction toggle, the "merge: <fork> -> into: <parent>" destination badge in the header, and a few rows showing "N ahead", "New" and "Show diff". */}
+{/* TODO: replace merge_ui.webp - it predates the page being renamed from "Merge workspaces" to "Compare & Deploy". New screenshot: the Compare & Deploy page of a fork, with the "Deploy to prod" / "Update current" direction toggle, the "merge: <fork> -> into: <parent>" destination badge in the header, and a few rows showing "N ahead", "New" and "Show diff". */}
 
-![Merge UI](./merge_ui.png 'Merge UI')
+![Merge UI](./merge_ui.webp 'Merge UI')
 
 Learn more about [merging forks through Merge UI](../../advanced/20_workspace_forks/index.mdx#merge-workspaces-from-the-ui-merge-ui)
 

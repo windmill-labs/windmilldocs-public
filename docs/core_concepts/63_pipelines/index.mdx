@@ -87,7 +87,7 @@ Materialization is optional. The base model is any-language scripts (`-- pipelin
 
 The rest of this page uses a complete e-commerce analytics pipeline as its running example: ten scripts in a folder `f/ecommerce`, three [schedules](../1_scheduling/index.mdx), and no manual wiring anywhere - every edge below is inferred from the assets the scripts read and write.
 
-![The f/ecommerce pipeline graph](./pipeline_graph.png 'The f/ecommerce pipeline graph')
+![The f/ecommerce pipeline graph](./pipeline_graph.webp 'The f/ecommerce pipeline graph')
 
 - `ingest_orders` (DuckDB, scheduled, `partitioned daily`) materializes one day of orders per run into `ducklake://main/raw_orders`, with `not_null` / `unique` / `accepted_values` [data tests](./materialization.mdx#data-tests) on the slice.
 - `ingest_events` (Python, scheduled) pulls a JSON-lines dump from the event tracker and writes it to `s3:///ecommerce/raw/events.json` with `wmill.write_s3_file`.
@@ -298,7 +298,7 @@ To bound the run further, click the node(s) where it should stop (eligible nodes
 
 Nodes that can't run on empty arguments - event triggers (kafka/mqtt/nats/postgres/sqs/gcp/email) and input-only entry points (webhook/data_upload) - can't be picked as a start; they fan out per event or need caller-supplied input. Bind one with `--upload` from the CLI to run it as a start anyway.
 
-![Selective execution: bounding a cascade to a chosen end node](./selective_execution.png 'Bounding a cascade to an end node')
+![Selective execution: bounding a cascade to a chosen end node](./selective_execution.webp 'Bounding a cascade to an end node')
 
 The same run is available from the CLI:
 
@@ -431,7 +431,7 @@ On the pipeline graph, every script with a `// freshness` annotation carries a b
 - Amber (stale): the last successful run is older than the window, or the script has never run successfully. The tooltip shows how long ago the last successful run completed, or "no successful run yet".
 - Neutral (no verdict): draft scripts and windows that cannot be parsed.
 
-![Pipeline graph nodes with freshness badges: emerald when the last successful run completed within the window, amber when stale](./freshness_badges.png 'Fresh (emerald) and stale (amber) freshness badges')
+![Pipeline graph nodes with freshness badges: emerald when the last successful run completed within the window, amber when stale](./freshness_badges.webp 'Fresh (emerald) and stale (amber) freshness badges')
 
 Only root runs of the script itself count toward the verdict; a flow that contains a step on the same path does not make the script fresh. The verdict is computed from the runs you are allowed to see, so users without job visibility get no verdict. An open graph re-evaluates every 30 seconds, so a badge flips to stale as its window ages out and turns fresh shortly after a successful run.
 
@@ -626,7 +626,7 @@ wmill pipeline docs <folder>             # write PIPELINE.md describing the grap
 
 `wmill pipeline dev` watches the folder and pushes the rebuilt graph to a live browser page on every save: the same graph view as the pipeline editor, with node selection, run forms, Run and Run + downstream, and live run activity. Editing stays in your own editor (or an agentic loop); adding, editing or renaming a script updates the graph without a reload. `wmill pipeline docs` writes a `PIPELINE.md` (with `AGENTS.md`/`CLAUDE.md` pointers) so a coding agent gets the pipeline's structure as context.
 
-![wmill pipeline dev rendering the local pipeline graph live](./pipeline_dev_view.png 'Local pipeline dev preview in the browser')
+![wmill pipeline dev rendering the local pipeline graph live](./pipeline_dev_view.webp 'Local pipeline dev preview in the browser')
 
 `wmill pipeline run` takes the same `--from`/`--to`/`--dry-run` bounds as [selective execution](#selective-execution-run-up-to-here), plus options to parameterize the cascade:
 

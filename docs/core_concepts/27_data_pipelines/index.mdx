@@ -73,7 +73,7 @@ In most cases, S3 is a well-suited storage and Windmill provides an [integration
 
 The first step is to define an [S3 resource](../../integrations/s3.mdx) in Windmill and assign it to be the workspace storage in the workspace settings, under Object storage (S3):
 
-![S3 workspace settings](./workspace_s3_settings.png 'S3 workspace settings')
+![S3 workspace settings](./workspace_s3_settings.webp 'S3 workspace settings')
 
 From now on, Windmill will be connected to this bucket and you'll have easy access to it from the code editor and the job run details. If a script takes as input a `s3object`, the input form on the right shows a file picker and a catalog browser to choose the file directly from the bucket.
 Same for the result of the script. If you return an `s3object` containing a [key](../19_rich_display_rendering/index.mdx#s3) `s3` pointing to a file inside your bucket, in the result panel there will be a button to open the bucket explorer to visualize the file.
@@ -86,11 +86,11 @@ S3 files in Windmill are just pointers to the S3 object using its key. As such, 
 }
 ```
 
-![Windmill code editor](./s3_object_code_editor.png 'A DuckDB script with an s3object input')
+![Windmill code editor](./s3_object_code_editor.webp 'A DuckDB script with an s3object input')
 
 The bucket explorer lets you browse the bucket content and visualize file content without leaving Windmill: select any file to get its metadata and, for common formats, a preview. Below it is showing the CSV a pipeline step exported, next to the Hive-partitioned parquet files of the [DuckLake](../11_persistent_storage/ducklake.mdx) tables the same pipeline materializes.
 
-![S3 bucket explorer](./bucket_explorer.png 'S3 bucket explorer')
+![S3 bucket explorer](./bucket_explorer.webp 'S3 bucket explorer')
 
 From there you always have the possibility to use the S3 client library of your choice to read and write to S3.
 That being said, DuckDB can read/write directly from/to files stored in S3, and Windmill ships with helpers to make the entire data processing mechanics very cohesive.
@@ -281,7 +281,7 @@ Deploy the three scripts in one folder and the pipeline view shows `extract → 
 
 The managed table step requires a DuckLake, which is one setting next to the workspace storage (a catalog database plus a data path inside the storage):
 
-![DuckLake workspace settings](./ducklake_settings.png 'DuckLake workspace settings')
+![DuckLake workspace settings](./ducklake_settings.webp 'DuckLake workspace settings')
 
 ## In-memory data processing performance
 
