@@ -191,14 +191,14 @@ A SAML metadata endpoint is also available at `GET /api/saml/metadata` for ident
 
 ## Instance groups
 
-When SCIM is properly configured, groups from your identity provider will be automatically synchronized to Windmill as **instance groups**. These are special groups that:
+**Instance groups** are groups shared by every workspace of the instance. Their members can be managed by your identity provider in one of two ways:
 
-- Are automatically managed by your identity provider (no manual creation needed)
-- Sync users and group memberships automatically
-- Can be used across multiple workspaces within your instance
-- Provide enterprise-level group management without manual provisioning
+- With SCIM configured, groups from your identity provider are synchronized to Windmill automatically, members included.
+- Without SCIM, superadmins create them by hand and [link them to an IdP group](#linking-an-instance-group-to-an-idp-group), so that SSO logins keep their membership in sync.
 
-Instance groups appear in your Windmill groups interface with a special designation, and can be assigned permissions to folders and resources just like regular groups. This eliminates the need for manual group management while maintaining full integration with Windmill's permission system.
+Instance groups appear in your Windmill groups interface with a special designation, and can be assigned permissions to folders and resources just like regular groups.
+
+Superadmins manage instance groups from the instance groups page, opened with the "Manage instance groups" button next to the "SSO groups claim" and "SCIM token" [instance settings](../18_instance_settings/index.mdx#sso-groups-claim), or from the instance groups section of any workspace's groups page.
 
 ### Instance-level roles
 
@@ -234,20 +234,34 @@ For more details about how to use instance groups within your workflows and perm
 
 SCIM is push-based: a group change in the identity provider reaches Windmill on the provider's next provisioning cycle, about 40 minutes on Entra.
 For access that has to land faster, such as a break-glass group that grants superadmin, Windmill can also read the groups claim of every SAML or OIDC login and reconcile the user's instance group membership before the session starts.
+Without SCIM, the groups claim alone can drive instance group membership, revocation included, for groups [linked to an IdP group](#linking-an-instance-group-to-an-idp-group) by hand.
 This is available under Enterprise Edition and is off unless the setting below is set.
 
 #### How it works
 
-- Only SCIM-provisioned instance groups take part: those whose external id was set by SCIM with the identity provider's group id. Groups created by hand in Windmill are never touched.
-- Claim values are matched against that external id only, so the claim must carry group ids rather than display names. On Entra, SCIM and the groups claim both use the group object id by default.
-- Groups named in the claim are added and SCIM-provisioned groups not named are removed, then the [instance-level role](#instance-level-roles) and the [workspace auto-assignment](#workspace-auto-assignment) are re-derived, all before the session token is created. The claim must therefore cover every group SCIM provisions. A manually granted superadmin or devops role is never revoked.
-- A login whose claim is absent or empty changes nothing and logs a warning. Removal only happens when the claim carries at least one value; otherwise revocation is left to SCIM and session expiry. This protects against a wrong attribute name, and against Entra omitting the claim when a user is in no application-assigned group or in more than 150 groups.
+- Only instance groups linked to an IdP group take part: those SCIM provisioned and those [linked by hand](#linking-an-instance-group-to-an-idp-group). The claim must carry the same values as the links: group ids for SCIM groups (on Entra, the group object id, the default for both SCIM and the claim), or the ids or full paths you set by hand. Other groups are never touched.
+- Linked groups named in the claim are added and linked groups not named are removed, then the [instance-level role](#instance-level-roles) and the [workspace auto-assignment](#workspace-auto-assignment) are re-derived, all before the session token is created. The claim must therefore cover every linked group. A manually granted superadmin or devops role is never revoked.
+- A login whose claim is absent or empty removes the user from every linked group when SCIM is not configured (Keycloak, for example, omits the claim for a user with no groups). With SCIM configured (a SCIM token is set), it changes nothing and logs a warning, leaving removals to SCIM.
+- On Entra, a user in too many groups gets a pointer instead of the claim (groups overage). Such a login changes nothing and logs a warning.
 - Changes apply at the user's next login, not mid-session. A role change also ends the user's other sessions.
-- The setting applies to every SSO client on the instance. A provider that does not send the claim only logs the warning.
+- The setting applies to every SSO client on the instance.
 
 #### Enabling it
 
-1. Have your identity provider emit the groups claim with group ids. On Entra, see [configuring the groups claim](#configuring-the-groups-claim).
+1. Have your identity provider emit the groups claim: group ids for SCIM-provisioned groups, or the ids or full paths you link groups to by hand. On Entra, see [configuring the groups claim](#configuring-the-groups-claim).
 2. In [Instance settings](../18_instance_settings/index.mdx#sso-groups-claim) -> Authentication -> SSO, set "SSO groups claim" to the attribute name: `http://schemas.microsoft.com/ws/2008/06/identity/claims/groups` for Entra SAML, or the userinfo key (usually `groups`) for an OIDC provider. Leave it empty to turn the feature off.
-3. Give the groups their privileges: an instance-level role from the instance group editor, or a workspace role from the workspace's user management settings.
-4. Test with one user: add them to the group in the identity provider, log in, then remove them and log in again. Grants and removals made at login appear in the [audit logs](../../core_concepts/14_audit_logs/index.mdx#scim-and-sso-operations) with the "Instance" scope, recorded by the `sso` user under the operations `instance_groups.jit_adduser` and `instance_groups.jit_removeuser`.
+
+   Without SCIM, a wrong attribute name, or a provider that does not send the claim, removes every user from all linked groups at their next login, so check the claim on a real login before relying on it.
+3. Without SCIM, [link each instance group](#linking-an-instance-group-to-an-idp-group) to its IdP group.
+4. Give the groups their privileges: an instance-level role from the instance group editor, or a workspace role from the workspace's user management settings.
+5. Test with one user: add them to the group in the identity provider, log in, then remove them and log in again. Grants and removals made at login appear in the [audit logs](../../core_concepts/14_audit_logs/index.mdx#scim-and-sso-operations) with the "Instance" scope, recorded by the `sso` user under the operations `instance_groups.jit_adduser` and `instance_groups.jit_removeuser`.
+
+#### Linking an instance group to an IdP group
+
+A superadmin links an instance group to an IdP group with the "IdP group" field, revealed by "Link to an IdP group" when creating the group or in its editor drawer.
+The value is the group as the groups claim names it: a group id, or a full path such as `/operators/network-team` (a user whose claim contains that path also counts as a member of a group linked to `/operators`).
+Leave it empty to manage members by hand.
+Changing or clearing the link does not touch existing members: they follow the new link at their next login, or stay as they are once the link is cleared.
+Members added by hand to a linked group leave at their next login unless the claim lists them.
+
+Groups provisioned by SCIM show the IdP group read-only.

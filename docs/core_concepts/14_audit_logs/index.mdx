@@ -130,7 +130,7 @@ They only exist on [Enterprise Edition](/pricing), where SAML and SCIM are avail
 | --- | --- | --- |
 | `scim` | `users.scim_create`, `users.scim_update`, `users.scim_delete` | [SCIM provisioning](../../advanced/28_saml_and_scim/index.mdx#scim) creates a user, updates one (including deactivating it), or deletes one |
 | `scim` | `instance_groups.scim_create`, `instance_groups.scim_update`, `instance_groups.scim_delete` | SCIM provisioning creates an [instance group](../../advanced/28_saml_and_scim/index.mdx#instance-groups), renames it or changes its membership, or deletes it |
-| `sso` | `instance_groups.jit_adduser`, `instance_groups.jit_removeuser` | [Login-time group sync](../../advanced/28_saml_and_scim/index.mdx#login-time-group-sync-from-the-idp-groups-claim) adds the user to, or removes them from, a SCIM-provisioned instance group at SSO login |
+| `sso` | `instance_groups.jit_adduser`, `instance_groups.jit_removeuser` | [Login-time group sync](../../advanced/28_saml_and_scim/index.mdx#login-time-group-sync-from-the-idp-groups-claim) adds the user to, or removes them from, an instance group linked to an IdP group at SSO login |
 
 The `scim` and `sso` usernames belong to the system accounts `scim@windmill.dev` and `sso@windmill.dev`, so no real user is credited with these entries.
 The two login-time operations name the instance group as the resource and carry the affected user's email as a parameter.

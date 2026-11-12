@@ -319,7 +319,7 @@ Without [Enterprise Edition](/pricing), the number of SSO users is limited to 10
 #### SSO groups claim
 
 Name of the SAML attribute or OIDC userinfo claim carrying the user's identity provider groups.
-When set, every SSO login reconciles the user's membership in SCIM-provisioned instance groups against the claim before the session starts, so group changes in the identity provider apply at the next login instead of the next SCIM push.
+When set, every SSO login reconciles the user's membership in the instance groups linked to an IdP group (by SCIM or by hand) against the claim before the session starts.
 MCP requests signed in through the [MCP external identity provider](#mcp-external-identity-provider) use the groups this claim lists in their token.
 Leave empty to disable.
 Enterprise Edition only; see [login-time group sync](../28_saml_and_scim/index.mdx#login-time-group-sync-from-the-idp-groups-claim).
