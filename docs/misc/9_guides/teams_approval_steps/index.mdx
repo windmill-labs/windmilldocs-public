@@ -1,0 +1,148 @@
+---
+title: Approve workflow steps from Microsoft Teams
+description: How do I approve automation steps from Microsoft Teams? A Windmill flow posts an approval card to a Teams channel and resumes when someone approves it.
+---
+
+import DocCard from '@site/src/components/DocCard';
+
+# Approve workflow steps from Microsoft Teams
+
+A Windmill [flow](../../../flows/1_flow_editor.mdx) can stop before a sensitive step and post an approval card to a Microsoft Teams channel.
+Approvers read the request in Teams and approve or reject it from the card, optionally filling in a form.
+The flow then continues with the next step, for example a PowerShell script, or is canceled.
+
+This guide builds a flow that disables an Active Directory account once someone approves it in Teams.
+
+Approval cards are posted by the Windmill Teams bot, which is an [Enterprise Edition](/pricing) feature.
+Windmill Cloud workspaces connect to Teams from their settings, and self-hosted instances need an Enterprise license.
+
+<div className="grid grid-cols-2 gap-6 mb-4">
+	<DocCard
+		title="Microsoft Teams integration"
+		description="Connect a workspace to Teams, run scripts from Teams commands and send messages."
+		href="/docs/integrations/teams"
+	/>
+	<DocCard
+		title="Suspend & Approval / Prompts"
+		description="Suspend a flow until it is approved or canceled."
+		href="/docs/flows/flow_approval"
+	/>
+</div>
+
+## Before you start
+
+- Connect the workspace to Microsoft Teams: as a workspace admin, open the workspace settings, go to the `Slack / Teams` tab, then the `Teams` sub-tab, pick a team and click `Connect to Teams`. The button stays disabled until a team is picked. See [Microsoft Teams integration](../../../integrations/teams.mdx).
+- On a self-hosted instance, register the Teams bot with a Microsoft Entra app first, as described in [Microsoft Teams setup](../../../advanced/27_setup_oauth/index.mdx#microsoft-teams).
+- Install the Windmill Teams app in the team that will receive the approval cards. If cards are not delivered, see [Troubleshooting](../../../integrations/teams.mdx#troubleshooting).
+
+## Build the flow
+
+From the Home page, click `New` and select `Flow`, then add a flow input `SamAccountName` (string).
+The flow has two steps:
+
+1. `a`: an approval step that posts the card to Teams.
+2. `b`: a PowerShell script that disables the account.
+
+## Add the approval step
+
+Add a step and pick `Approval/Prompt`.
+This creates a step with `Suspend until approval/resume` enabled: the flow runs the step, then waits for an approval before the next step.
+Write it in TypeScript, with `samAccountName` connected to `flow_input.SamAccountName`:
+
+```ts
+import * as wmill from 'windmill-client';
+
+export async function main(samAccountName: string) {
+	await wmill.requestInteractiveTeamsApproval({
+		teamName: 'IT Operations',
+		channelName: 'Approvals',
+		message: `Disable the Active Directory account ${samAccountName}?`
+	});
+}
+```
+
+`teamName` and `channelName` are the display names of the team and the channel.
+Windmill looks them up through Microsoft Graph, and the step fails with `Team '...' not found` or `Channel '...' not found in team` if there is no match.
+`requestInteractiveTeamsApproval` only works inside a flow, as a flow step: run it from a flow preview or a deployed flow, not from the script editor or a test of the step alone.
+It is available in the [TypeScript client](../../../advanced/2_clients/ts_client.mdx), so write the approval step in TypeScript, and the other steps in any language.
+
+For the helper's other parameters, see [Microsoft Teams approval step](../../../flows/11_flow_approval.mdx#microsoft-teams-approval-step).
+
+## Add a form to the card
+
+To collect information with the approval, open the approval step's `Run settings`, then `Suspend until approval/resume`, select the `Form` tab, click `Add a form` and add the fields.
+In this example, add a string field `Reason`.
+Forms on approval steps are a [Cloud and Enterprise Self-Hosted](/pricing) feature.
+
+The card shows boolean, string and number fields; see [which fields the card shows](../../../flows/11_flow_approval.mdx#microsoft-teams-approval-step).
+
+## Add the PowerShell step
+
+Add the PowerShell script as step `b`, with `SamAccountName` connected to `flow_input.SamAccountName` and `Reason` connected to `resume.Reason`, the value entered in the form.
+
+```powershell
+param(
+    [Parameter(Mandatory)]
+    [string]$SamAccountName,
+
+    [string]$Domain = 'corp.contoso.com',
+
+    [string]$Reason
+)
+
+Import-Module ActiveDirectory
+
+Disable-ADAccount -Identity $SamAccountName -Server $Domain
+if ($Reason) {
+    Set-ADUser -Identity $SamAccountName -Server $Domain -Description "Disabled: $Reason"
+}
+Write-Output "Disabled $SamAccountName"
+```
+
+The Active Directory cmdlets need a domain-joined [Windows worker](../../17_windows_workers/index.mdx) (Self-Hosted Enterprise) with the `ActiveDirectory` module installed.
+Give this step a [worker group tag](../../../core_concepts/9_worker_groups/index.mdx#how-to-assign-a-custom-worker-group-to-a-script-or-flow) that only that worker listens to.
+Any other step can be approved the same way, for example a [scheduled PowerShell script](../powershell_schedule_approval/index.mdx).
+
+## What approvers see
+
+When the flow reaches step `a`, the bot posts a card to the channel with your message, a link to the approval page in Windmill, the form fields and buttons to approve or reject.
+Its wording follows the approval step's [skin](../../../flows/11_flow_approval.mdx#slack-and-teams-messages).
+
+![Approval card in a Microsoft Teams channel, with form fields and Resume and Cancel buttons](../../../assets/flows/tuto_approval_teams.png.webp 'Approval card in Microsoft Teams')
+
+Approving resumes the flow with the form values, and step `b` runs.
+Rejecting cancels the flow, unless the step is set to [continue on disapproval](../../../flows/11_flow_approval.mdx#continue-on-disapprovaltimeout).
+If nobody answers before the step's [timeout](../../../flows/11_flow_approval.mdx#timeout), the flow is canceled.
+A new approval step starts with a 30-minute timeout, and a step with no timeout also times out after 30 minutes.
+
+## Who can approve
+
+The card's buttons resume the flow through the step's secret resume URL, so anyone who can see the card in the channel can approve or reject it.
+The step's permission options, such as requiring approvers to be logged in or to be members of a group, are not checked for the card's buttons.
+Post the card to a channel whose members are allowed to approve.
+See [Permissions](../../../flows/11_flow_approval.mdx#permissions).
+
+## Next steps
+
+<div className="grid grid-cols-2 gap-6 mb-4">
+	<DocCard
+		title="Schedule PowerShell scripts with approvals"
+		description="Run a PowerShell script on a schedule, with an approval step before it changes anything."
+		href="/docs/misc/guides/powershell_schedule_approval"
+	/>
+	<DocCard
+		title="Turn a PowerShell script into a web form"
+		description="How param() declarations become form fields, and how to share the form."
+		href="/docs/misc/guides/powershell_web_form"
+	/>
+	<DocCard
+		title="Error handling"
+		description="Send failed runs to a Microsoft Teams channel."
+		href="/docs/core_concepts/error_handling"
+	/>
+	<DocCard
+		title="Windows workers"
+		description="Run scripts and flows directly on Windows machines without Docker or WSL."
+		href="/docs/misc/windows_workers"
+	/>
+</div>

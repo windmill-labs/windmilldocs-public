@@ -157,6 +157,8 @@ There can be multiple other schedules per script.
 
 5. Optional: Add a [Recovery Handler](#schedule-recovery-handler).
 
+To have someone approve each scheduled run before it changes anything, schedule a flow with an [approval step](../../flows/11_flow_approval.mdx), as in [Schedule PowerShell scripts with approvals](../../misc/9_guides/powershell_schedule_approval/index.mdx).
+
 Note that modifying a script or flow that was previously scheduled will not un-schedule it and the said script or flow will run on its modified version after [deployment](../0_draft_and_deploy/index.mdx).
 
 ![Schedule a task](./12-schedule-a-task.png.webp 'Schedule a task')

@@ -26,7 +26,7 @@ The goal here is to be able to invoke a Windmill Script from Microsoft Teams, by
 
 <br />
 
-First, you need to be a **workspace admin**. Then you should go to <a href="https://app.windmill.dev/workspace_settings" rel="nofollow">Workspace Settings Page </a> and select the "Slack / Teams" tab. On there, click "Connect to Microsoft Teams".
+First, you need to be a **workspace admin**. Then you should go to <a href="https://app.windmill.dev/workspace_settings" rel="nofollow">Workspace Settings Page </a> and select the "Slack / Teams" tab, then the "Teams" sub-tab. Pick a team, then click "Connect to Teams", which stays disabled until a team is picked.
 
 :::info Self-hosted
 
@@ -213,6 +213,8 @@ One of the parameters passed to the script is the "from_name" parameter, which i
 ### Teams approval steps
 
 [Approval steps](../flows/11_flow_approval.mdx) are a way to suspend a [flow](../flows/1_flow_editor.mdx) until specific event(s) are received, such as approvals or cancellations. You can use them to handle approvals from Microsoft Teams.
+
+For a step-by-step example that approves a PowerShell step from a Teams channel, see [Approve workflow steps from Microsoft Teams](../misc/9_guides/teams_approval_steps/index.mdx).
 
 The Windmill [TypeScript](../advanced/2_clients/ts_client.mdx) client exposes helper functions to request approvals on Microsoft Teams. There are two types of approvals:
 

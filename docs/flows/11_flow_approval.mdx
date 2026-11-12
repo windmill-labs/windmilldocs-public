@@ -548,6 +548,15 @@ export async function main() {
 
 Customizing permissions of approval steps is a [Cloud & Enterprise Self-Hosted](/pricing) only feature.
 
+:::caution Secret resume URLs skip these checks
+
+The options in this section are checked when an approver answers on the Windmill approval page as a signed-in user.
+They are not checked when the step is resumed or canceled through its secret resume URL: holding the URL is the authorization.
+This includes the buttons of an [interactive Microsoft Teams card](#microsoft-teams-approval-step), which resume the flow through that URL, so anyone who can see the card in the channel can approve or reject the step, whatever the options below say.
+Post Teams approval cards only to a channel whose members are allowed to approve.
+
+:::
+
 ### Require approvers to be logged in
 
 By enabling this option, only users logged in to Windmill can approve the step.
@@ -576,6 +585,7 @@ The input `approvers` is an array of strings, one per resume event.
 Each entry is the `approver` passed to `getResumeUrls(approver)` when the flow was resumed through the `resume` or `cancel` URL it returned.
 Resumed another way, including through the `approvalPage` link, it is the resuming user's username.
 With no user, it is `"anonymous"`.
+For an answer given with the buttons of an interactive Teams card, it is the `approver` passed to `requestInteractiveTeamsApproval`, or `"anonymous"` when none was passed, not the Teams user who clicked.
 The `resumes` input holds every resume payload in arrival order, and `resume` the last one.
 
 To get the list of users, just have the step after the approval step return the `approvers` key. For example by taking an input [connected](./16_architecture.mdx) to the `approvers` key.
@@ -715,6 +725,19 @@ The following hub scripts can be used:
  - [Request Basic Teams Approval](https://hub.windmill.dev/scripts/teams/13936/microsoft-teams-approval-teams)
 
 If you define a [form](./flow_approval#form) on the approval step, the form will be displayed in the Teams message as a modal.
+The card shows the form fields as:
+
+| Field type | In the Teams card |
+| --- | --- |
+| Boolean | Toggle |
+| String with enum values, or values from `dynamicEnumsJson` | Dropdown |
+| Other string | Text field |
+| Number or integer | Number field |
+
+Fields of other types, such as objects or arrays, are not shown in the card.
+Approvers can fill them in on the Windmill approval page, which the card links to.
+
+The card's buttons skip the step's [permission options](#permissions).
 
 ![Approval form teams](../assets/flows/tuto_approval_teams.png.webp)
 

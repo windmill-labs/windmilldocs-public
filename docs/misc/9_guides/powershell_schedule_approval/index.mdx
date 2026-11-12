@@ -1,0 +1,188 @@
+---
+title: Schedule PowerShell scripts with approvals
+description: How do I run PowerShell scripts on a schedule with an approval step? Chain them in a Windmill flow, add an approval step and a cron schedule.
+---
+
+import DocCard from '@site/src/components/DocCard';
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Schedule PowerShell scripts with approvals
+
+Windmill runs [PowerShell scripts](../../../getting_started/0_scripts_quickstart/4_bash_quickstart/index.mdx#powershell) on a [cron schedule](../../../core_concepts/1_scheduling/index.mdx), and every run is listed in the [Runs](../../../core_concepts/5_monitor_past_and_future_runs/index.mdx) page with its inputs, logs and result.
+When a person must approve before the script changes anything, put the script in a [flow](../../../flows/1_flow_editor.mdx) with an [approval step](../../../flows/11_flow_approval.mdx) in front of it, and schedule the flow.
+The flow then stops at the approval step until someone approves or rejects it in the browser, or in [Microsoft Teams](../teams_approval_steps/index.mdx).
+
+This guide builds a flow that runs every night: a PowerShell step lists log files older than a retention period, an approval step shows how many files will be deleted, and a second PowerShell step deletes them once approved.
+
+<div className="grid grid-cols-2 gap-6 mb-4">
+	<DocCard
+		title="Schedules"
+		description="Run scripts and flows on a CRON schedule."
+		href="/docs/core_concepts/scheduling"
+	/>
+	<DocCard
+		title="Suspend & Approval / Prompts"
+		description="Suspend a flow until it is approved or canceled."
+		href="/docs/flows/flow_approval"
+	/>
+</div>
+
+## Schedule a script without approval
+
+If the script does not need an approval, schedule it directly.
+In the script's [settings](../../../script_editor/settings.mdx#schedules), toggle on the primary schedule, set the cron expression and the arguments, then deploy.
+You can also create more schedules for the same script from the `Schedules` page.
+The rest of this guide adds the approval.
+
+## Write the PowerShell steps
+
+PowerShell runs on Linux workers built from the Windmill Docker image.
+To run a step on a Windows machine instead, use [Windows workers](../../17_windows_workers/index.mdx) ([Self-Hosted Enterprise](/pricing)) and give the step a [worker group tag](../../../core_concepts/9_worker_groups/index.mdx#how-to-assign-a-custom-worker-group-to-a-script-or-flow) that only those workers listen to.
+Set the tag on the PowerShell steps only: a tag set on the whole flow overrides the tag of every step.
+
+Create two PowerShell scripts, or write them inline as steps of the flow.
+The first one lists the files and writes the list to `./result.json`, which becomes the step's result:
+
+```powershell
+param(
+    [Parameter(Mandatory)]
+    [string]$Folder,
+
+    [int]$RetentionDays = 30,
+
+    [string]$Filter = '*.log'
+)
+
+$cutoff = (Get-Date).AddDays(-$RetentionDays)
+$old = @(Get-ChildItem -Path $Folder -Filter $Filter -File -Recurse |
+    Where-Object { $_.LastWriteTime -lt $cutoff })
+$paths = @($old | ForEach-Object { $_.FullName })
+
+[PSCustomObject]@{
+    folder = $Folder
+    cutoff = $cutoff.ToString('o')
+    count = $paths.Count
+    files = $paths
+} | ConvertTo-Json -Depth 3 | Set-Content -Path ./result.json
+```
+
+The second one deletes the files it receives:
+
+```powershell
+param(
+    [Parameter(Mandatory)]
+    [string[]]$Files
+)
+
+foreach ($file in $Files) {
+    Remove-Item -LiteralPath $file -Force
+    Write-Output "Deleted $file"
+}
+Write-Output "Deleted $($Files.Count) files"
+```
+
+The folder must be reachable from the worker that runs the steps.
+The `param()` blocks become the steps' inputs: `Folder` and `Files` are required, `RetentionDays` and `Filter` have defaults.
+See [Turn a PowerShell script into a web form](../powershell_web_form/index.mdx) for how each declaration is read.
+
+## Build the flow
+
+From the Home page, click `New` and select `Flow`.
+
+1. In the [flow inputs](../../../flows/3_editor_components.mdx#flow-inputs), add `Folder` (string) and `RetentionDays` (integer).
+2. Add the first PowerShell script as step `a`. Connect its inputs to the flow inputs, for example `Folder` to `flow_input.Folder` and `RetentionDays` to `flow_input.RetentionDays` (see [input transforms](../../../flows/16_architecture.mdx#input-transform)).
+3. On step `a`, open `Run settings`, then `Early stop / break`, and stop the flow if `result.count == 0`, so that nobody is asked to approve when there is nothing to delete. See [Early stop](../../../flows/2_early_stop.md).
+4. Add the approval step `b`, described below.
+5. Add the second PowerShell script as step `c`, with `Files` connected to `results.a.files`.
+
+## Add the approval step
+
+Add a step and pick `Approval/Prompt`.
+This creates a step with `Suspend until approval/resume` enabled: the flow runs the step, then waits for an approval before step `c`.
+Write the step in TypeScript, with `folder` connected to `results.a.folder` and `count` to `results.a.count`.
+
+<Tabs className="unique-tabs">
+<TabItem value="windmill" label="Approve in Windmill" attributes={{className: "text-xs p-4 !mt-0 !ml-0"}}>
+
+```ts
+export async function main(folder: string, count: number) {
+	return {
+		description: `${count} files older than the retention period will be deleted from ${folder}.`
+	};
+}
+```
+
+The returned `description` is shown to approvers on the approval page.
+Approvers open the suspended run from the [Runs](../../../core_concepts/5_monitor_past_and_future_runs/index.mdx) page, where the `Suspended` filter lists the runs waiting for them, and approve or reject it there.
+
+</TabItem>
+<TabItem value="teams" label="Approve in Microsoft Teams" attributes={{className: "text-xs p-4 !mt-0 !ml-0"}}>
+
+```ts
+import * as wmill from 'windmill-client';
+
+export async function main(folder: string, count: number) {
+	await wmill.requestInteractiveTeamsApproval({
+		teamName: 'IT Operations',
+		channelName: 'Approvals',
+		message: `${count} files older than the retention period will be deleted from ${folder}.`
+	});
+}
+```
+
+The Windmill Teams bot posts a card to the channel, with buttons to approve or reject.
+This needs a workspace connected to Teams, which is an [Enterprise Edition](/pricing) feature.
+See [Approve workflow steps from Microsoft Teams](../teams_approval_steps/index.mdx).
+
+</TabItem>
+</Tabs>
+
+To send the approval link by email or another channel instead, call `getResumeUrls()` from the [TypeScript client](../../../advanced/2_clients/ts_client.mdx) in the approval step and send its `approvalPage` URL; see [Add approval script](../../../flows/11_flow_approval.mdx#add-approval-script).
+The [Slack approval helper](../../../flows/11_flow_approval.mdx#slack-approval-step) works the same way as the Teams one.
+
+In the approval step's settings, you can also:
+
+- Set the [number of approvals](../../../flows/11_flow_approval.mdx#number-of-approvalsevents-required-for-resuming-flow) required before the flow continues.
+- Set a [timeout](../../../flows/11_flow_approval.mdx#timeout) after which the flow is canceled if nobody answered. A new approval step starts with a 30-minute (1800 seconds) timeout, and a step with no timeout also times out after 30 minutes, so for a run scheduled at night and approved the next morning, set a timeout long enough to cover the wait.
+- [Continue on disapproval or timeout](../../../flows/11_flow_approval.mdx#continue-on-disapprovaltimeout) instead of failing the flow, to handle a rejection in a following step.
+- Add a [form](../../../flows/11_flow_approval.mdx#form) that approvers fill in, and restrict who can approve to logged-in users or members of a group with the [permission](../../../flows/11_flow_approval.mdx#permissions) options. Both are Cloud and Enterprise Self-Hosted features.
+
+The next steps can read who approved from the `approvers` input, as described in [Get the users who approved the flow](../../../flows/11_flow_approval.mdx#get-the-users-who-approved-the-flow).
+
+## Schedule the flow
+
+Deploy the flow, then schedule it, either from the flow's settings or from the `Schedules` page with `New schedule`:
+
+1. Set the cron expression, for example `0 0 2 * * *` for every day at 02:00 in the schedule's timezone. Windmill's [cron syntax](../../../core_concepts/1_scheduling/index.mdx#cron-syntax) has six fields and starts with seconds: a five-field crontab expression such as `0 2 * * *` is rejected. The simplified builder writes the expression for you.
+2. Pick the flow and fill in its inputs, for example `Folder` and `RetentionDays`.
+3. Optionally, add a [schedule error handler](../../../core_concepts/1_scheduling/index.mdx#schedule-error-handler), for example the pre-set Microsoft Teams one, to be notified when a run fails. The schedule error handler is an Enterprise Edition feature.
+
+Each scheduled run starts the flow with these inputs.
+Runs waiting for an approval show as suspended in the Runs page, and finished runs keep the logs and result of each step.
+To also run the flow on demand, open its page: the form generated from its inputs starts a run with the values you enter.
+
+## Next steps
+
+<div className="grid grid-cols-2 gap-6 mb-4">
+	<DocCard
+		title="Turn a PowerShell script into a web form"
+		description="How param() declarations become form fields, and how to share the form."
+		href="/docs/misc/guides/powershell_web_form"
+	/>
+	<DocCard
+		title="Approve workflow steps from Microsoft Teams"
+		description="Post an approval card to a Teams channel and resume the flow from Teams."
+		href="/docs/misc/guides/teams_approval_steps"
+	/>
+	<DocCard
+		title="Retries"
+		description="Retry a failed step before failing the flow."
+		href="/docs/flows/retries"
+	/>
+	<DocCard
+		title="Windows workers"
+		description="Run scripts and flows directly on Windows machines without Docker or WSL."
+		href="/docs/misc/windows_workers"
+	/>
+</div>
