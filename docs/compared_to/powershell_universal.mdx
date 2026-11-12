@@ -1,0 +1,89 @@
+---
+title: Windmill vs PowerShell Universal
+description: How does Windmill compare to PowerShell Universal for running PowerShell scripts, APIs, schedules and internal apps on Windows and Linux?
+---
+
+import DocCard from '@site/src/components/DocCard';
+
+# Windmill vs PowerShell Universal
+
+<a href="https://docs.devolutions.net/powershell-universal/readme.md" rel="nofollow">PowerShell Universal</a> is a commercial platform built by Ironman Software and <a href="https://devolutions.net/company/press-release/devolutions-acquisition-of-powershell-universal/" rel="nofollow">acquired by Devolutions</a> in October 2025.
+In its own words, it "centralizes script management, letting you build REST APIs, automate PowerShell jobs, and create interactive web apps from one console".
+Windmill is an [open-source](https://github.com/windmill-labs/windmill), self-hostable platform for scripts, workflows and internal apps, where PowerShell is one of many supported languages.
+
+This page is written by Windmill. Statements about PowerShell Universal come from its public documentation and link to it.
+Feel free to [contact us](../misc/6_getting_help/index.mdx) for any correction.
+
+## Who each tool is for
+
+PowerShell Universal is built around PowerShell.
+Scripts, REST endpoints and apps are all written in PowerShell: an endpoint is defined with `New-PSUEndpoint` and a script block, and an app with `New-UDApp`.
+It fits teams whose automation estate is PowerShell and who want one server to run scripts, expose them as APIs and give end users a portal.
+
+Windmill fits teams that run PowerShell next to other languages.
+A [PowerShell script](../getting_started/0_scripts_quickstart/4_bash_quickstart/index.mdx#powershell) sits in the same workspace as scripts in Python, TypeScript, SQL, C# and [other languages](../getting_started/0_scripts_quickstart/index.mdx), and any of them can be a step in a [flow](../flows/1_flow_editor.mdx), the backend of an app, or a job behind a [webhook](../core_concepts/4_webhooks/index.mdx) or [schedule](../core_concepts/1_scheduling/index.mdx).
+
+## Comparison
+
+| | PowerShell Universal | Windmill |
+| --- | --- | --- |
+| Source model | Commercial. Many features are free; others, such as Git integration, SQL Server and PostgreSQL persistence and enterprise authentication, require a license. A free developer license covers non-production workloads. | Open source. The Community Edition is free to self-host; features marked Enterprise in the docs need an [Enterprise license](/pricing). Paid plans are priced by seats and compute units. |
+| Languages | PowerShell 7 and Windows PowerShell 5.1. A Custom environment starts an executable you specify; the docs give `python` as an example. | TypeScript, Python, Go, PHP, Bash, PowerShell, Nu, C#, SQL, Java, Ruby, R, Rust and more. |
+| Where the server runs | Windows, Linux and macOS; also Docker, IIS, a Windows service and Azure. | Docker Compose or Kubernetes with the Helm chart, backed by PostgreSQL, or Windmill Cloud. |
+| Where jobs run | In an environment configured on the server: inside the server process, a PowerShell 7 or Windows PowerShell 5.1 host, or a custom executable. <a href="https://docs.devolutions.net/powershell-universal/config/agent.md" rel="nofollow">Devolutions Agent</a> runs jobs on remote Windows machines or in a Linux container, targeted by queue or by <a href="https://docs.devolutions.net/powershell-universal/platform/computers.md" rel="nofollow">computer group</a>. | On workers, scaled horizontally. Linux workers by default; [native Windows workers](../misc/17_windows_workers/index.mdx) (Self-Hosted Enterprise) run Python, Bun, PowerShell 7, C#, Nu, Java, Ruby and R without Docker or WSL. |
+| Database | SQLite (recommended only for small instances or testing), SQL Server or PostgreSQL. | PostgreSQL. |
+| Scheduling | CRON expressions (Cronos library), simple intervals, one-time and continuous schedules. | CRON schedules for scripts and flows, with error and recovery handlers. |
+| Event triggers | Triggers on platform events, such as a job finishing or a user logging in (licensed). | Webhooks, custom HTTP routes and email triggers (100 emails a day on Community Edition). Kafka, NATS, SQS, Google Cloud Pub/Sub and Azure Event Grid triggers are self-hosted Enterprise features. |
+| APIs | HTTP endpoints defined by URI and method, each running a PowerShell script block. | Every script and flow gets webhooks; custom HTTP routes map paths to scripts and flows. |
+| Multi-step workflows | Workflows are listed among licensed automation features. | Flow editor with branches, for loops, retries, error handlers and approval steps. |
+| User interfaces | Automatic forms from script parameters; apps written in PowerShell; portal pages with widgets. | Auto-generated UIs from script parameters; full-code apps in React or Svelte; a low-code app editor (legacy). |
+| User login | Windows Authentication (Kerberos or NTLM), OpenID Connect, SAML2, WS-Federation, client certificates (all licensed). | SSO through Microsoft Entra ID, Google, Okta and other providers (limited to 10 SSO users without Enterprise Edition); SAML and SCIM on Enterprise Edition. |
+| Secrets | Database vault, Windows Credential Manager, a SecretStore file vault, Azure Key Vault registration (non-database vaults are licensed). | Encrypted secrets in the database; on Enterprise Edition, HashiCorp Vault or Azure Key Vault as the secret backend. |
+| Git | Synchronizes configuration scripts with a remote repository, both ways by default (licensed). | Git sync pushes a commit for each deployment and can deploy commits back into the workspace (Enterprise); Azure DevOps through an Entra service principal. Free on Community Edition for up to 2 users. |
+| High availability | Several nodes behind a load balancer sharing a SQL Server or PostgreSQL database. | Stateless servers and workers sharing PostgreSQL; add workers to scale. |
+
+## Where PowerShell Universal is the better choice
+
+- Everything is PowerShell. If your scripts, APIs and user interfaces are all PowerShell and the team wants to stay in one language, PowerShell Universal is designed for that, down to apps built with PowerShell cmdlets.
+- Windows PowerShell 5.1. PowerShell Universal offers a Windows PowerShell 5.1 environment. Windmill's Windows worker setup uses PowerShell 7 (`pwsh.exe`).
+- A single Windows server. PowerShell Universal documents hosting as a Windows service or in IIS. Windmill's self-hosting guide deploys the server with Docker Compose or Kubernetes, and Windows machines join as workers.
+- Windows Authentication for users. PowerShell Universal documents Kerberos/NTLM sign-in for users. Windmill signs users in through SSO providers such as Microsoft Entra ID, or SAML on Enterprise Edition.
+
+## Where Windmill is the better choice
+
+- More than one language. PowerShell steps can sit next to Python, TypeScript, SQL or C# steps in the same flow, with dependencies resolved from the imports of each script, including [PowerShell modules](../advanced/6_imports/index.mdx#imports-in-powershell).
+- Workflows with people in the loop. [Approval steps](../flows/11_flow_approval.mdx), [retries](../flows/14_retries.md), [error handlers](../flows/7_flow_error_handler.md), [branches](../flows/13_flow_branches.md) and [for loops](../flows/12_flow_loops.md) are built into the flow editor.
+- Frontends in React or Svelte. [Full-code apps](../full_code_apps/index.mdx) call the same scripts and flows as their backend.
+- One queue for Windows and Linux, in any language. Windows and Linux workers pull from the same Windmill job queue, and [worker tags](../core_concepts/9_worker_groups/index.mdx#set-tags-to-assign-specific-queues) route each step, in PowerShell, Python, C# or another language, to the machines that can run it.
+- Open source. The Community Edition is free to self-host, and the source is on [GitHub](https://github.com/windmill-labs/windmill).
+
+## Using them together
+
+- Call PowerShell Universal APIs from Windmill. PowerShell Universal endpoints are HTTP endpoints, so a Windmill script, in PowerShell or any other language, can call them as a step in a flow, on a schedule or from an app.
+- Start Windmill from PowerShell Universal. Each Windmill script and flow has [webhooks](../core_concepts/4_webhooks/index.mdx), so a PowerShell Universal script can start a Windmill flow with a single HTTP request.
+- Move scripts gradually. Windmill reads arguments from a PowerShell script's [`param` block](../getting_started/0_scripts_quickstart/4_bash_quickstart/index.mdx#powershell) and generates a form from it, so an existing script can be moved one at a time while the rest stay where they are.
+
+## Getting started
+
+<div className="grid grid-cols-2 gap-6 mb-4">
+	<DocCard
+		title="Bash / PowerShell / Nu quickstart"
+		description="Write your first PowerShell script in Windmill."
+		href="/docs/getting_started/scripts_quickstart/bash"
+	/>
+	<DocCard
+		title="Windows workers"
+		description="Run scripts natively on Windows machines without Docker or WSL."
+		href="/docs/misc/windows_workers"
+	/>
+	<DocCard
+		title="Self-host Windmill"
+		description="Deploy Windmill with Docker Compose or Kubernetes."
+		href="/docs/advanced/self_host"
+	/>
+	<DocCard
+		title="Setup OAuth and SSO"
+		description="Sign users in with Microsoft Entra ID and other providers."
+		href="/docs/advanced/setup_oauth"
+	/>
+</div>

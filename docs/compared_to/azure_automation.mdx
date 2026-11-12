@@ -1,0 +1,86 @@
+---
+title: Windmill vs Azure Automation
+description: How does Windmill compare to Azure Automation runbooks for PowerShell and Python automation across Azure and on-premises machines?
+---
+
+import DocCard from '@site/src/components/DocCard';
+
+# Windmill vs Azure Automation
+
+[Azure Automation](https://learn.microsoft.com/en-us/azure/automation/overview) is, in Microsoft's words, "a cloud-based automation service that helps you automate processes and supports consistent management across Azure and non-Azure environments".
+Its process automation runs PowerShell, Python and graphical runbooks, in Azure or on machines you register as Hybrid Runbook Workers.
+Windmill is an [open-source](https://github.com/windmill-labs/windmill) platform for scripts, workflows and internal apps that you [self-host](../advanced/1_self_host/index.mdx), for example [on AKS](../advanced/1_self_host/azure_entra_id.mdx), or use on Windmill Cloud.
+
+This page is written by Windmill. Statements about Azure Automation come from Microsoft's documentation and link to it.
+Feel free to [contact us](../misc/6_getting_help/index.mdx) for any correction.
+
+## Who each tool is for
+
+Azure Automation is for teams that run Azure and want runbooks as a managed Azure resource.
+Runbooks can authenticate with the Automation account's managed identity, which Microsoft calls "the recommended way to authenticate in your runbooks", and Azure alerts can start them through action groups.
+
+Windmill is for teams whose automation spans Azure, other clouds and on-premises systems, in more than one language, and who want workflows, approvals and user-facing apps on the same platform.
+It runs where you deploy it, and its workers run wherever you start them.
+
+## Comparison
+
+| | Azure Automation | Windmill |
+| --- | --- | --- |
+| Hosting | Cloud-based Azure service. | [Self-hosted](../advanced/1_self_host/index.mdx) with Docker Compose or Kubernetes, including [AKS with Azure Database for PostgreSQL](../advanced/1_self_host/azure_entra_id.mdx), or Windmill Cloud. |
+| Languages | PowerShell 7.6, 7.4 and 5.1; Python 3.10; graphical runbooks, which are created and edited only in the Azure portal. | TypeScript, Python, Go, PHP, Bash, PowerShell, Nu, C#, SQL, Java, Ruby, R, Rust and [more](../getting_started/0_scripts_quickstart/index.mdx). |
+| Where jobs run | In an Azure sandbox, or on Hybrid Runbook Workers (Windows and Linux) for on-premises and other-cloud resources. | On Windmill [workers](../core_concepts/9_worker_groups/index.mdx) that you deploy: Linux workers, [native Windows workers](../misc/17_windows_workers/index.mdx) (Self-Hosted [Enterprise](/pricing)), and [agent workers](../core_concepts/28_agent_workers/index.mdx) (Enterprise) that connect over HTTP from remote networks. |
+| Long-running jobs | In Azure sandboxes, fair share stops or unloads any job that has run for more than three hours. Hybrid Runbook Workers are not limited by fair share. | Self-hosted: jobs run for up to 7 days by default (the worker `TIMEOUT`), and the [default job timeout](../advanced/18_instance_settings/index.mdx#default-timeout) and [custom timeouts](../flows/9_custom_timeout.md) per flow step are capped by it. On Windmill Cloud, a job runs for at most 15 minutes in a free workspace and 90 minutes in a paid workspace, by default. |
+| Schedules | Hourly, daily, weekly or monthly recurrences, with time zones and Daylight Saving Time handling. A schedule runs [at most once an hour](https://learn.microsoft.com/en-us/azure/automation/shared-resources/schedules#schedule-runbooks-to-run-more-frequently). | [CRON schedules](../core_concepts/1_scheduling/index.mdx) with error and recovery handlers. |
+| Webhooks | A webhook starts a runbook through a single HTTP request; starting a Python runbook through a webhook is not supported, and with PowerShell 7 runbooks the webhook input is [converted to invalid JSON](https://learn.microsoft.com/en-us/azure/automation/automation-webhooks#create-a-webhook), so Microsoft recommends PowerShell 5 runbooks for webhooks. | Every script and flow gets [webhooks](../core_concepts/4_webhooks/index.mdx), whatever its language. |
+| Azure events | Azure alert action groups can start a runbook. | [Azure Event Grid triggers](../triggers/10_azure_triggers/index.mdx), a self-hosted Enterprise feature. |
+| Multi-step workflows | Child runbooks; PowerShell Workflow runbooks, which PowerShell 7 does not support. | [Flows](../flows/1_flow_editor.mdx) with branches, for loops, retries, error handlers and [approval steps](../flows/11_flow_approval.mdx), mixing languages. |
+| Source control | One-way sync from GitHub or Azure DevOps (Git or TFVC) into the Automation account, supported for PowerShell 5.1 runbooks only. | [Git sync](../advanced/11_git_sync/index.mdx) commits each deployment to the repository; deploying commits back into the workspace is Enterprise Edition. Azure DevOps through an Entra service principal. |
+| Secrets and identity | Credentials, certificates, variables and connections stored in the Automation account; managed identities. | [Variables and secrets](../core_concepts/2_variables_and_secrets/index.mdx) and [resources](../core_concepts/3_resources_and_types/index.mdx); Azure Key Vault as the secret backend on Enterprise Edition; Azure workload identity for Azure SQL from AKS workers. |
+| Job history | Job logs are stored for a maximum of 30 days. | 60 days on Cloud Free and Team; 30 days maximum on self-hosted Community Edition; unlimited on Enterprise (Cloud and self-hosted), with a configurable retention period. |
+| Pricing | Process automation is billed per minute of job run time, with 500 minutes a month included free per subscription (<a href="https://azure.microsoft.com/en-us/pricing/details/automation/" rel="nofollow">Azure Automation pricing</a>). | Community Edition is free to self-host. Paid plans are priced by seats and compute units ([pricing](/pricing)). |
+
+## Where Azure Automation is the better choice
+
+- Nothing to operate. Microsoft recommends the Azure sandbox to minimize operational costs: "There's no compute overhead and no need for a VM." Self-hosted Windmill is a server, workers and a PostgreSQL database that you run.
+- Azure-native identity and alerts. Runbooks can use the Automation account's managed identity, and Azure alert action groups can start them directly.
+- Runbooks that manage Azure resources. For integrating with Azure resources, Microsoft recommends the Azure sandbox: "Hosted in Azure, authentication is simpler." Runbooks in the sandbox cannot call executables or subprocesses; Microsoft points to Hybrid Runbook Workers for that.
+- Windows PowerShell 5.1 and graphical runbooks. Azure Automation supports PowerShell 5.1 runbooks and a graphical editor in the Azure portal. Windmill's Windows worker setup uses PowerShell 7 (`pwsh.exe`).
+
+## Where Windmill is the better choice
+
+- Jobs longer than three hours without a separate worker type, on a self-hosted instance. Jobs run on your workers for up to 7 days by default, and the [timeout](../advanced/18_instance_settings/index.mdx#default-timeout) is configurable. This does not apply to Windmill Cloud, where a job runs for at most 15 minutes in a free workspace and 90 minutes in a paid workspace, by default.
+- More than PowerShell and Python. Steps in TypeScript, SQL, C#, Bash or other languages sit in the same flow, with [dependencies resolved from imports](../advanced/6_imports/index.mdx).
+- People in the loop. [Approval steps](../flows/11_flow_approval.mdx) pause a flow until someone approves. [Auto-generated UIs](../core_concepts/6_auto_generated_uis/index.mdx) and [full-code apps](../full_code_apps/index.mdx) in React or Svelte let colleagues run a job with their own inputs, and the Operator [role](../core_concepts/16_roles_and_permissions/index.mdx) is for people who run but do not author.
+- Git for everything in the workspace. [Git sync](../advanced/11_git_sync/index.mdx) can include scripts in any language, flows, apps, resources, schedules and triggers, not only one runbook type.
+- Portable across environments. The same Windmill instance can run workers on Azure, other clouds and on-premises machines, including Windows machines, and [worker tags](../core_concepts/9_worker_groups/index.mdx#set-tags-to-assign-specific-queues) decide which jobs run where.
+
+## Using them together
+
+- Start a runbook from Windmill. An Azure Automation webhook starts a runbook "through a single HTTP request", so a Windmill flow can call it as one step, for example after an approval step.
+- Start Windmill from a runbook. Each Windmill script and flow has [webhooks](../core_concepts/4_webhooks/index.mdx), so a runbook can start a Windmill flow with an HTTP request.
+- Run Windmill on Azure. Deploy Windmill on [AKS with Azure Database for PostgreSQL](../advanced/1_self_host/azure_entra_id.mdx), sign users in with [Microsoft Entra ID](../advanced/27_setup_oauth/index.mdx#microsoft), store secrets in [Azure Key Vault](../core_concepts/2_variables_and_secrets/index.mdx#azure-key-vault-backend) (Enterprise) and connect to [Azure SQL with workload identity](../integrations/mssql.md#azure-workload-identity-for-azure-sql).
+
+## Getting started
+
+<div className="grid grid-cols-2 gap-6 mb-4">
+	<DocCard
+		title="Windmill on Azure"
+		description="Deploy Windmill on AKS with Azure Database for PostgreSQL."
+		href="/docs/advanced/self_host/azure_entra_id"
+	/>
+	<DocCard
+		title="Bash / PowerShell / Nu quickstart"
+		description="Write your first PowerShell script in Windmill."
+		href="/docs/getting_started/scripts_quickstart/bash"
+	/>
+	<DocCard
+		title="Windows workers"
+		description="Run scripts natively on Windows machines without Docker or WSL."
+		href="/docs/misc/windows_workers"
+	/>
+	<DocCard
+		title="Azure Event Grid triggers"
+		description="Trigger scripts and flows from Azure Event Grid events."
+		href="/docs/triggers/azure_triggers"
+	/>
+</div>

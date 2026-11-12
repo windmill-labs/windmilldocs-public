@@ -1,0 +1,90 @@
+---
+title: Windmill vs SSIS (SQL Server Integration Services)
+description: How does Windmill compare to SQL Server Integration Services (SSIS) for ETL, data integration and scheduled jobs around SQL Server?
+---
+
+import DocCard from '@site/src/components/DocCard';
+
+# Windmill vs SSIS (SQL Server Integration Services)
+
+[SQL Server Integration Services](https://learn.microsoft.com/en-us/sql/integration-services/sql-server-integration-services) (SSIS) is, in Microsoft's words, "a platform for building enterprise-level data integration and data transformations solutions".
+It ships with SQL Server: packages are designed graphically in Visual Studio, deployed to the SSIS catalog and scheduled with SQL Server Agent.
+Windmill is an [open-source](https://github.com/windmill-labs/windmill), self-hostable platform where ETL jobs, scripts and workflows are written as code, in SQL, Python, TypeScript, C# or other languages, and run on workers you control.
+Its Community Edition is free to self-host, and paid plans are priced by seats and compute units ([pricing](/pricing)).
+
+This page is written by Windmill. Statements about SSIS come from Microsoft's documentation and link to it.
+Feel free to [contact us](../misc/6_getting_help/index.mdx) for any correction.
+
+## Who each tool is for
+
+SSIS is for data integration inside a SQL Server estate.
+Microsoft describes "a rich set of built-in tasks and transformations", "graphical tools for building packages" and "an SSIS Catalog database to store, run, and manage packages", and notes that you can "create solutions without writing a single line of code".
+Teams that already build in Visual Studio and run SQL Server Agent jobs get a designer, a runtime and an operations history that all live next to the database.
+
+Windmill is for teams that prefer to write data jobs as code and review them like code.
+Each step is a script, for example a [SQL query against MS SQL](../getting_started/0_scripts_quickstart/5_sql_quickstart/index.mdx#ms-sql) or a [Python](../getting_started/0_scripts_quickstart/2_python_quickstart/index.mdx) transformation, chained in a [flow](../flows/1_flow_editor.mdx) and started by a [schedule](../core_concepts/1_scheduling/index.mdx), a [webhook](../core_concepts/4_webhooks/index.mdx) or another event.
+The same platform also runs the operational scripts and internal apps around the data.
+
+## Comparison
+
+| | SSIS | Windmill |
+| --- | --- | --- |
+| Authoring | SSIS Designer, a graphical tool in SQL Server Data Tools (SSDT). Control flows and data flows are built by dragging tasks, sources, transformations and destinations onto a design surface. | Scripts in a browser editor or [locally](../advanced/4_local_development/index.mdx) with VS Code and the [CLI](../advanced/3_cli/index.mdx). A low-code [flow editor](../flows/1_flow_editor.mdx) chains the scripts. |
+| Custom code | Script Task in Visual Basic or C#. | Every step is code: SQL, Python, TypeScript, C#, PowerShell, Bash and [other languages](../getting_started/0_scripts_quickstart/index.mdx). |
+| Built-in transformations | A library of built-in tasks and transformations, for example for cleaning, aggregating, merging and copying data. | Transformations are written in SQL or code. Windmill documents [ETL recipes with DuckDB](../core_concepts/27_data_pipelines/index.mdx) and [Pipelines](../core_concepts/63_pipelines/index.mdx) (alpha) that materialize DuckDB transformations into tables. |
+| Design tools platform | Windows. Microsoft notes that the SSIS design and management tools "are Windows applications that aren't currently available for Linux computers". | Any machine with a browser; the CLI for local development. |
+| Runtime | On premises, the SSIS runtime hosted by SQL Server. SSIS on Linux stores packages only in the file system, without the SSIS catalog or SQL Server Agent scheduling. In Azure, the Azure-SSIS Integration Runtime in Azure Data Factory. | Workers that pull jobs from a queue: Linux workers by default, [native Windows workers](../misc/17_windows_workers/index.mdx) on Self-Hosted [Enterprise](/pricing). Self-hosted with Docker Compose or Kubernetes, or on Windmill Cloud. |
+| Deployment and storage | Projects deployed to the SSIS catalog (SSISDB), which stores "projects, packages, parameters, environments, and operational history". | Scripts and flows live in a workspace; [Git sync](../advanced/11_git_sync/index.mdx) commits each deployment to a repository. |
+| Scheduling | SQL Server Agent jobs; `cron` on Linux. | [CRON schedules](../core_concepts/1_scheduling/index.mdx) with error and recovery handlers. |
+| Event triggers | Start packages from SQL Server Agent, `dtexec` or other schedulers. | [Webhooks](../core_concepts/4_webhooks/index.mdx), custom HTTP routes and email triggers; Kafka, SQS and Azure Event Grid triggers on self-hosted Enterprise. |
+| Connecting to SQL Server | Connection managers in each package. | An [MS SQL resource](../integrations/mssql.md) with username and password, a Microsoft Entra ID token, Azure workload identity on AKS, or Windows integrated authentication as the account the worker runs as (Windows SSPI on Windows workers, Kerberos on Linux workers). |
+| Monitoring | Execution reports for the SSIS catalog in SQL Server Management Studio. | A [Runs](../core_concepts/5_monitor_past_and_future_runs/index.mdx) page for past and future jobs, job logs and [audit logs](../core_concepts/14_audit_logs/index.mdx). |
+
+## Where SSIS is the better choice
+
+- Existing packages. If you have a working estate of SSIS packages, rewriting them has a cost that a comparison table does not show.
+- Graphical data flows without code. SSIS lets data teams build data flows from built-in components in a designer. Windmill steps are code.
+- Operations inside SQL Server. Deployment, parameters, environments and execution history all sit in the SSIS catalog and SQL Server Management Studio, where SQL Server teams already work.
+- A path to Azure for the same packages. Microsoft's Azure-SSIS Integration Runtime runs existing packages in Azure Data Factory, and you "continue to design and build packages on-premises in SSDT".
+
+## Where Windmill is the better choice
+
+- Code review and Git. With [Git sync](../advanced/11_git_sync/index.mdx), every script and flow is a file in a repository, so changes can be reviewed like application code. Git sync is available on Cloud and Enterprise Self-Hosted, and on Community Edition for workspaces with up to 2 users.
+- More than data movement. The same workspace holds [approval steps](../flows/11_flow_approval.mdx), [retries](../flows/14_retries.md), [error handlers](../flows/7_flow_error_handler.md), operational scripts and [auto-generated UIs](../core_concepts/6_auto_generated_uis/index.mdx) that let colleagues run a job with their own inputs.
+- Authoring on any OS. Scripts are written in the browser or locally with the CLI, without a Windows design tool.
+- Python and other ecosystems. Windmill [resolves dependencies from a script's imports](../advanced/6_imports/index.mdx) and pins them in a lockfile, so a Python step can use libraries from PyPI without a separate install step.
+- Event-driven runs. Flows start from webhooks and HTTP routes as well as schedules.
+
+## Using them together
+
+You do not have to choose one for every job.
+Windmill can orchestrate around existing packages:
+
+- Start a [SQL Server Agent](./windows_task_scheduler.mdx) job from Windmill. A SQL Server Agent job step can run an SSIS package. An [MS SQL script](../getting_started/0_scripts_quickstart/5_sql_quickstart/index.mdx#ms-sql) in Windmill can run `EXECUTE msdb.dbo.sp_start_job N'<job name>';`. Microsoft documents `sp_start_job` as: "Instructs SQL Server Agent to execute a job immediately." Unless the login is a sysadmin, it needs one of the SQL Server Agent fixed database roles in `msdb` listed on the [`sp_start_job` page](https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-start-job-transact-sql).
+- Run `dtexec` from a Windows worker. Microsoft's [`dtexec` page](https://learn.microsoft.com/en-us/sql/integration-services/packages/dtexec-utility) says: "You can use dtexec with third-party scheduling tools to schedule packages that are deployed to the Integration Services server." A PowerShell script on a [Windows worker](../misc/17_windows_workers/index.mdx) (Self-Hosted Enterprise) running on a machine where SSIS is installed can call `dtexec`. The same page notes that only Windows Authentication can execute a package on the SSIS server.
+- Add steps around the package. Put a package run inside a Windmill flow with an approval step before it and a notification step after it, or give operators an app to start it with parameters.
+
+## Getting started
+
+<div className="grid grid-cols-2 gap-6 mb-4">
+	<DocCard
+		title="SQL quickstart"
+		description="Connect to MS SQL and write your first SQL script in Windmill."
+		href="/docs/getting_started/scripts_quickstart/sql"
+	/>
+	<DocCard
+		title="MS SQL integration"
+		description="Authentication methods for SQL Server, Azure SQL and Active Directory."
+		href="/docs/integrations/mssql"
+	/>
+	<DocCard
+		title="ETL and data processing"
+		description="Build data pipelines with scripts, DuckDB and object storage."
+		href="/docs/core_concepts/data_pipelines"
+	/>
+	<DocCard
+		title="Schedules"
+		description="Run scripts and flows on a CRON schedule."
+		href="/docs/core_concepts/scheduling"
+	/>
+</div>
