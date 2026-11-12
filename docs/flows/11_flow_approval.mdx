@@ -98,7 +98,10 @@ Note that approval steps can be applied the same configurations as regular steps
 
 ### Timeout
 
-Set a custom timeout after which the flow will be automatically canceled if no approval is received.
+Set a custom timeout after which the flow fails if no approval is received.
+
+This timeout only applies to the approval step.
+A [flow timeout](./9_custom_timeout.md#flow-timeout) also counts the time spent waiting here, and abandons the approval when reached, even with [continue on disapproval/timeout](#continue-on-disapprovaltimeout) set.
 
 ![Approval Timeout](../assets/flows/approvals-timeout.webp 'Approval Timeout')
 

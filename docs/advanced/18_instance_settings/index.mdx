@@ -100,7 +100,8 @@ Default timeout for individual [jobs](../../core_concepts/20_jobs/index.mdx#rete
 
 You will find a helper to convert days, hours, minutes, and seconds to seconds.
 
-Note that you can set a [custom timeout for flow steps](../../flows/9_custom_timeout.md).
+Note that you can set a [custom timeout for flow steps](../../flows/9_custom_timeout.md), which cannot exceed the instance maximum set by the `TIMEOUT` environment variable.
+A [flow timeout](../../flows/9_custom_timeout.md#flow-timeout) caps a whole flow run and is not bounded by that maximum.
 
 ### Max timeout for sync endpoints
 

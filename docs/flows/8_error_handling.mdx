@@ -77,9 +77,11 @@ The Early stop/Break feature allows you to define a predicate expression that de
 	/>
 </div>
 
-## Custom timeout for step
+## Custom timeout for steps and flows
 
 For each step can be defined a timeout. If the execution takes longer than the time limit, the execution of the step will be interrupted.
+
+A [flow timeout](./9_custom_timeout.md#flow-timeout) caps the whole run, sleeps and approvals included, and runs the error handler, if the flow has one, when it is reached.
 
 <video
 	className="border-2 rounded-lg object-cover w-full h-full dark:border-gray-800"
@@ -92,8 +94,8 @@ For each step can be defined a timeout. If the execution takes longer than the t
 <div className="grid grid-cols-2 gap-6 mb-4">
 	<DocCard
 		color="teal"
-		title="Custom timeout for step"
-		description="For each step can be defined a timeout. If the execution takes longer than the time limit, the execution of the step will be interrupted."
+		title="Custom timeout for steps and flows"
+		description="Cap the execution time of a step, or the wall-clock time of a whole flow run, sleeps and approvals included."
 		href="/docs/flows/custom_timeout"
 	/>
 </div>
