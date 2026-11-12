@@ -202,9 +202,16 @@ A token's access can be changed later from the token list.
 
 ### Workspaces {#multi-workspace-tokens}
 
-When signing in or creating a token, pick the workspaces the client may work in: one, several, or all of yours, including ones you join later.
+When signing in or creating a token, pick the workspaces the client may work in: one, several, or all of yours, including ones you join later, or, with [superadmin rights](#superadmin-rights), all workspaces of the instance, including ones created later.
 Every AI session tool takes a `workspace_id` naming the workspace it acts in, and `list_workspaces` lists the ones the client may use.
 Requests to any other workspace are refused.
+
+### Superadmin rights
+
+A [superadmin](../16_roles_and_permissions/index.mdx#superadmin) can give an MCP token their superadmin rights with the Superadmin rights toggle under Access, wherever you create an MCP token: account settings, the home page's connect drawer, or the [OAuth](#connect-with-oauth) consent page.
+The token then reaches every workspace of the instance, including ones created later, as admin, within its [access](#access-levels); without it, only the workspaces you are a member of.
+Through the API, it is the `super_admin` field of `POST /api/users/tokens/create`, which a scoped token cannot set.
+The rights end when you stop being a superadmin.
 
 ### Refuse tokens in MCP URLs
 
