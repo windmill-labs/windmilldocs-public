@@ -142,6 +142,8 @@ It also avoids the hassle of having to create an anonymous user and check their 
 
 ![Webhooks specific tokens](./webhooks_tokens.gif)
 
+"Copy prompt for AI" gives a coding assistant instructions to call the script, flow or [agent](../54_ai_agents/index.mdx#standalone-agents); the prompt holds no token and reads `WINDMILL_TOKEN`, which you set from "Create a Webhook-specific Token".
+
 ### Triggering
 
 Once you have a webhook URL and a user token, issue a request to the
@@ -158,6 +160,8 @@ header. If it's not possible, then URL that contains the token should be treated
 as a secret (for more context please check [OWASP ref.1] and [OWASP ref.2]).
 
 :::
+
+A [flow in chat mode](../../flows/26_flow_as_chat.mdx) takes `{"user_message": ...}` as its body and requires a `memory_id` query parameter, any string naming the conversation.
 
 Examples using cURL for `POST` requests:
 

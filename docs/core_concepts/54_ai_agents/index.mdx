@@ -380,6 +380,8 @@ Renaming the agent leaves its existing chats under the old path.
 `POST /api/w/<workspace>/jobs/run/agent/<path>` runs a saved agent with a `user_message`, optional `user_attachments`, and `previous_messages` when the agent's memory is off, and a `memory_id` query parameter makes the run a turn of that conversation.
 A [token](../59_user_tokens/index.mdx) scoped `jobs:run:agents:<path>` can run that one agent and follow the jobs it starts by id; the agent's [webhook](../4_webhooks/index.mdx) panel creates one.
 A [full-code app](../../full_code_apps/index.mdx) can chat with a saved agent through an [agent runnable](../../full_code_apps/2_backend_runnables/index.mdx#saved-ai-agents).
+The agent's page builds an app for it: a chat app when the agent keeps managed memory, a form app otherwise.
+"Use in a flow" opens a new flow that deploys to the agent's path, with one step linking it (with unsaved changes, it deploys them first); an agent never deployed offers "Turn into a flow" instead, which moves its configuration into the step and discards its draft.
 
 ### Answering in Slack
 
