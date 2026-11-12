@@ -325,8 +325,7 @@ On the [Enterprise Edition](/pricing), [saved AI agents](../core_concepts/54_ai_
 For agents to answer:
 
 - Connect Slack from the workspace settings with "Let AI agents answer in Slack" on. The Slack app must declare `users:read`, `users:read.email` and `channels:read` (see the [app manifest](../advanced/27_setup_oauth/index.mdx#slack)). A workspace already connected without it must disconnect and connect again.
-- Set the Slack app's signing secret as the `SLACK_SIGNING_SECRET` [environment variable](../core_concepts/47_environment_variables/index.mdx) of the server. Without it, agents never answer.
-- Use the instance's Slack app. Every Slack request is checked against that one server-wide secret, so a [workspace-level Slack app](#workspace-level-slack-app-configuration) cannot run agents, and its `/windmill` stops working once the secret is set.
+- Set the Slack app's [signing secret](#signing-secrets).
 
 In a channel, the first match picks the agent that answers:
 
@@ -344,6 +343,18 @@ People from another Slack organization are refused.
 Answers are posted in the thread, where everyone in the channel can read them, including answers built with the asker's own permissions.
 An asker is matched to a Windmill member by their Slack email, so whoever manages the Slack workspace's directory can act as a Windmill member through agents: connect Slack only to a Slack workspace you trust as much as your identity provider.
 
+### Signing secrets
+
+A Slack app's signing secret, from its "Basic Information" page in the Slack API console, lets Windmill check that a request really comes from Slack.
+It is required for [AI agents](#ai-agents) and recommended for `/windmill` commands, @mentions and [approvals](#slack-approval-steps).
+Each request is checked against the secret of the app the workspace connects through:
+
+- The instance's Slack app: "Signing Secret" under [Instance settings](../advanced/18_instance_settings/index.mdx#authoauth) -> Authentication -> OAuth -> Slack, or the `SLACK_SIGNING_SECRET` [environment variable](../core_concepts/47_environment_variables/index.mdx) of the server. Either is accepted.
+- A [workspace-level Slack app](#workspace-level-slack-app-configuration): its own "Signing secret" in the workspace settings, cleared when the Client ID changes or the app is removed. Without one, it is checked against `SLACK_SIGNING_SECRET`, never the instance setting, so when workspaces use their own apps, set the instance app's secret in the instance setting rather than in the variable.
+
+When no secret applies, requests are accepted unchecked, and agents do not answer.
+When several Windmill workspaces connect to the same Slack workspace, a request that a secret verifies reaches only the workspaces with that secret.
+
 ### Workspace-level Slack app configuration
 
 By default, workspaces use the instance-level Slack app configured by your Windmill administrator. However, workspace admins can optionally configure their own Slack app for their workspace. This provides:
@@ -358,7 +369,7 @@ To configure a workspace-specific Slack app:
 <TabItem value="ui" label="UI" default>
 
 1. Navigate to workspace settings → Slack app section
-2. Enter your Slack app's **Client ID** and **Client Secret**
+2. Enter your Slack app's **Client ID**, **Client Secret** and [signing secret](#signing-secrets), without which you cannot connect with "Let AI agents answer in Slack" on.
 3. Save the configuration
 
 </TabItem>
@@ -370,6 +381,8 @@ The workspace-level OAuth override lives in `settings.yaml` as two fields that r
 slack_oauth_client_id: "1234567890.1234567890"
 slack_oauth_client_secret: "abcdef0123456789"
 ```
+
+The signing secret is not part of `settings.yaml`: set it from the workspace settings.
 
 Set both to values and push to upsert; clear them (delete the lines or set both to `""`) and push to remove the workspace-level override and fall back to the instance-level Slack app. `wmill sync pull` always emits the two fields (`null` when unset), so round-trip is bijective — the committed YAML is a complete snapshot.
 

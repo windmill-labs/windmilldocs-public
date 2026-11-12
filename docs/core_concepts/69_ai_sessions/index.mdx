@@ -39,7 +39,7 @@ Before the first message, the "Acting on" picker lets you choose where the sessi
 
 If you are in a production workspace that is locked against direct deployment, new sessions steer to its [dev workspace](../../advanced/26_dev_workspaces/index.mdx) instead, since a session could not edit anything in the locked workspace. Once the first message is sent, the session's workspace is committed and cannot change.
 
-You can also start a session from the item you are working on: script, flow and full-code app editors have an "Open in AI session" button that creates a session with that item already open in the preview panel.
+You can also start a session from the item you are working on: the "Open in AI session" button in the header of most editors and item pages, [AI agents](../54_ai_agents/index.mdx) included (low-code apps are the exception), creates a session with that item already open in the preview panel.
 
 ![The "Acting on" picker on a draft session, with the current workspace and the "Create new fork" option](./workspace_picker.png '"Acting on" workspace picker')
 
@@ -63,8 +63,8 @@ Sessions running on a fork are marked with a fork icon. From the sidebar you can
 
 The session chat is the [Windmill AI chat](../22_ai_generation/index.mdx#windmill-ai-chat) in its global mode, operating on the session's workspace. It can:
 
-- Create and edit scripts, flows and full-code apps. Changes are saved as your own drafts in the session's workspace, never deployed directly.
-- Test what it builds by running scripts, flow previews and individual steps as [background jobs](#background-jobs), through an [argument form](../22_ai_generation/index.mdx#running-scripts-and-flows) you confirm.
+- Create and edit scripts, flows, full-code apps and saved [AI agents](../54_ai_agents/index.mdx). Changes are saved as your own drafts in the session's workspace, never deployed directly.
+- Test what it builds by running scripts, flow previews, individual steps and agents as [background jobs](#background-jobs), through an [argument form](../22_ai_generation/index.mdx#running-scripts-and-flows) you confirm.
 - Open workspace pages for you in the preview panel: runs, schedules, variables, resources, assets, audit logs, triggers or workspace settings, with filters already applied (for example, the runs page filtered to a specific script). Pages the AI can open follow your permissions.
 - Answer questions about your workspace and about Windmill itself, with the same capabilities as the AI chat elsewhere (web search, Mermaid diagrams, API operations).
 - Write longer documents as [artifacts](#artifacts) instead of burying them in the conversation.
@@ -219,7 +219,7 @@ Each session has a single plan document, kept with its [artifacts](#artifacts) a
 
 The right-hand panel is a tabbed view of the session's workspace. Two kinds of tabs exist:
 
-- Editable items (scripts, flows, full-code apps) open as live editors: the same editors as the rest of Windmill, mounted in the panel and scoped to the session's workspace. When the AI edits an item, the open editor updates live, and you can edit alongside the AI; your manual edits land in the same draft.
+- Editable items (scripts, flows, full-code apps, agents) open as live editors: the same editors as the rest of Windmill, mounted in the panel and scoped to the session's workspace. When the AI edits an item, the open editor updates live, and you can edit alongside the AI; your manual edits land in the same draft.
 - Workspace pages (home, runs, schedules, variables, resources, settings and more) open as regular pages. After a chat turn, only the pages affected by what the AI actually touched are refreshed: creating a schedule reloads an open schedules tab but leaves your resources tab alone.
 
 The active tab shows a breadcrumb that doubles as a router: click a segment to jump to another page or item of the session's workspace without leaving the session. Tabs can be reordered by dragging, and the panel can be resized, collapsed or expanded to full screen. Clicking a job in a runs page opens its run detail in a new tab.
@@ -287,7 +287,7 @@ If someone deployed a newer version of an item after your draft began, the drawe
 
 ## Background jobs
 
-Jobs the AI starts (script tests, flow previews, SQL) do not block the conversation. A job that takes longer than a short inline wait detaches and keeps running in the background while the chat continues; when it finishes, the result is reported back to the AI.
+Jobs the AI starts (script tests, flow previews, agent runs, SQL) do not block the conversation. A job that takes longer than a short inline wait detaches and keeps running in the background while the chat continues; when it finishes, the result is reported back to the AI.
 
 The jobs tray next to the edits bar shows every job of the session with its live status. From the tray you can cancel a running job, open it in the preview panel, or approve a job that is suspended waiting for approval: the real resume/reject form opens in place. Background jobs survive a page reload and resume polling to completion.
 

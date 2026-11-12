@@ -378,7 +378,7 @@ A workspace that connects Slack with [AI agents](../../integrations/slack.mdx#ai
 
 [Instance settings](../18_instance_settings/index.mdx#authoauth) -> Authentication -> OAuth -> Slack -> "Set up slack" shows this manifest filled in with your instance URL.
 
-Then from your [Instance settings](../../advanced/18_instance_settings/index.mdx), fill with Client ID and Client Secret.
+Then from your [Instance settings](../../advanced/18_instance_settings/index.mdx), fill with Client ID, Client Secret and [Signing Secret](../../integrations/slack.mdx#signing-secrets).
 
 ![Slack Fill](./slack_fill.png 'Slack Fill')
 
@@ -403,7 +403,7 @@ In addition to instance-level configuration, workspace admins can configure thei
 To enable workspace-level Slack apps:
 1. Follow the same app manifest setup above to create a Slack app
 2. In workspace settings, navigate to the Slack app section
-3. Enter the workspace-specific Client ID and Client Secret
+3. Enter the workspace-specific Client ID, Client Secret and [signing secret](../../integrations/slack.mdx#signing-secrets)
 
 Alternatively, via the CLI, commit `slack_oauth_client_id` and `slack_oauth_client_secret` to your workspace's `settings.yaml` and run `wmill sync push`. Both fields round-trip through `sync pull` (emitted as `null` when unset), so the committed YAML is the complete source of truth.
 
