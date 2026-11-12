@@ -28,7 +28,7 @@ The name is also the warehouse's identity in the asset graph - every model becom
 
 A warehouse points at one of two kinds of resource.
 
-**A Windmill connection resource**, when one exists for your warehouse: `postgresql`, `redshift`, `mysql`, `snowflake`, `bigquery` (or `gcp_service_account`) and `databricks`. Windmill translates the fields it carries into the keys dbt reads, so there is nothing dbt-specific to fill in - the resource you already use elsewhere works. The adapter comes from the resource's type.
+**A Windmill connection resource**, when one exists for your warehouse: `postgresql`, `redshift`, `mysql`, `duckdb`, `clickhouse`, `snowflake` (or `snowflake_oauth`), `bigquery` (or `google_service_account` or `gcp_service_account`), `databricks`, `salesforce`, `ms_sql_server` (or `fabric`) and `oracledb`. Windmill translates the fields it carries into the keys dbt reads, so there is nothing dbt-specific to fill in - the resource you already use elsewhere works. The one exception is BigQuery: a service-account key carries no dataset, so set it as `profile.schema` in the descriptor. The adapter comes from the resource's type.
 
 **A `dbt_profile` resource**, for everything else - and for anything the translation above does not cover. It is one entry of a `profiles.yml` `outputs` map, as a resource. Given this file on a developer's machine:
 

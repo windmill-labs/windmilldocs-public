@@ -10,7 +10,7 @@ Windmill provides audit logs for every operation and action that has side-effect
 
 As a user, you can only see your own audit logs unless you are an admin.
 
-Audit logs can be filtered by Date, Username, Action (Create, Update, Delete, Execute), and specific Operation. The [Runs menu](../5_monitor_past_and_future_runs/index.mdx) is another feature that allows you to visualise all past and future runs.
+Audit logs can be filtered by Date, Username, Action (Create, Update, Delete, Execute), specific Operation, and [run ID](#filtering-by-run). The [Runs menu](../5_monitor_past_and_future_runs/index.mdx) is another feature that allows you to visualise all past and future runs.
 
 <video
 	className="border-2 rounded-lg object-cover w-full h-full dark:border-gray-800"
@@ -29,6 +29,13 @@ Audit logs can be filtered by Date, Username, Action (Create, Update, Delete, Ex
 		href="/docs/core_concepts/monitor_past_and_future_runs"
 	/>
 </div>
+
+## Filtering by run
+
+Filtering by run ID keeps only the entries about that [run](../5_monitor_past_and_future_runs/index.mdx) and every job under it (flow steps, loop iterations and subflows).
+A run's page opens this view from "Audit logs" in its actions menu, over the run's life and the day after it: widen the dates to see later entries, such as its deletion.
+
+Through the [API](https://app.windmill.dev/openapi.html#/operations/listAuditLogs), pass the run's ID as the `job_id` query parameter of `GET /w/{workspace}/audit/list`.
 
 ## Streaming a slow page in batches
 

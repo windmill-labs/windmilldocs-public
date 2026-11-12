@@ -225,6 +225,8 @@ type WhileloopFlow = {
   type: 'whileloopflow';
   modules: FlowModule[];
   skip_failures?: boolean;
+  max_iterations?: number;
+  max_duration_secs?: number;
 };
 
 type BranchOne = {
@@ -299,7 +301,9 @@ The `value` field of the `FlowModule` type can be one of these 9 kinds:
   collected as a list. Iterations can run in parallel with a configurable
   parallelism.
 - `whileloopflow`: run a [while-loop](../flows/22_while_loops.mdx) that repeats its modules until a
-  `stop_after_if` condition inside the loop is met.
+  `stop_after_if` condition inside the loop is met. The optional `max_iterations`
+  and `max_duration_secs` bound the loop, which fails with a `LoopExhausted`
+  error when one is reached first. Both are ignored when the loop runs in parallel.
 - `branchone`: run exactly one branch out of many, based on a predicate.
   Predicates are evaluated in-order and the first one that matches, gets to run.
   In case none matches, the default branch is run. The result of this module is

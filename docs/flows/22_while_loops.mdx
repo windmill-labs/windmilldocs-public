@@ -1,19 +1,20 @@
 ---
-description: How do I use while loops to run steps indefinitely until canceled or stopped in Windmill?
+description: How do I use while loops in Windmill? Repeat steps until canceled, a break condition is met, or an iteration or duration limit is reached.
 ---
 
 import DocCard from '@site/src/components/DocCard';
 
 # While loops
 
-While loops execute a sequence of code indefinitely until the user cancels or a step set to Early stop stops.
+While loops execute a sequence of code until the user cancels, a step set to Early stop stops, or the loop reaches one of its [iteration and duration limits](#limit-iterations-and-duration).
 
 ## How to stop a while loop
 
-The loop will continue to run until canceled, there are 3 ways to stop a while loop:
+The loop will continue to run until canceled, there are 4 ways to stop a while loop:
 - Cancel manually
 - Early stop/Break for loop
 - Early stop for step
+- Limit iterations and duration
 
 ### Cancel manually
 
@@ -67,9 +68,22 @@ For each step of the flow, an early stop can be defined. The result of the step 
 	/>
 </div>
 
+### Limit iterations and duration
+
+The `Limit iterations` and `Limit duration` toggles of the loop bound how long it can run (`max_iterations` and `max_duration_secs` in [OpenFlow](../openflow/index.mdx), both integers of at least 1).
+The duration is wall-clock time since the first iteration started, so time spent waiting for a worker counts towards it.
+
+Both limits are checked after each iteration, and a running iteration is never interrupted: a loop can exceed its maximum duration by up to one iteration.
+To cap a single iteration, set a [timeout](./9_custom_timeout.md) on the steps inside the loop.
+
+When either limit is reached first, the loop fails with an error named `LoopExhausted`, unless the [break condition](#early-stop--break) stopped the loop at that same iteration.
+If that iteration failed and [Skip failure](#skip-failure) is off, the loop fails with the iteration's own error instead.
+`LoopExhausted` is handled like any step failure: [retries](./14_retries.md), the [error handler](./7_flow_error_handler.md), or [Continue on error](./14_retries.md#continue-on-error-with-error-as-steps-return) followed, as the very next step, by a [branch](./13_flow_branches.md) on `results.<loop_id>.error?.name === 'LoopExhausted'`.
+
 ## Skip failure
 
 If set to `true`, the loop will continue to the next item even if the current item failed.
+It does not apply to a loop reaching its [limit](#limit-iterations-and-duration), which still fails the loop.
 
 ## Squash
 

@@ -321,11 +321,28 @@ Windmill AI supports:
 - Together AI's [models](https://docs.together.ai/docs/serverless-models)
 - AWS Bedrock's [models](https://aws.amazon.com/bedrock/)
 - Custom AI: base URL and API key of any AI provider that is OpenAI API-compatible
-  - For Ollama and other local models, select "Custom AI" and provide your Ollama server URL (e.g., `http://localhost:11434/v1` for local Ollama or your custom endpoint)
+  - For Ollama and other local models, select "Custom AI" and provide your Ollama server URL (e.g., `http://localhost:11434/v1` for local Ollama or your custom endpoint). A server on localhost or a private network must be allowed with [`ALLOW_PRIVATE_AI_BASE_URLS`](#private-ai-endpoints).
 
 If you'd like to use a model that isn't in the default dropdown list, you can use any model supported by a provider (like `gpt-4o-2024-05-13` or `claude-3-7-sonnet-20250219`) by simply typing the model name in the model input field and pressing enter.
 
 On OpenAI and Azure OpenAI, the AI chat sends a `prompt_cache_key` (derived from the workspace, provider and model) on Responses API requests so OpenAI can reliably reuse a cached prompt prefix, which matters from `gpt-5.6` on where cache writes are billed. See [prompt caching](../54_ai_agents/index.mdx#openai-prompt-caching) for how the same mechanism applies to AI agent steps.
+
+### Private AI endpoints
+
+Windmill refuses AI base URLs that point to localhost, a private network or a cloud metadata address, for every provider.
+This includes a self-hosted model such as Ollama or vLLM, and an internal proxy in front of a public provider.
+
+To reach one on a self-hosted instance, set the `ALLOW_PRIVATE_AI_BASE_URLS` [environment variable](../47_environment_variables/index.mdx) on servers and workers:
+
+- `true` or `1` allows every private host.
+- A comma-separated list of hosts, `host:port`, IP addresses or CIDR ranges allows only those, for example `ALLOW_PRIVATE_AI_BASE_URLS=ollama.internal:11434,10.1.0.0/16`.
+
+A host listed by name is allowed whatever address it resolves to; list an IP or CIDR range to allow by address.
+An entry with a port matches only that port.
+Wildcards are not supported; list each host, or a CIDR range.
+Entries Windmill cannot parse are ignored, with a warning in the logs.
+
+An internal [MCP server](../54_ai_agents/index.mdx#mcp-tools) used as an AI agent tool is allowed by a separate variable, `ALLOW_PRIVATE_MCP_SERVER_URLS`.
 
 ### Provider-specific configuration
 

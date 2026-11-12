@@ -14,7 +14,7 @@ and contextual variables.
 
 Variables are dynamic values that have a key associated to them and can be retrieved during the execution of a Script or Flow.
 
-All Variables (not just secrets) are encrypted with a workspace specific symmetric key to avoid leakage.
+All Variables (not just secrets) are encrypted with a workspace specific symmetric key to avoid leakage, except a [Vault reference](#vault-secret-references), where only the reference is stored.
 
 There are 2 types of Variables in Windmill: user-defined and contextual (including environment variables).
 
@@ -91,7 +91,7 @@ Environment variables are used to configure the behavior of scripts and services
 
 ## Secrets
 
-Secrets are encrypted when stored on Windmill. From a usage standpoint, secrets
+Secrets are encrypted when stored on Windmill, unless they are a [Vault reference](#vault-secret-references), where only the reference is stored. From a usage standpoint, secrets
 are kept safe in three different ways:
 
 - Secrets can only be accessed by users with the right [permissions](../16_roles_and_permissions/index.mdx), as defined
@@ -114,6 +114,7 @@ Variables also have a name, generated from the path, and names are used to
 access variables from scripts.
 
 A variable can be made secret. In this case, its value will not be visible outside of a script.
+On [Enterprise Edition](/pricing), a secret variable can instead [reference an existing HashiCorp Vault secret](#vault-secret-references).
 
 ![Add variable](./add_variable.png.webp)
 
@@ -154,7 +155,7 @@ Notes:
 
 By default, Windmill stores encrypted secrets in its own database using a workspace-specific symmetric key. On Enterprise Edition, superadmins can instead delegate secret storage to an external secret manager, keeping the ciphertext out of the Windmill database entirely.
 
-Secret backends are configured instance-wide from **Instance Settings → Secret backend**. Changes take effect immediately without restarting the server, and Windmill provides a **Test connection** button plus bidirectional migration endpoints to move existing secrets between backends (`Database → Vault/Key Vault` and back).
+Secret backends are configured instance-wide from **Instance settings → Secret Storage → Backend type**. Changes take effect immediately without restarting the server, and Windmill provides a **Test connection** button plus bidirectional migration endpoints to move existing secrets between backends (`Database → Vault/Key Vault` and back).
 
 **Fail-closed by design:** if the configured backend is unreachable, secret reads and writes fail rather than silently falling back to the database.
 
@@ -166,7 +167,10 @@ Configuration requires:
 
 - The Vault server URL and namespace (if applicable).
 - A KV v2 mount path where Windmill will read and write secrets.
-- A JWT auth role configured in Vault. Windmill exposes a JWKS endpoint at `/.well-known/jwks.json` that Vault uses to validate the short-lived JWTs Windmill issues on every secret operation.
+- Authentication, one of:
+  - A **JWT auth** role configured in Vault. Windmill exposes a JWKS endpoint at `/.well-known/jwks.json` that Vault uses to validate the short-lived JWTs Windmill issues on every secret operation.
+  - An **AppRole** role ID. Windmill reads the `secret_id` from the `VAULT_APPROLE_SECRET_ID` environment variable of every server and worker, so it is never stored in Windmill. Leave the variable unset for a role with `bind_secret_id=false`.
+  - A **Static token**.
 - **Skip SSL verify** (optional): disable TLS certificate verification for the Vault connection. Useful for development environments with self-signed certificates.
 
 Once configured:
@@ -201,6 +205,33 @@ Windmill can store secrets in [AWS Secrets Manager](https://aws.amazon.com/secre
 - **Endpoint URL** (optional): custom endpoint for testing with LocalStack.
 
 The migration and fail-closed semantics are identical to the Vault and Azure Key Vault backends.
+
+### Vault secret references
+
+On Enterprise Edition, a variable can read its value from an existing [HashiCorp Vault](https://www.vaultproject.io/) secret instead of storing it in Windmill.
+
+When adding the variable, set **Type** to **Vault reference**, then fill in:
+
+- **Vault path**: the secret's path the way `vault kv get` takes it, mount included, for example `secret/team/app`. KV v1 and v2 mounts both work.
+- **Key (optional)**: the field to read, like `token`. Leave it empty to get the whole secret as a JSON object, which a [resource](../3_resources_and_types/index.mdx) can take with `"$jsonvar:<variable path>"`.
+
+Windmill only stores the reference, `$external:vault://secret/team/app#token`, and that is what [git sync](../../advanced/11_git_sync/index.mdx) carries.
+The value is read from Vault on every access, so a rotation or revocation in Vault applies on the next read.
+Deleting the variable leaves the Vault secret untouched.
+Values are [masked in job logs](#secret-masking-in-job-logs) like other secrets.
+
+Only workspace admins can create a reference or change its path or key, and the **Vault reference** type only appears once a superadmin has allowed a path for the workspace.
+
+#### Allow Vault paths
+
+A superadmin sets which paths each workspace can reference in **Instance settings → Secret Storage → External secret references**:
+
+- **Vault connection**: **Same as secret backend** reuses the connection of the [Vault secret backend](#hashicorp-vault-backend). **Separate connection** sets up another one, with AppRole, JWT auth or a static token. When the secret backend is not Vault, turn on **HashiCorp Vault connection** and configure it the same way.
+- **Allowed prefixes**: add one `vault://<prefix>` entry per path and pick the workspaces it applies to, or leave the workspaces empty to allow it for all of them. Until a prefix is added, every reference is refused.
+
+Every reference is read with Windmill's single Vault identity, so any admin of a listed workspace can read every secret under that workspace's prefixes, within what that identity can read.
+Prefixes are checked again on every read, so removing one breaks the references under it on their next read.
+While Windmill's secret backend is Vault, the paths it stores secrets under can never be referenced.
 
 ## Sensitive and secret inputs
 

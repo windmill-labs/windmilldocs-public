@@ -11,7 +11,7 @@ The Concurrency limits feature allows you to define concurrency limits for scrip
 
 Concurrency limit is a [Cloud plans and Self-Hosted Enterprise Edition](/pricing) feature.
 
-Concurrency limit can be set from the Settings menu. When jobs reach the concurrency limit, they are automatically queued for execution at the next available optimal slot given the time window.
+Concurrency limit can be set from the Settings menu. When jobs reach the concurrency limit, they are by default queued for execution at the next available optimal slot given the time window, or they can [fail at once](../core_concepts/21_concurrency_limits/index.md#when-the-limit-is-reached).
 
 The Concurrency limit operates globally and across flow runs. It involves three key parameters:
 
