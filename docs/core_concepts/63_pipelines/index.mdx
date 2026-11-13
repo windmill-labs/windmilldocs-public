@@ -249,6 +249,7 @@ Any script that reads `s3:///pipelines/f/demo/orders.parquet` (a DuckDB `read_pa
 Steps whose data is a directory of files rather than a single object - a model checkpoint, a build cache, an agent workspace - can exchange a [volume](../67_volumes/index.mdx). Volumes are an [Enterprise Edition](/pricing) feature (the Community Edition caps them at 20 volumes per workspace and 50 MB per file).
 
 A script mounts a volume with the `// volume: <name> <mount_path>` annotation (see [Volumes](../67_volumes/index.mdx) for the grammar and permissions). In a pipeline, that mount is the asset usage: the script is recorded as a read-write user of `volume://<name>`, it shows connected to the volume node in the graph, and each of its completed runs counts as a write of the volume.
+A [read-only mount](../67_volumes/index.mdx#read-only-mounts) (`// volume:ro <name> <mount_path>`) is recorded as a read instead, so its runs do not count as writes.
 
 Volume reads are not [auto-derived](#asset-triggers-the-cascade) (only `ducklake://` and `s3://` reads are), so a consumer must declare its edge explicitly with `// on volume://<name>`. The URI is the volume name only - volume assets are tracked per volume, not per file inside it.
 
@@ -268,14 +269,16 @@ def main():
 ```python
 # pipeline
 # on volume://model-artifacts
-# volume: model-artifacts models
+# volume:ro model-artifacts models
 
 def main():
     with open("models/weights.bin", "rb") as f:
         report_quality(evaluate(f.read()))
 ```
 
-Volume access is [exclusively leased](../67_volumes/index.mdx#exclusive-leasing) (one job at a time), so overlapping runs serialize instead of reading a half-synced directory. One caveat: a mount is always recorded as read-write, so the consumer above is itself a producer of `volume://model-artifacts` - when several subscribers mount one volume, each completed run re-fires the others (the cascade's cycle guard keeps this bounded, but it multiplies runs). Prefer a single mounting consumer per volume, or `s3://` objects when many readers should fan out.
+A `volume:` mount is [exclusively leased](../67_volumes/index.mdx#exclusive-leasing) (one job at a time), so overlapping runs serialize instead of reading a half-synced directory.
+The consumer above uses `volume:ro`, so it takes no lease, runs alongside other readers, and still never sees a half-synced directory.
+Mount consumers read-only: a consumer that mounts with `volume:` is itself a producer of `volume://model-artifacts`, so when several such subscribers mount one volume, each completed run re-fires the others (the cascade's cycle guard keeps this bounded, but it multiplies runs).
 
 ## The pipeline graph
 

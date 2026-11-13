@@ -109,6 +109,25 @@ def main():
     pass
 ```
 
+### Read-only mounts
+
+Add `ro` right after `volume:` to mount a volume read-only:
+
+```python
+# volume:ro model-weights models
+def main():
+    with open("models/config.json") as f:
+        return f.read()
+```
+
+A read-only mount does not take the volume's [exclusive lease](#exclusive-leasing), so any number of jobs can mount the same volume at once, for example a shared model, a dataset or a reference cache.
+Changes made to the mount are never synced back, and with [nsjail](../../advanced/27_security_isolation/index.mdx) the directory is mounted read-only.
+Each job still sees a consistent version of the volume: if a writer is syncing changes when the job starts, it waits for that sync to finish and never mixes files from before and after it.
+
+`ro` must follow the colon directly: `volume: ro data` (with a space) mounts a volume named `ro` at `data`.
+
+Until every worker runs Windmill 1.872.0 or later, read-only mounts still take the exclusive lease, so they still run one at a time.
+
 ## Dynamic volume names
 
 Volume names support interpolation with `$workspace` and `$args[...]` placeholders, resolved at runtime:
@@ -132,15 +151,17 @@ When called with `env="prod"` in workspace `acme`, mounts volumes `acme-cache` a
 
 ## How it works
 
-1. **Before execution** — Windmill acquires an exclusive lease on the volume, then downloads the volume's files from object storage into a local directory using a per-worker LRU cache (up to 10 GB). Files are compared by size and MD5 hash to skip unchanged files.
-2. **During execution** — The volume directory is bind-mounted (read-write) into the job's [nsjail](../../advanced/27_security_isolation/index.mdx) sandbox, or symlinked into the job directory when running without sandboxing.
-3. **After execution** — If the volume is writable, changed and new files are synced back to object storage. Deleted files are removed from the remote. Volume metadata (size, file count) is updated. The lease is released.
+1. **Before execution** — Windmill acquires an exclusive lease on the volume (skipped for [read-only mounts](#read-only-mounts)), then downloads the volume's files from object storage into a local directory using a per-worker LRU cache (up to 10 GB). Files are compared by size and MD5 hash to skip unchanged files.
+2. **During execution** — The volume directory is bind-mounted (read-write, or read-only for a read-only mount) into the job's [nsjail](../../advanced/27_security_isolation/index.mdx) sandbox, or symlinked into the job directory when running without sandboxing.
+3. **After execution** — If the mount is writable, changed and new files are synced back to object storage. Deleted files are removed from the remote. Volume metadata (size, file count) is updated. The lease is released.
 
 Symlinks inside a volume are preserved: they are serialized to a metadata file in object storage and restored on download.
 
 ### Exclusive leasing
 
 Only one job can use a given volume at a time. Windmill acquires an exclusive lease (60-second TTL, auto-renewed every 10 seconds) on each volume before downloading. If the volume is already leased by another worker, the job waits for the lease to be released.
+
+[Read-only mounts](#read-only-mounts) skip the lease, so jobs that only read a volume do not wait for each other.
 
 ### Agent workers
 
@@ -151,7 +172,7 @@ Volumes work with [agent workers](../28_agent_workers/index.mdx). Agent workers 
 Volumes support fine-grained permissions through Windmill's standard sharing model. You can share a volume with specific users or groups and set read-only or read-write access.
 
 - **Owner** — the user who created the volume (or whose job first created it). Has full read-write access and can delete the volume.
-- **Read-only** — the job can use the volume but changes are not synced back to object storage after execution.
+- **Read-only** — the job can use the volume but changes are not synced back to object storage after execution. The volume is mounted as a [read-only mount](#read-only-mounts), without the exclusive lease, even if the annotation is `volume:`.
 - **Read-write** — the job can both read from and write to the volume.
 - **No permission** — if a volume has permissions set and the job's user has no matching entry, the job will fail.
 
@@ -185,7 +206,7 @@ From the Volumes drawer you can:
 
 Volumes work with both sandboxed ([nsjail](../../advanced/27_security_isolation/index.mdx)) and non-sandboxed execution, but the mount path behavior differs:
 
-- **With nsjail (sandbox)** — The volume directory is bind-mounted read-write at the declared mount path inside the sandbox. Both absolute (restricted to `/tmp/`, `/mnt/`, `/opt/`, `/home/`, `/data/`) and relative paths work. Relative paths are resolved relative to the nsjail working directory (`/tmp/bun` for Bun/TypeScript, `/tmp/deno` for Deno, `/tmp` for Python and others).
+- **With nsjail (sandbox)** — The volume directory is bind-mounted read-write (read-only for a [read-only mount](#read-only-mounts)) at the declared mount path inside the sandbox. Both absolute (restricted to `/tmp/`, `/mnt/`, `/opt/`, `/home/`, `/data/`) and relative paths work. Relative paths are resolved relative to the nsjail working directory (`/tmp/bun` for Bun/TypeScript, `/tmp/deno` for Deno, `/tmp` for Python and others).
 - **Without nsjail** — Only relative mount paths are supported. Windmill creates a symlink from the job directory to the volume's local directory.
 
 You can combine volumes with the [`sandbox` annotation](../../advanced/27_security_isolation/index.mdx#sandbox-annotation) to enable per-script sandboxing, which is required if you need absolute mount paths:
