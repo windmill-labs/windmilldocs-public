@@ -35,6 +35,7 @@ Agent steps keep working even in a workspace that [hides the AI assistant](../22
 Select or create an AI resource that contains your API credentials and endpoint configuration. [Resources](../3_resources_and_types/index.mdx) allow you to securely store and reuse AI provider credentials across multiple flows.
 
 For Anthropic, the picker also lists `anthropic_federated` resources, which authenticate through [Workload Identity Federation](../22_ai_generation/index.mdx#anthropic-with-workload-identity-federation) with no stored API key ([Enterprise Edition](/pricing) only).
+For Claude or Gemini on Vertex AI, it lists `vertex_ai_federated` resources, which do the same through [Google Cloud Workload Identity Federation](../22_ai_generation/index.mdx#vertex-ai-with-workload-identity-federation), and picking one sets the provider from the resource's `base_url`.
 
 ### Model selection
 

@@ -409,7 +409,33 @@ Both the `googleai` and `anthropic` resources expose a `platform` field that swi
   - Gemini example: `https://{region}-aiplatform.googleapis.com/v1/projects/{project}/locations/{region}/publishers/google/models`
   - Claude-on-Vertex example: `https://{region}-aiplatform.googleapis.com/v1/projects/{project}/locations/{region}/publishers/anthropic/models`
 
+An access token stored this way expires after an hour; to avoid storing and refreshing one, use a [`vertex_ai_federated` resource](#vertex-ai-with-workload-identity-federation) instead.
+
 `base_url` overrides are also honored on the standard platform, which is useful for pointing an Anthropic or Gemini resource at an internal proxy.
+
+#### Vertex AI with Workload Identity Federation
+
+A `vertex_ai_federated` resource authenticates to Vertex AI through [Google Cloud Workload Identity Federation](https://cloud.google.com/iam/docs/workload-identity-federation) instead of a stored access token, so there is no service account key to keep and no token to refresh on a schedule.
+It serves Claude or Gemini depending on the publisher in its `base_url` (`/publishers/anthropic/` or `/publishers/google/`), and the Windmill AI settings list it under both Anthropic and Google AI.
+Like [`anthropic_federated`](#anthropic-with-workload-identity-federation), it works in Windmill AI and in [AI agent steps](../54_ai_agents/index.mdx), not in scripts, and requires Enterprise Edition since it relies on Windmill's [OIDC](../29_oidc/index.mdx) provider.
+
+Windmill mints an OIDC token for the user or job, exchanges it with Google STS, impersonates the service account if one is set, and reuses the resulting access token until 5 minutes before it expires.
+An AI agent step exchanges once per job, not on every model turn.
+
+To set it up:
+
+1. In a Google Cloud workload identity pool, add an OIDC provider with the issuer URL `<instance_base_url>/api/oidc/`, where `<instance_base_url>` is your Windmill instance's [base URL](../../advanced/18_instance_settings/index.mdx#base-url), not the resource's Vertex endpoint.
+   Map `google.subject` from `assertion.email` rather than `assertion.sub`: Google caps `google.subject` at 127 bytes, and the subject of an AI agent step can be longer.
+2. Grant the pool's principals the `Vertex AI User` role, or grant them `roles/iam.workloadIdentityUser` on a service account that has that role.
+3. Create a `vertex_ai_federated` resource:
+   - `base_url`: the Vertex endpoint, in the same format as above. Windmill refuses any host outside `https://*.googleapis.com`, since the token carries the identity of whoever uses the resource.
+   - `workload_identity_provider`: `projects/<project_number>/locations/global/workloadIdentityPools/<pool>/providers/<provider>`. The `//iam.googleapis.com/` prefix is also accepted.
+   - `service_account_email` (optional): the service account to impersonate. Leave it empty to call Vertex AI with the federated token directly.
+   - `workload_identity_audience` (optional): set it only when the provider has custom allowed audiences. It defaults to `https://iam.googleapis.com/<workload_identity_provider>`.
+
+4. Select the resource as the Anthropic or Google AI resource in the Windmill AI settings, or in an AI agent step's provider picker.
+
+The token subject is `<email>::<workspace>` from Windmill AI and `<email>::<script path>::<flow path>::<workspace>` from an AI agent step, as for [Anthropic federation](#anthropic-with-workload-identity-federation).
 
 #### Custom AI (`customai`)
 
