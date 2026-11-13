@@ -75,6 +75,9 @@ Each entry uses the format `<workspace_id>:<path>`. The worker will dispatch inc
 
 This is configured from the worker group settings in the UI using the dedicated workers selector, which lets you search and pick scripts and flows from any workspace.
 
+An entry can also be a folder pattern such as `workspace_id:f/folder/*` (the selector's "Folder pattern" field): it serves every script under that folder, nested folders included, that enables the "Dedicated Workers" option.
+Patterns match scripts only, not flows.
+
 ## Shared runners
 
 When dedicated worker scripts in the same worker group share a [workspace dependency](../55_workspace_dependencies/index.mdx) and language, they automatically run in a single long-lived subprocess instead of separate processes. This is called a shared runner.
