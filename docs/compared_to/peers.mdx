@@ -41,7 +41,7 @@ See [Windmill vs n8n](/compare/n8n).
 
 ### Zapier and Make
 
-Zapier "connects to 9,000+ apps" ([zapier.com/pricing](https://zapier.com/pricing)) and Make lists "3,500+ pre-built apps" ([make.com/llms.txt](https://www.make.com/llms.txt)).
+Zapier lists more than 10,000 apps in its directory ([zapier.com/apps](https://zapier.com/apps)) and Make lists "3,500+ pre-built apps" ([make.com/llms.txt](https://www.make.com/llms.txt)).
 Both are hosted services aimed at people who do not write code, with code steps available ([Code by Zapier](https://zapier.com/apps/code/integrations), the [Make Code app](https://help.make.com/the-make-code-app-is-available.md) on paid plans).
 We found no self-hosted plan for either.
 
@@ -56,6 +56,7 @@ Pipedream Workflows [shuts down on March 31, 2027](https://pipedream.com/docs/wo
 Workday [signed a definitive agreement to acquire Pipedream](https://newsroom.workday.com/2025-11-19-Workday-Signs-Definitive-Agreement-to-Acquire-Pipedream) in November 2025.
 Pipedream's [component registry](https://github.com/PipedreamHQ/pipedream) is public under the Pipedream Source Available License, which excludes "any commercial use of the software".
 If you are leaving Pipedream Workflows, see [Pipedream alternatives after the Workflows shutdown](./pipedream_alternatives.mdx) for the options, including tools other than Windmill.
+For a side-by-side with Pipedream Workflows, see [Windmill vs Pipedream](/compare/pipedream).
 
 ## Data and infrastructure orchestration
 
@@ -174,6 +175,7 @@ See the [open source alternative to VMware vRA and vRO](/use-cases/vmware-vra-re
 Power Automate is Microsoft's automation service for building workflows with little or no code, with connectors to Microsoft and third-party services and desktop flows for automating user interfaces.
 Windows Task Scheduler and SQL Server Agent are the schedulers that ship with Windows and SQL Server.
 See [Windmill vs Power Automate](/compare/power-automate) and [Windmill vs Task Scheduler and SQL Server Agent](./windows_task_scheduler.mdx).
+VisualCron, a commercial automation and task scheduling tool for Windows, is compared in [Windmill vs VisualCron](/compare/visualcron).
 For PowerShell runbooks and SQL Server packages, see [Windmill vs PowerShell Universal](./powershell_universal.mdx), [Windmill vs Azure Automation](./azure_automation.mdx) and [Windmill vs SSIS](./ssis.mdx).
 
 ## What the Community Edition does not include
@@ -182,7 +184,6 @@ Some answers above depend on the edition, so check these before choosing the fre
 
 On any Windmill Cloud plan or on Enterprise Edition:
 
-- Unredacted [audit logs](../core_concepts/14_audit_logs/index.mdx): on the self-hosted Community Edition, audit logs are redacted.
 - [Git sync](../advanced/11_git_sync/index.mdx) for workspaces with more than 2 users.
 - Schedule error handlers, recovery handlers and schedule-level retries.
   Flow step [retries](../flows/14_retries.md) work on the Community Edition.
@@ -191,6 +192,7 @@ On any Windmill Cloud plan or on Enterprise Edition:
 
 On Enterprise Edition only, self-hosted or on Cloud:
 
+- Full, unredacted [audit logs](../core_concepts/14_audit_logs/index.mdx): on the self-hosted Community Edition, entries are redacted or not recorded.
 - SSO for more than 10 users, SAML and SCIM.
 - External secret backends (HashiCorp Vault, Azure Key Vault, AWS Secrets Manager).
 
@@ -202,6 +204,15 @@ A self-hosted instance also needs Enterprise Edition for more than 3 workspaces 
 The full list is on the [pricing page](/pricing).
 
 ## Side-by-side comparisons
+
+Every comparison is listed on the [comparison hub](/compare).
+Those not linked above, by the hub's categories:
+
+- Workflow automation and iPaaS: [Windmill vs Workato](/compare/workato).
+- Workflow orchestration and data engines: [Windmill vs Camunda](/compare/camunda) and [8 open-source Airflow alternatives, compared by use case](/blog/airflow-alternatives).
+- Internal tools and app builders: [Windmill vs Superblocks](/compare/superblocks), [Windmill vs Lovable](/compare/lovable) and [Windmill vs Replit](/compare/replit).
+- Security automation: [Windmill vs Tines](/compare/tines).
+- Infrastructure and IT automation: [Windmill vs Ansible Automation Platform](/compare/ansible-automation-platform), [Windmill vs Itential](/compare/itential) and [VMware Aria Automation alternatives, by what each one replaces](/blog/vmware-aria-automation-alternatives).
 
 <div className="grid grid-cols-2 gap-6 mb-4">
 	<DocCard

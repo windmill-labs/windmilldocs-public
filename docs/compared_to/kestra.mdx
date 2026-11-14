@@ -141,7 +141,7 @@ Kestra:
 - Requires passing arguments between steps through file I/O
 - Passes simple arguments as environment variables
 
-Kestra takes a code-only approach. Workflow creation is done through a YAML file. Each task is a value in the YAML, and most of your tasks will be separate files that need to be referenced in the flow (e.g. Python code can type `io.kestra.core.tasks.scripts.Python`, `io.kestra.core.tasks.python.Commands`, `io.kestra.core.tasks.python.Script`).
+Kestra is YAML-first. Workflow creation is done through a YAML file. Each task is a value in the YAML, and most of your tasks will be separate files that need to be referenced in the flow (e.g. Python code can use `io.kestra.plugin.scripts.python.Script` or `io.kestra.plugin.scripts.python.Commands`).
 
 ![Kestra flow example](../assets/compared_to/flow_kestra.webp 'Kestra flow example')
 
@@ -264,7 +264,7 @@ The UI secret manager, namespace- and tenant-scoped secrets, and external backen
 
 In Windmill, any npm, PyPI, Go or Maven package is a first-class import with automatic per-script dependency resolution and lockfiles.
 There is no plugin layer in between: you call the vendor's own SDK, with type inference and auto-completion in the editor.
-50+ pre-built [resource types](../integrations/0_integrations_on_windmill.mdx) cover common databases (Postgres, Snowflake, BigQuery), SaaS (Slack, Stripe, GitHub, Notion, OpenAI) and infrastructure (S3, Redis, Kafka).
+200+ pre-built [resource types](../integrations/0_integrations_on_windmill.mdx) cover common databases (Postgres, Snowflake, BigQuery), SaaS (Slack, Stripe, GitHub, Notion, OpenAI) and infrastructure (S3, Redis, Kafka).
 You paste an API key into a typed form, and the resource is shared across scripts, flows and apps, encrypted at rest.
 The community [Hub](https://hub.windmill.dev/) has reusable scripts and flows for common tasks.
 
@@ -373,7 +373,7 @@ However, there are a few features where they stand out from each other.
 
 - [Automated UI generation](../core_concepts/6_auto_generated_uis/index.mdx) for script and flows input fields
 - Configurable [workspace roles](../core_concepts/16_roles_and_permissions/index.mdx#workspace-roles), billed as half a seat, for users who only trigger flows
-- [Approval steps](../flows/11_flow_approval.mdx) to pause a flow execution until approval
+- [Approval steps](../flows/11_flow_approval.mdx) in the Community Edition (Kestra's open-source Pause task resumes on a click; its Human-in-the-Loop Approvals are Enterprise)
 - [Low-code App Editor](../apps/0_app_editor/index.mdx) and [full-code apps](../full_code_apps/index.mdx) (React/Svelte) for building UIs
 - Reusable [variables, secrets](../core_concepts/2_variables_and_secrets/index.mdx), and [resources](../core_concepts/3_resources_and_types/index.mdx)
 - Built-in worker [logs and metrics](../core_concepts/9_worker_groups/index.mdx#queue-metrics) (EE only)
@@ -385,18 +385,16 @@ Both platforms cover the enterprise basics: RBAC, SSO, audit logs and SOC 2.
 | | Windmill | Kestra |
 | --- | --- | --- |
 | Observability | Real-time streaming logs, inputs, outputs and duration for every run, and a trace ID on every job. Built-in worker logs and metrics are EE only. | Execution logs, task-level timings, metrics via OpenTelemetry and dashboards |
-| Audit logs | [Audit logs](../core_concepts/14_audit_logs/index.mdx) of who ran, edited or deployed what. See the [pricing page](/pricing) for the plans that include them. | Tracks platform events and user activity, Enterprise only |
-| Security | SOC 2 Type II report covering the Enterprise Edition. [RBAC](../core_concepts/16_roles_and_permissions/index.mdx), [SSO](../core_concepts/15_authentication/index.mdx) for up to 10 users, encrypted secrets at rest and sandboxed script execution in open source. Uncapped SSO and advanced access controls (SCIM, SAML) are EE. | RBAC, SSO (SAML, OIDC) and secret manager integrations are Enterprise only. Kestra Cloud is SOC 2 compliant. |
+| Audit logs | [Audit logs](../core_concepts/14_audit_logs/index.mdx) of who ran, edited or deployed what. Full, unredacted entries need the Enterprise Edition; on the self-hosted Community Edition, entries are redacted or not recorded. | Tracks platform events and user activity, Enterprise only |
+| Security | SOC 2 Type II report covering the Enterprise Edition. [RBAC](../core_concepts/16_roles_and_permissions/index.mdx), [SSO](../core_concepts/15_authentication/index.mdx) for up to 10 users, encrypted secrets at rest and optional job isolation (off by default) in open source. Uncapped SSO and advanced access controls (SCIM, SAML) are EE. | RBAC, SSO (SAML, OIDC) and secret manager integrations are Enterprise only. Kestra Cloud is SOC 2 compliant. |
 | Multi-tenancy and isolation | Multiple isolated [workspaces](../core_concepts/16_roles_and_permissions/index.mdx#workspace) on the same instance, each with its own users, resources, secrets and access controls. The self-hosted Community Edition is capped at 3 workspaces; unlimited is EE. | Single tenant in open source. Namespaces organize flows but share the same users, secrets and access controls across the whole instance. Tenant isolation is Enterprise only. |
 
 ## Performance
 
-Windmill's architecture allows running each task on the current fleet of worker
-(which you can auto-scale automatically) and hence do not suffer from cold start.
-Isolation and creating dedicated dependency environment is the secret sauce that makes Windmill
-the fastest execution runtime for scripts (10ms cold start).
+Between jobs, a normal Windmill worker spends [around a dozen milliseconds](../core_concepts/25_dedicated_workers/index.mdx) on clean-up and cold start; [dedicated workers](../core_concepts/25_dedicated_workers/index.mdx) (Cloud plans and self-hosted Enterprise) keep the runtime and dependencies warm.
 
-Windmill can run 26M tasks a month on a single worker costing 5$. Kestra does not provide figures on its average runtime and performance.
+Each worker can run up to 26 million jobs a month when each job lasts about 100ms ([worker groups](../core_concepts/9_worker_groups/index.mdx)).
+Kestra publishes its own [throughput benchmarks](https://kestra.io/docs/performance/benchmark).
 
 Also, Windmill has a [transparent API](https://app.windmill.dev/openapi.html#/), on which you could imagine launching 1m simulateously by API.
 
@@ -433,10 +431,10 @@ See the [Kestra benchmark](../misc/3_benchmarks/competitors/kestra/index.mdx) fo
 
 Windmill has a transparent pricing policy, with clear steps for implementation. Every feature mentioned above is free with Windmill, unless mentioned otherwise ([EE](/pricing)). See all Enterprise Edition features on our [Pricing page](/pricing).
 
-Windmill is cheaper at scale and can be used for free at any scale thanks to its open source nature.
+Windmill's AGPLv3 core is free to self-host in production with no limit on executions.
 
 Kestra Enterprise adds SSO, multi-tenancy, audit logs and advanced RBAC.
-As of November 18, 2024, Kestra does not disclose its Enterprise pricing (see below):
+As of November 2026, Kestra does not disclose its Enterprise pricing (screenshot below from November 2024):
 
 ![Kestra pricing](../assets/compared_to/kestra_pricing.webp 'Kestra pricing')
 

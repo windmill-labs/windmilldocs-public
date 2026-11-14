@@ -91,7 +91,7 @@ Each script is also a standalone endpoint with an [auto-generated UI](../core_co
 
 Retool Workflows run on a separate canvas with blocks for code, resource queries, loops and branches.
 They start from <a href="https://docs.retool.com/workflows/concepts/triggers" rel="nofollow">schedules, webhooks and query triggers</a> (in beta).
-Workflow runs are metered: the pricing page lists 500 runs a month on Free and 5,000 on Team, with additional runs at $75 per 5,000.
+Workflow runs are metered: the pricing page lists 500 runs a month on Free and 5,000 on Team.
 
 Windmill [flows](../flows/1_flow_editor.mdx) chain scripts in any of the languages above, with [approval steps](../flows/11_flow_approval.mdx), [sleep](../flows/15_sleep.md), [early stop](../flows/2_early_stop.md), [while loops](../flows/22_while_loops.mdx), retries and error handlers.
 They start from schedules, webhooks, HTTP routes, or event triggers for [Kafka](../triggers/5_kafka_triggers/index.mdx), NATS, SQS, MQTT, Postgres, WebSocket and email.
@@ -176,8 +176,8 @@ JavaScript and SQL inside queries are portable; the layout and component binding
 
 | | Windmill | Retool |
 | --- | --- | --- |
-| Observability | Streaming logs, inputs, outputs and duration for every run, worker queue metrics, and Prometheus metrics on Enterprise Edition | Workflow run logs with per-block timings and I/O, app usage analytics and query history; OpenTelemetry export on self-hosted Enterprise |
-| Audit logs | [Audit logs](../core_concepts/14_audit_logs/index.mdx) of who ran, edited or deployed what; not in the self-hosted free edition, retention by plan on the [pricing page](/pricing) | Business plan and above |
+| Observability | Streaming logs, inputs, outputs and duration for every run; worker queue metrics and Prometheus metrics on Enterprise Edition | Workflow run logs with per-block timings and I/O, app usage analytics and query history; OpenTelemetry export on self-hosted Enterprise |
+| Audit logs | [Audit logs](../core_concepts/14_audit_logs/index.mdx) of who ran, edited or deployed what; full, unredacted entries need the Enterprise Edition, and on the self-hosted Community Edition entries are redacted or not recorded | Business plan and above |
 | Access control and SSO | [RBAC](../core_concepts/16_roles_and_permissions/index.mdx), SSO for up to 10 users and encrypted secrets in the open-source edition; uncapped SSO, SCIM and SAML on Enterprise | Rich RBAC on Business and above; SSO (SAML, OpenID), SCIM and independent workspaces on Enterprise, with no SSO on Free, Team or Business; custom branding on Business, full white-labeling on Enterprise; SOC 2 Type II and ISO 27001 audits |
 | Isolation | Several isolated workspaces on one instance, each with its own users, resources, secrets and permissions: 3 on the self-hosted free edition, unlimited on Enterprise | Independent workspaces on Enterprise; staging and production environments on Team, unlimited environments from Business |
 | Performance | [Dedicated workers](../core_concepts/25_dedicated_workers/index.mdx) (Enterprise Edition or Windmill Cloud) keep runtimes and dependencies warm; published [benchmarks](../misc/3_benchmarks/competitors/index.mdx) against other orchestrators | No published performance benchmarks |
@@ -187,7 +187,7 @@ JavaScript and SQL inside queries are portable; the layout and component binding
 Retool charges per user on <a href="https://retool.com/pricing" rel="nofollow">annual billing</a>: builders at $10 a month on Team and $50 on Business, internal users at $5 and $15, with Enterprise priced by quote.
 SSO, source control and self-hosting are on Enterprise.
 
-Windmill's Community Edition is free to self-host at any scale.
+Windmill's Community Edition is free to self-host in production with no limit on executions.
 Paid plans are priced on [seats and compute units](/pricing), and the [plan details](../enterprise/1_plans_details/index.mdx) list what each one includes.
 
 <div className="grid grid-cols-2 gap-6 mb-4">

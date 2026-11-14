@@ -1,0 +1,136 @@
+---
+title: Migrate from VisualCron
+description: Move VisualCron Jobs to Windmill. How Jobs, Tasks, Triggers, Credentials and Connections map to Windmill, and how a coding agent can convert an export.
+---
+
+import DocCard from '@site/src/components/DocCard';
+
+# Migrate from VisualCron
+
+This guide moves VisualCron Jobs to Windmill, one Job at a time.
+Your AI coding agent (Claude Code, Codex or Cursor) reads the Jobs exported from your VisualCron Server and rebuilds each one as a Windmill [flow](../../../flows/1_flow_editor.mdx) or [script](../../../getting_started/0_scripts_quickstart/index.mdx), with its [schedule](../../../core_concepts/1_scheduling/index.mdx) or trigger.
+For how the two tools compare, see [Windmill vs VisualCron](/compare/visualcron).
+
+Most VisualCron Jobs touch Windows: PowerShell, local and network paths, `.exe` files, Windows accounts.
+In Windmill, those steps run on [Windows workers](../../../misc/17_windows_workers/index.mdx), a Self-Hosted [Enterprise](/pricing) feature.
+Steps that only call APIs or databases can run on Linux workers, on Windmill Cloud or on any self-hosted instance.
+
+## 1. How VisualCron stores Jobs
+
+In VisualCron, a <a href="https://help.visualcron.com/visualcron-specific-definitions" rel="nofollow">Job runs when one of its Triggers fires</a>, and "when a Job runs, it runs its Tasks".
+Each Job has one or more Tasks, and each Task has a Task type, such as starting a program, copying files or running a SQL query.
+<a href="https://help.visualcron.com/client-user-interface/server/job-triggers" rel="nofollow">Triggers</a> are Time Triggers or Event Triggers, and a <a href="https://help.visualcron.com/client-user-interface/server/job-flow" rel="nofollow">Flow</a> on the Job or a Task decides what happens on start, error, success and completion.
+Credentials (Windows accounts), Connections (addresses and sign-ins for other systems) and Variables are global objects that Tasks refer to.
+
+The Server keeps all of this in its <a href="https://help.visualcron.com/client-user-interface/server/settings-folders" rel="nofollow">settings folder</a>: "the Server settings, Jobs and other objects".
+<a href="https://help.visualcron.com/client-user-interface/file/export-settings" rel="nofollow">Export settings</a> saves them to one zip file, and lets you choose which object types to include.
+
+## 2. Export your Jobs
+
+1. In the VisualCron Client, open **File** > **Import/Export** > **Export settings**.
+2. Under **Select settings**, select **Jobs**, and **Variables** if your Jobs use them. Leave **Credentials** and **Connections** out: VisualCron warns that the file holds the selected Credentials, Connections, Certificates and keys, and you will recreate them in Windmill yourself.
+3. Choose **Custom file path**, leave **Password** empty, and click **Start**.
+4. Unzip the file into an empty folder, for example `visualcron-export/`.
+
+If you would rather not give the agent the export, you can also describe a Job to it from the Client: the Task list, each Task's settings and the Triggers tab.
+
+## 3. Give your agent one prompt
+
+Open the folder that contains `visualcron-export/` in Claude Code, Codex or Cursor, and paste:
+
+```text
+Migrate my VisualCron Jobs to Windmill.
+1. If this folder has no wmill.yaml, run `npx -y windmill-cli@latest init --use-default`.
+2. Read the skills that init installed under .claude/skills, and the mapping in
+   https://www.windmill.dev/docs/misc/guides/migrate_from_visualcron
+3. Read the VisualCron export in ./visualcron-export/. Write visualcron_migration.md with one
+   entry per Job: its Triggers, its Tasks in order with their Task types, the Credentials,
+   Connections and Variables it uses, and anything with no direct Windmill equivalent.
+4. Ask me which folder to use, which Jobs to migrate, and which worker tag runs Windows steps.
+5. Rebuild each Job I pick as a flow (or a single script for a one-Task Job), with its
+   schedule created disabled.
+Don't deploy anything until I've reviewed it.
+```
+
+All you need installed is [Node.js](https://nodejs.org), for `npx`.
+`wmill init` sets up a local Windmill project, with no account needed, and installs the [AI skills](../local_dev_with_ai/index.mdx) for writing flows, PowerShell, C# and MS SQL scripts, schedules, triggers and resources.
+Check `visualcron_migration.md` before the agent converts anything: it is the list of what moves, what needs a decision, and what you bring over by hand.
+
+## 4. Connect a workspace and preview
+
+To run the converted flows, you need a Windmill workspace: [sign up for Windmill Cloud](https://app.windmill.dev/user/login), or [self-host Windmill](../../../advanced/1_self_host/index.mdx) and add a [Windows worker](../../../misc/17_windows_workers/index.mdx) for Windows steps.
+Connect the workspace from your own terminal:
+
+```bash
+npx windmill-cli workspace add
+```
+
+The agent can then preview each flow with sample inputs and fix what fails.
+A preview deploys nothing, but it does run the steps, so point it at test systems where a Job writes or deletes data.
+
+## 5. Bring over what the export leaves out
+
+| VisualCron | Where it goes in Windmill |
+|---|---|
+| Credential (a Windows account a Task runs as) | The account the Windows worker's service runs as. To run steps as different accounts, run one worker service per account, each listening to its own [tag](../../../core_concepts/9_worker_groups/index.mdx#set-tags-to-assign-specific-queues) |
+| Connection | A [resource](../../../core_concepts/3_resources_and_types/index.mdx), for example an `ms_sql_server` resource for a SQL Connection |
+| Passwords and API keys | Secret [variables](../../../core_concepts/2_variables_and_secrets/index.mdx) |
+| Variable | A [variable](../../../core_concepts/2_variables_and_secrets/index.mdx) for a fixed value; for a value one Task passes to the next, the previous step's result (`results.<step id>`, see [flow architecture](../../../flows/16_architecture.mdx)) |
+| Job group | A [folder](../../../core_concepts/8_groups_and_folders/index.mdx) |
+
+## 6. Review, deploy and switch over
+
+1. Review the flows and scripts in `f/<your folder>/` and the checklist.
+2. Deploy the folder with its schedules and triggers: `wmill sync push --includes 'f/<your folder>/**' --include-triggers --include-schedules`.
+3. For each Job, <a href="https://help.visualcron.com/client-user-interface/server-group-job-task-area/job-list/activate-deactivate-job" rel="nofollow">deactivate it</a> in VisualCron and enable its Windmill schedule. Keep the VisualCron Job until the Windmill runs match.
+
+## How VisualCron concepts map to Windmill
+
+| VisualCron | Windmill |
+|---|---|
+| Job | [Flow](../../../flows/1_flow_editor.mdx), or a single script for a one-Task Job |
+| Task | A flow step |
+| Time Trigger | [Schedule](../../../core_concepts/1_scheduling/index.mdx) with a cron expression |
+| HTTP REST Event Trigger | [Webhook](../../../core_concepts/4_webhooks/index.mdx) or [HTTP route](../../../triggers/2_http_routing/index.mdx) |
+| Mail Trigger | [Email trigger](../../../triggers/1_email_triggers/index.mdx), if mail can be forwarded to its address, or a scheduled poll that reads the mailbox |
+| File, Folder, Remote file, Cloud file, SQL and HTTP Triggers | A [scheduled poll](../../../core_concepts/1_scheduling/index.mdx#scheduled-polls): a [trigger script](../../../flows/10_flow_trigger.mdx) on a schedule that keeps state and returns only new items |
+| Amazon SQS and AMQP Triggers | [SQS triggers](../../../triggers/7_sqs_triggers/index.mdx) (self-hosted Enterprise) and [AMQP triggers](../../../triggers/12_amqp_triggers/index.mdx) (self-hosted) |
+| Service, Registry, Event log, Performance counter and other Windows Event Triggers | No built-in equivalent. A scheduled script on a Windows worker checks the condition, or a Windows-side task calls the flow's [webhook](../../../core_concepts/4_webhooks/index.mdx) |
+| Job or Task Flow on error | [Retries](../../../flows/14_retries.md), a flow [error handler](../../../flows/7_flow_error_handler.md), and a [schedule error handler](../../../core_concepts/1_scheduling/index.mdx#schedule-error-handler) (Cloud and Enterprise) |
+| Execute Task (command or batch) | A [PowerShell](../../../getting_started/0_scripts_quickstart/4_bash_quickstart/index.mdx#powershell) script on a Windows worker, or Bash on a Linux worker |
+| A compiled `.exe` with no source | Run it as it is from a PowerShell script on a Windows worker that has the file, for example `& 'C:\Tools\export.exe' --day $day`, and fail the step when `$LASTEXITCODE` is not 0 |
+| PowerShell Task | A PowerShell script. Its `param()` block becomes the script's inputs and `Import-Module` installs missing modules ([details](../../../advanced/6_imports/index.mdx#imports-in-powershell)). Windows workers run PowerShell 7 (`pwsh.exe`), so check scripts written for Windows PowerShell 5.1 |
+| .NET Code Execute Task | A [C#](../../../getting_started/0_scripts_quickstart/11_csharp_quickstart/index.mdx) script with NuGet dependencies. Windmill has no VB.NET runtime, so VB.NET code is rewritten in C# or PowerShell |
+| SQL Task | An [MS SQL script](../../../getting_started/0_scripts_quickstart/5_sql_quickstart/index.mdx#ms-sql) (Enterprise Edition or Cloud), with [Windows integrated authentication](../../../getting_started/0_scripts_quickstart/5_sql_quickstart/index.mdx#windows-integrated-authentication) on a Windows worker. A SQL Server Agent job becomes `EXECUTE msdb.dbo.sp_start_job N'<job name>';` |
+| Execute SSIS package and Execute SSISDB package Tasks | `dtexec` from a PowerShell script on a Windows worker where SSIS is installed, or a SQL Server Agent job started with `sp_start_job`; see [Windmill vs SSIS](../../../compared_to/ssis.mdx#using-them-together) |
+| SSRS Task | No built-in equivalent. A script requests the report from the report server with <a href="https://learn.microsoft.com/en-us/sql/reporting-services/url-access-parameter-reference" rel="nofollow">URL access</a> and `rs:Format` (for example `PDF` or `EXCELOPENXML`), then saves the file to [object storage](../../../core_concepts/38_object_storage_in_windmill/index.mdx) or sends it. On a Windows worker, PowerShell's `Invoke-WebRequest -UseDefaultCredentials` signs in as the worker's account |
+| Email Task | A step that sends mail through an [SMTP resource](../../../integrations/smtp.md) |
+| Other Task types (files, FTP, cloud storage, Active Directory) | A script in the language that suits it, using that system's API, SDK or PowerShell module. Steps that use local or network paths run on a Windows worker |
+
+## Getting help
+
+If part of a Job doesn't convert, or a migrated flow behaves differently from the VisualCron Job, ask us on [Discord](https://discord.com/invite/V7PM2YHsPB) or email [contact@windmill.dev](mailto:contact@windmill.dev).
+Include the Job's entry from `visualcron_migration.md`.
+
+<div className="grid grid-cols-2 gap-6 mb-4">
+	<DocCard
+		title="Windmill vs VisualCron"
+		description="Architecture, authoring, triggers and scaling, side by side."
+		href="/compare/visualcron"
+	/>
+	<DocCard
+		title="Windows workers"
+		description="Run Windmill workers natively on Windows as a service."
+		href="/docs/misc/windows_workers"
+	/>
+	<DocCard
+		title="Local development with AI"
+		description="Use Claude Code, Codex or Cursor with the Windmill CLI's skills."
+		href="/docs/misc/guides/local_dev_with_ai"
+	/>
+	<DocCard
+		title="Windmill CLI"
+		description="Install the CLI and sync a workspace to a local folder."
+		href="/docs/advanced/cli"
+	/>
+</div>

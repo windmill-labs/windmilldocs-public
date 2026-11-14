@@ -5,7 +5,7 @@ description: How do I deploy Windmill on Azure with AKS and optionally use Entra
 
 import DocCard from '@site/src/components/DocCard';
 
-Windmill can be deployed on Azure using [AKS](https://learn.microsoft.com/en-us/azure/aks/) (Azure Kubernetes Service) with an [Azure Database for PostgreSQL Flexible Server](https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/). This guide walks through the full setup: networking, database, Helm deployment, and ingress. It then covers optional [Entra ID passwordless authentication](#entra-id-database-authentication-optional) for Enterprise users.
+Windmill can be deployed on Azure using [AKS](https://learn.microsoft.com/en-us/azure/aks/) (Azure Kubernetes Service) with an [Azure Database for PostgreSQL Flexible Server](https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/). This guide walks through the full setup: networking, database, Helm deployment, and ingress. It then covers optional [Entra ID passwordless authentication](#entra-id-database-authentication-optional) for Enterprise users. To install from Microsoft Marketplace instead of with Helm, see [Install from Microsoft Marketplace](#install-from-microsoft-marketplace).
 
 Adapt replica counts and VM sizes to your workload. As a rule of thumb, allocate 1 [worker](../../core_concepts/9_worker_groups/index.mdx) per vCPU and 1–2 GB of RAM per worker.
 
@@ -210,6 +210,59 @@ Navigate to your domain or load balancer IP. You should see the Windmill login s
 		href="/docs/core_concepts/worker_groups"
 	/>
 </div>
+
+## Install from Microsoft Marketplace
+
+The Microsoft Marketplace offer Windmill Enterprise (self-hosted) installs Windmill Enterprise Edition on an AKS cluster as a cluster extension, from the Azure portal. The plan is bring-your-own-license: you enter a Windmill license key after the install. This section describes bundle 1.0.0 of the offer.
+
+### Cluster requirements
+
+- An existing AKS cluster. The portal form lists the AKS clusters in the selected resource group and cannot create one. Create it first, for example as in [Create an AKS cluster](#create-an-aks-cluster).
+- Linux AMD64 node pools.
+- At least 2 nodes with 16 GiB of memory each. We tested with 2 × `Standard_D4as_v5`: the install completed in under 7 minutes with all 9 pods running. With the default settings, the pods request 17 GiB of memory in total:
+
+  | Pods | Memory request |
+  | --- | --- |
+  | 2 app (API and UI) | 2 × 2 GiB |
+  | 3 default workers | 3 × 2 GiB |
+  | 1 native worker | 2 GiB |
+  | 1 indexer | 2 GiB |
+  | 1 bundled PostgreSQL | 2 GiB |
+  | 1 windmill-extra (LSP, multiplayer, debugger) | 1 GiB |
+
+  On 2 nodes with 8 GiB each (`Standard_D2as_v5`), five pods stayed `Pending` and the installation did not complete.
+
+### Database
+
+The form offers "Bundled PostgreSQL (evaluation only)" or "External PostgreSQL (recommended for production)".
+
+:::warning
+In bundle 1.0.0 the bundled PostgreSQL has no persistent volume. All data, including users, scripts and job history, is lost when its pod restarts or moves to another node. Use it only to evaluate Windmill.
+:::
+
+For production, choose "External PostgreSQL" and enter the connection URL of an Azure Database for PostgreSQL Flexible Server, prepared as described in [Create a PostgreSQL Flexible Server](#create-a-postgresql-flexible-server), including the [database role setup](#database-role-setup). Example: `postgresql://windmill:<strong-password>@<pg-server>.postgres.database.azure.com:5432/windmill?sslmode=require`.
+
+### Enter your license key
+
+The instance runs Enterprise Edition and is installed without a license key. Until you enter one, every job is refused with "License key is not valid. Go to your superadmin settings to update your license key." Log in, open Instance settings and enter the key under [License key](../18_instance_settings/index.mdx#license-key). To get a trial key, start a free trial from the [pricing page](/pricing).
+
+### Open Windmill
+
+The offer does not create an Ingress by default, and the "Domain" field defaults to `windmill`. To reach the UI without an Ingress, forward the `windmill-app` service from the `windmill` namespace:
+
+```bash
+az aks get-credentials --name <aks-cluster> --resource-group <rg>
+kubectl port-forward -n windmill svc/windmill-app 8000:8000
+```
+
+Then open `http://localhost:8000` and log in with the default credentials `admin@windmill.dev` / `changeme`. Replace the default superadmin account in the last step of the setup wizard, as described in [First time login](./index.mdx#first-time-login).
+
+To give Windmill a permanent address, you have two options:
+
+- When you install, set "Domain" in the form to the host name your users will open, for example `windmill.example.com`, and check "Create an Ingress using the AKS application routing add-on". This option requires the [application routing add-on](https://learn.microsoft.com/en-us/azure/aks/app-routing) to be enabled on the cluster.
+- Expose Windmill yourself. [Expose Windmill](#expose-windmill) lists the Azure options.
+
+Then set the [Base URL](../18_instance_settings/index.mdx#base-url) in Instance settings to that address.
 
 ## Entra ID database authentication (optional)
 

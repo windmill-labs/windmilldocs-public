@@ -111,7 +111,7 @@ Both are free to self-host for unmodified use.
 If license permissiveness of the core is a hard constraint, Prefect is ahead on this point.
 
 Windmill's [Enterprise Edition](/pricing) is self-hostable.
-Prefect's enterprise-grade features (RBAC, SSO, audit logs, multi-tenancy, service accounts) live in the proprietary <a href="https://www.prefect.io/pricing" rel="nofollow">Prefect Cloud</a> SaaS, not in a self-hostable Enterprise build.
+Prefect's enterprise-grade features (RBAC, SSO, audit logs, multi-tenancy, service accounts) live in the proprietary <a href="https://www.prefect.io/pricing" rel="nofollow">Prefect Cloud</a>, not in the open-source server. <a href="https://docs-customer-managed.prefect.io/" rel="nofollow">Customer-Managed Prefect</a> "brings the Prefect Cloud API into your own infrastructure".
 
 Prefect open source includes a self-hostable server with a UI for runs, deployments and schedules, and event-based automations: Prefect 3 can run deployments in response to events without Prefect Cloud.
 User accounts, workspaces, RBAC, SSO and audit logs are Prefect Cloud features.
@@ -290,7 +290,7 @@ It has no native Kafka, Postgres CDC or SQS trigger: those are typically polled 
 In Windmill, any npm, PyPI, Go or Maven package is a first-class import with automatic per-script dependency resolution and lockfiles, and no plugin layer in between.
 You call the vendor's SDK directly, with type inference and auto-completion in the editor.
 For example, type `import stripe` in the script editor and run: Windmill detects the import, resolves the version and pins it in a per-script lockfile, with no venv, no `pip install` and no restart.
-[50+ pre-built resource types](../integrations/0_integrations_on_windmill.mdx) cover common databases (Postgres, Snowflake, BigQuery), SaaS (Slack, Stripe, GitHub, Notion, OpenAI) and infrastructure (S3, Redis, Kafka).
+[200+ pre-built resource types](../integrations/0_integrations_on_windmill.mdx) cover common databases (Postgres, Snowflake, BigQuery), SaaS (Slack, Stripe, GitHub, Notion, OpenAI) and infrastructure (S3, Redis, Kafka).
 Paste an API key into a typed form and the resource is shared across scripts, flows and apps, encrypted at rest.
 The community [Hub](https://hub.windmill.dev/) has reusable scripts and flows for common tasks.
 
@@ -323,12 +323,9 @@ Community integrations are published as standalone pip packages.
 
 ## Execution runtime and coldstarts
 
-Windmill's architecture allows running each task on the current fleet of worker
-(which you can auto-scale automatically) and hence do not suffer from cold start.
-Isolation and creating dedicated dependency environment is the secret sauce that makes Windmill
-the fastest execution runtime for scripts (10ms cold start).
+Between jobs, a normal Windmill worker spends [around a dozen milliseconds](../core_concepts/25_dedicated_workers/index.mdx) on clean-up and cold start; [dedicated workers](../core_concepts/25_dedicated_workers/index.mdx) (Cloud plans and self-hosted Enterprise) keep the runtime and dependencies warm.
 
-Windmill can run 26M tasks a month on a single worker costing 5$. Prefect does not provide figures on its average runtime and performance.
+Each worker can run up to 26 million jobs a month when each job lasts about 100ms ([worker groups](../core_concepts/9_worker_groups/index.mdx)).
 
 Also, Windmill has a [transparent API](https://app.windmill.dev/openapi.html#/), on which you could imagine launching 1m simulateously by API.
 
@@ -415,7 +412,7 @@ In terms of monitoring and observability, Windmill and Prefect's cloud app fulfi
 
 The main difference is that Prefect's application seems to be conceived as a reliable source for reporting actions from Prefect, whereas with Windmill, the application provides more control as everything can be done from the Windmill app (creation of scripts, flows apps, triggers, monitoring, [permissions](../core_concepts/16_roles_and_permissions/index.mdx), etc.)
 
-Windmill provides [real-time streaming logs](/platform/observability), per-run inputs, outputs and duration, built-in worker queue metrics, and a trace ID on every job.
+Windmill provides [real-time streaming logs](/platform/observability), per-run inputs, outputs and duration, and a trace ID on every job.
 In Prefect, OpenTelemetry export and advanced dashboards are Prefect Cloud only.
 
 <video
@@ -453,13 +450,13 @@ In Prefect, OpenTelemetry export and advanced dashboards are Prefect Cloud only.
 ## Security, audit logs and multi-tenancy
 
 Windmill's SOC 2 Type II report covers the Enterprise Edition.
-RBAC, SSO (up to 10 users), encrypted secrets at rest and sandboxed script execution are available in open source.
-Uncapped SSO, [audit logs](../core_concepts/14_audit_logs/index.mdx) (a trail of who ran, edited or deployed what) and advanced access controls (SCIM, SAML) are Enterprise Edition.
+RBAC, SSO (up to 10 users), encrypted secrets at rest and optional job isolation (off by default) are available in open source.
+Uncapped SSO, unredacted [audit logs](../core_concepts/14_audit_logs/index.mdx) (a trail of who ran, edited or deployed what) and advanced access controls (SCIM, SAML) are Enterprise Edition.
 Multiple isolated [workspaces](../core_concepts/16_roles_and_permissions/index.mdx#workspace) run on the same instance, each with its own users, resources, secrets and access controls.
 The self-hosted Community Edition is capped at 3 workspaces; unlimited workspaces are Enterprise Edition.
 
 Prefect open source ships basic auth only.
-RBAC, object-level permissions, custom roles, SSO (SAML / OIDC), SCIM and audit logs are Prefect Cloud only, and Prefect Cloud is SOC 2 compliant.
+RBAC, object-level permissions, custom roles, SSO (SAML / OIDC), SCIM and audit logs are Prefect Cloud features (also available as Customer-Managed Prefect), and Prefect Cloud is SOC 2 compliant.
 Prefect open source is single-tenant, and tenant isolation is Prefect Cloud only.
 
 ## Migration and lock-in
@@ -512,11 +509,11 @@ Windmill provides ways to have AI help you in your coding experience. From promp
 
 Windmill has a [transparent pricing policy](/pricing), with clear steps for implementation.
 
-Windmill is cheaper at scale and can be used for free at any scale thanks to its open source nature.
+Windmill's AGPLv3 core is free to self-host in production with no limit on executions.
 
 Windmill publishes its Enterprise pricing, based on seats and compute units, on its [pricing page](/pricing), with no sales call needed.
 
-As of November 18, 2024, Prefect does not disclose its Enterprise pricing (see below).
+As of November 2026, Prefect does not disclose its Enterprise pricing (screenshot below from November 2024).
 
 Prefect pricing:
 
