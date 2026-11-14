@@ -28,7 +28,6 @@ For the other Microsoft-related capabilities (Azure deployment, Entra ID sign-in
      # Replace these variables with your specific configuration
      $env:MODE="worker"
      $env:DATABASE_URL="postgres://postgres:changeme@172.12.0.1:5432/windmill?sslmode=disable"
-     $env:SKIP_MIGRATION="true"
      ```
      More environment variables and worker settings can be found [here](https://github.com/windmill-labs/windmill?tab=readme-ov-file#environment-variables).
 
@@ -330,7 +329,6 @@ $regPath = "HKLM:\SYSTEM\CurrentControlSet\Services\WindmillWorker"
 $envVars = @(
     "MODE=worker",
     "DATABASE_URL=postgres://postgres:changeme@172.12.0.1:5432/windmill?sslmode=disable",
-    "SKIP_MIGRATION=true",
     "WORKER_GROUP=my-group"  # Add or modify variables as needed
 )
 Set-ItemProperty -Path $regPath -Name "Environment" -Value $envVars -Type MultiString

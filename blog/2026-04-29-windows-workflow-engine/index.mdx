@@ -39,8 +39,7 @@ $regPath = "HKLM:\SYSTEM\CurrentControlSet\Services\WindmillWorker"
 $envVars = @(
     "MODE=worker",
     "DATABASE_URL=postgres://postgres:changeme@10.0.0.5:5432/windmill?sslmode=disable",
-    "WORKER_TAGS=powershell,csharp,mssql",
-    "SKIP_MIGRATION=true"
+    "WORKER_TAGS=powershell,csharp,mssql"
 )
 Set-ItemProperty -Path $regPath -Name "Environment" -Value $envVars -Type MultiString
 ```
