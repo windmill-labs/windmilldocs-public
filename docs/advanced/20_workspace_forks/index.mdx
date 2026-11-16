@@ -208,7 +208,7 @@ Windmill tells the two apart by what wrote to the fork: `wmill sync push` (which
 
 #### Triggers and schedules
 
-When a fork is created, it clones the parent's [triggers](../../triggers/index.mdx) and [schedules](../../core_concepts/1_scheduling/index.mdx), but always as disabled, so nothing fires or competes with the parent automatically. You re-enable in the fork only what you need to test. [Native triggers](../../triggers/11_native_triggers/index.mdx) (such as Nextcloud, Google Drive and GitHub) and non-workspaced [HTTP](../../triggers/2_http_routing/index.mdx) and [email](../../triggers/1_email_triggers/index.mdx) triggers are not cloned, because their external endpoints cannot be safely duplicated.
+When a fork is created, it clones the parent's [triggers](../../triggers/index.mdx) and [schedules](../../core_concepts/1_scheduling/index.mdx), but always as disabled, so nothing fires or competes with the parent automatically. You re-enable in the fork only what you need to test. [Integration triggers](../../triggers/11_native_triggers/index.mdx) (such as Nextcloud, Google Drive and GitHub) and non-workspaced [HTTP](../../triggers/2_http_routing/index.mdx) and [email](../../triggers/1_email_triggers/index.mdx) triggers are not cloned, because their external endpoints cannot be safely duplicated.
 
 Re-enabling a trigger or schedule that also exists in the parent shows a warning: the two would share the same upstream ([Kafka](../../triggers/5_kafka_triggers/index.mdx) consumer group, [Postgres](../../triggers/4_postgres_triggers/index.mdx) replication slot, message queue, schedule, etc.) and compete for events. You can confirm to enable it anyway.
 

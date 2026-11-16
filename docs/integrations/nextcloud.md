@@ -34,9 +34,9 @@ Your resource can be used [passed as parameters](../core_concepts/3_resources_an
 > Example of a Supabase resource being used in two different manners from a script in Windmill.
 <br/>
 
-## Native triggers
+## Integration triggers {#native-triggers}
 
-You can use [native triggers](../triggers/11_native_triggers/index.mdx) to automatically run scripts or flows when files or folders change on your Nextcloud instance. Native triggers receive real-time push notifications so your runnables execute as soon as events occur.
+You can use [integration triggers](../triggers/11_native_triggers/index.mdx) to automatically run scripts or flows when files or folders change on your Nextcloud instance. Integration triggers receive real-time push notifications so your runnables execute as soon as events occur.
 
 :::tip
 

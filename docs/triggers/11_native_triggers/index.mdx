@@ -1,12 +1,12 @@
 ---
-description: How do I trigger scripts and flows from GitHub, Nextcloud or Google Drive/Calendar events in Windmill, and which account does each trigger act as?
+description: How do I trigger scripts and flows from GitHub, Nextcloud or Google events with integration triggers, and which account does each trigger act as?
 ---
 
 import DocCard from '@site/src/components/DocCard';
 
-# Native triggers
+# Integration triggers
 
-Native triggers allow external services to push events directly to Windmill and trigger [scripts](../../script_editor/index.mdx) and [flows](../../flows/1_flow_editor.mdx). Unlike [scheduled polls](../../flows/10_flow_trigger.mdx), native triggers receive real-time push notifications from the external service via webhooks, so your runnables execute as soon as events occur.
+Integration triggers allow external services to push events directly to Windmill and trigger [scripts](../../script_editor/index.mdx) and [flows](../../flows/1_flow_editor.mdx). Unlike [scheduled polls](../../flows/10_flow_trigger.mdx), integration triggers receive real-time push notifications from the external service via webhooks, so your runnables execute as soon as events occur.
 
 Currently supported services:
 
@@ -18,7 +18,7 @@ Currently supported services:
 
 ## How it works
 
-Native triggers use [OAuth](../../advanced/27_setup_oauth/index.mdx) to authenticate with the external service. Each trigger registers a webhook or watch channel on the external service, which sends notifications to Windmill when events occur. Windmill then executes the configured script or flow with the event data.
+Integration triggers use [OAuth](../../advanced/27_setup_oauth/index.mdx) to authenticate with the external service. Each trigger registers a webhook or watch channel on the external service, which sends notifications to Windmill when events occur. Windmill then executes the configured script or flow with the event data.
 
 Each trigger acts as one connected account of the service, its [connection](#connections): the webhook is registered under that account, and the trigger only sees what that account can access.
 
@@ -33,7 +33,7 @@ The general setup follows two steps:
 
 ### Workspace integration
 
-A workspace admin configures the OAuth app of each service in **Workspace settings** > **Integrations** > **Native triggers**, by providing the [OAuth](../../advanced/27_setup_oauth/index.mdx) client ID and client secret.
+A workspace admin configures the OAuth app of each service in **Workspace settings** > **Integrations** > **Integration triggers**, by providing the [OAuth](../../advanced/27_setup_oauth/index.mdx) client ID and client secret.
 The same page holds the [shared account](#share-an-account-with-the-workspace) of each service.
 
 For Google, the OAuth scopes used are:
@@ -41,20 +41,21 @@ For Google, the OAuth scopes used are:
 - `https://www.googleapis.com/auth/calendar.readonly`
 - `https://www.googleapis.com/auth/calendar.events`
 
-If you need additional scopes (e.g. write access), set up a separate resource with the desired scopes.
+A broader scope covers a narrower one with the same prefix: `https://www.googleapis.com/auth/drive` covers `drive.readonly`, and `https://www.googleapis.com/auth/calendar` covers `calendar.readonly` and `calendar.events`.
 
-For GitHub, the OAuth scopes used are `repo` and `read:user`.
+For GitHub, the OAuth scope used is `repo`.
 
-A superadmin can share the [instance-level](../../advanced/18_instance_settings/index.mdx) Google and GitHub OAuth apps.
+A superadmin can share the [instance-level](../../advanced/18_instance_settings/index.mdx) Google, GitHub and Nextcloud OAuth apps.
 A workspace that configures no OAuth app of its own then uses the instance's, without its credentials being exposed to workspace admins.
+Connecting through an instance app redirects to `<base_url>/oauth/callback/<resource_type>` (`gworkspace`, `github` or `nextcloud`), the same URI as connecting a [resource](../../integrations/0_integrations_on_windmill.mdx), so register it on the app.
 
 ![Instance gworkspace settings](./instance_gworkspace.webp "Instance-level gworkspace settings with shared credentials toggle and redirect URI")
 
-For Nextcloud, you also need to provide the base URL of your Nextcloud instance.
+For a workspace Nextcloud OAuth app, you also need to provide the base URL of your Nextcloud instance.
 
 ### Connections
 
-A connection is a connected account of the service, stored as a [resource](../../core_concepts/3_resources_and_types/index.mdx) and its OAuth token [variable](../../core_concepts/2_variables_and_secrets/index.mdx) in the workspace.
+A connection is any OAuth [resource](../../core_concepts/3_resources_and_types/index.mdx) of the service's type (`nextcloud`, `gworkspace` or `github`) and its token [variable](../../core_concepts/2_variables_and_secrets/index.mdx), whether it was connected from the trigger editor or from **Resources** for your scripts.
 Its token is refreshed automatically, and scripts can use the resource to call the service API as the same account as the trigger.
 
 Members whose [workspace role](../../core_concepts/16_roles_and_permissions/index.mdx#workspace-roles) can both write code and manage triggers connect their own account in the trigger editor, with **Connect a GitHub account** (or Google, Nextcloud).
@@ -83,9 +84,9 @@ You can also click **New trigger** on the service's page in the sidebar, then se
 
 ## Nextcloud triggers
 
-First of all make sure you set up the [workspace integration](#workspace-integration) for Nextcloud.
+First of all make sure the Nextcloud OAuth app is available, from the [workspace integration](#workspace-integration) or the instance.
 
-Nextcloud native triggers watch for file, folder, and calendar changes on a [Nextcloud](https://nextcloud.com/) instance and trigger a script or flow when events occur.
+Nextcloud integration triggers watch for file, folder, and calendar changes on a [Nextcloud](https://nextcloud.com/) instance and trigger a script or flow when events occur.
 
 ### Prerequisites
 
@@ -130,7 +131,7 @@ export async function main(
 
 First of all make sure the Google OAuth app is available, from the [workspace integration](#workspace-integration) or the instance.
 
-Google native triggers watch for changes in [Google Drive](https://drive.google.com/) or [Google Calendar](https://calendar.google.com/) and trigger a script or flow when events occur.
+Google integration triggers watch for changes in [Google Drive](https://drive.google.com/) or [Google Calendar](https://calendar.google.com/) and trigger a script or flow when events occur.
 
 ### Prerequisites
 
@@ -182,7 +183,7 @@ Use the [Google native trigger template script](https://hub.windmill.dev/scripts
 
 First of all make sure the GitHub OAuth app is available, from the [workspace integration](#workspace-integration) or the instance.
 
-GitHub native triggers register a webhook on a [GitHub](https://github.com/) repository and trigger a script or flow when the selected events occur.
+GitHub integration triggers register a webhook on a [GitHub](https://github.com/) repository and trigger a script or flow when the selected events occur.
 Registering a webhook requires admin rights on the repository for the trigger's account.
 
 ### Configuration

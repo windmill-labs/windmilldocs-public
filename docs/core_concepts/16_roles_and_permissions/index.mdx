@@ -124,7 +124,7 @@ Page visibility only hides pages: it does not stop an API call, and the enforced
 [Schedules](../1_scheduling/index.mdx), [HTTP routes](../../triggers/2_http_routing/index.mdx) and the other [triggers](../../triggers/index.mdx) Windmill listens for run as their owner, and [apps](../../getting_started/7_apps_quickstart/index.mdx) are not gated, so withdrawing Can run does not stop them.
 [Webhooks](../4_webhooks/index.mdx), API and CLI calls and MCP run tools act as the caller and are refused.
 Approving or resuming a [suspended step](../../flows/11_flow_approval.mdx) is not a run, so members of the role can still do it.
-A role that cannot write code or build flows and apps cannot [deploy those items to another workspace](../12_staging_prod/index.md) either, and the integration pickers of [native triggers](../../triggers/index.mdx) need both Write code and Manage triggers.
+A role that cannot write code or build flows and apps cannot [deploy those items to another workspace](../12_staging_prod/index.md) either, and the integration pickers of [integration triggers](../../triggers/11_native_triggers/index.mdx#connections) need both Write code and Manage triggers.
 
 A role restricts authoring, not access to data.
 Everything else follows the regular [permission model](#permissions-and-access-control): within the paths and [folders](../8_groups_and_folders/index.mdx) they have write access to, members of any role can create and edit [variables](../2_variables_and_secrets/index.mdx), [resources](../3_resources_and_types/index.mdx), folders and [groups](../8_groups_and_folders/index.mdx#groups), exactly like any other member.

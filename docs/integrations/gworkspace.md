@@ -36,9 +36,9 @@ Your resource can be used [passed as parameters](../core_concepts/3_resources_an
 > Example of a Supabase resource being used in two different manners from a script in Windmill.
 <br/>
 
-## Native triggers
+## Integration triggers {#native-triggers}
 
-The `gworkspace` resource type is also used by Google [native triggers](../triggers/11_native_triggers/index.mdx) to watch for changes in Google Drive and Google Calendar. When an account is connected for native triggers, the resource is created with different scopes (`drive.readonly`, `calendar.readonly`, `calendar.events`) tailored to receiving push notifications.
+The `gworkspace` resource type is also used by Google [integration triggers](../triggers/11_native_triggers/index.mdx) to watch for changes in Google Drive and Google Calendar. A trigger can act through any `gworkspace` resource, including one connected for your scripts, as long as it grants `drive.readonly`, `calendar.readonly` and `calendar.events` or broader scopes.
 
 :::tip
 
