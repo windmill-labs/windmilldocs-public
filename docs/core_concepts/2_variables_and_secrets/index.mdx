@@ -169,7 +169,7 @@ Configuration requires:
 - A KV v2 mount path where Windmill will read and write secrets.
 - Authentication, one of:
   - A **JWT auth** role configured in Vault. Windmill exposes a JWKS endpoint at `/.well-known/jwks.json` that Vault uses to validate the short-lived JWTs Windmill issues on every secret operation.
-  - An **AppRole** role ID. Windmill reads the `secret_id` from the `VAULT_APPROLE_SECRET_ID` environment variable of every server and worker, so it is never stored in Windmill. Leave the variable unset for a role with `bind_secret_id=false`.
+  - An **AppRole** role ID, with its `secret_id` in **Secret ID**, or in the `VAULT_APPROLE_SECRET_ID` environment variable of every server and worker when the field is blank.
   - A **Static token**.
 - **Skip SSL verify** (optional): disable TLS certificate verification for the Vault connection. Useful for development environments with self-signed certificates.
 
