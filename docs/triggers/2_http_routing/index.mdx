@@ -325,6 +325,8 @@ Windmill will host them under your custom path, using `index.html` as a fallback
 
 To return binary content (a PDF, image, or archive) directly from a script or flow instead of from S3, base64-encode the bytes and set `wm_content_transfer_encoding` to `"base64"` on the response. See [Binary responses](../../core_concepts/4_webhooks/index.mdx#binary-responses).
 
+On [Windmill Cloud](/pricing), a free workspace can return JSON, NDJSON, plain text, CSV, iCalendar and PNG, JPEG, GIF and WebP images from a route; other content types, redirects and some headers [need a paid plan](../../core_concepts/4_webhooks/index.mdx#responses-on-free-windmill-cloud-workspaces).
+
 ---
 
 ## Best practices

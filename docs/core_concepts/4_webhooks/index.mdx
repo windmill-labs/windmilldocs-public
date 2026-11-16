@@ -390,6 +390,11 @@ A few things to keep in mind:
 - Base64 encoding adds roughly 33% overhead to the payload size, and the response is fully buffered in memory before being sent, so this is best suited to small and medium-sized files rather than large streams.
 - Without this field, behavior is unchanged: a string `result` is served verbatim and other results are serialized as JSON.
 
+### Responses on free Windmill Cloud workspaces
+
+On [Windmill Cloud](/pricing), a free workspace can return JSON, NDJSON, plain text, CSV, iCalendar and PNG, JPEG, GIF and WebP images from sync endpoints and sync [HTTP routes](../../triggers/2_http_routing/index.mdx).
+Any other content type, a redirect, or some response headers such as `Location`, `Content-Disposition` or `Set-Cookie` need a paid plan: the job still runs, but its response is refused with a 400.
+
 ### Tag a successful run as a failure
 
 A script or flow can return a top-level `wm_failure` string to mark the run as a failure (see [Tag a successful run as a failure](../10_error_handling/index.mdx#tag-a-successful-run-as-a-failure) under error handling). On sync endpoints, `wm_status_code`, `wm_content_type`, and `wm_headers` are still honored alongside `wm_failure`, so a manually-tagged failure can return a custom HTTP status code or content type. For example, returning:
