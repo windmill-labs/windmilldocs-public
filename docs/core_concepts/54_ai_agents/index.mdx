@@ -252,6 +252,12 @@ With Inherited, a run started without a memory id (a schedule, a webhook call wi
 Any string is a valid memory id, and one that is not a UUID is scoped to the flow (or to the agent, when a [standalone agent](#standalone-agents) is run directly), so the same string names a different memory in another flow.
 Each step keeps its own history under a memory id, so two steps linking the same agent do not share one.
 
+Only one run at a time can use a memory id, whether it comes from a chat conversation or the `memory_id` parameter.
+This follows the scoping above: a string memory id is reserved per flow (or per agent), and a UUID across every flow of the workspace.
+While that run is queued or running, another run started with the same memory id is refused with a 409.
+If that run's last top-level step is an AI agent (not a branch or loop containing one) that is only waiting on an [approval](#require-approval), a [question](#ask-a-question-tool) or background tools, the new run takes the conversation over instead, and the pending approval or question is dropped.
+A Custom memory id set on a step is not reserved this way, so two runs that resolve it to the same value at the same time can overwrite each other's memory.
+
 ##### Using memory with webhooks {#using-memory-with-webhooks}
 
 To continue a conversation across runs started from a [webhook](../4_webhooks/index.mdx) or the API, pass the same `memory_id` query parameter to the run endpoint:
@@ -259,6 +265,10 @@ To continue a conversation across runs started from a [webhook](../4_webhooks/in
 ```text
 https://your-windmill-instance/api/w/your-workspace/jobs/run_wait_result/f/your-flow?memory_id=customer-42
 ```
+
+Add `take_over=true` to stop the run holding that memory id, if any, and run this one instead of getting a 409.
+Only the user who started the held run, or an admin, can stop it.
+Windmill waits up to 40 seconds for the held run to stop, and returns a 409 to retry if it has not.
 
 #### previous_messages (array)
 
