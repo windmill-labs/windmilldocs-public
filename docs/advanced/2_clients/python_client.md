@@ -55,6 +55,7 @@ The client provides both module-level convenience functions and a `Windmill` cla
 - `run_script_by_path_async(path, args, retry=None)` - Run a script asynchronously by path
 - `run_script_by_hash_async(hash_, args, retry=None)` - Run a script asynchronously by hash
 - `run_flow_async(path, args)` - Run a flow asynchronously
+- `test_flow(path, args, steps)` - Run a deployed flow with some steps mocked or replaced by functions of the calling script, and return its result (`test_flow_async` returns the job id). See [Test a deployed flow from a script](../../flows/18_test_flows.mdx#test-a-deployed-flow-from-a-script)
 - `get_result(job_id)` - Get the result of a completed job
 - `cancel_job(job_id, reason=None)` - Cancel a queued or running job
 - `get_state()` - Get the script's state

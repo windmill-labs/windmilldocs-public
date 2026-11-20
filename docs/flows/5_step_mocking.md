@@ -71,6 +71,8 @@ Choose it with "Applies to" in the step's mock settings, or from the pin button'
 
 A step pinned for the first time applies to test runs, so you can deploy a flow without the pin taking over production runs.
 
+To mock steps of a deployed flow from a test script rather than from the editor, use [`testFlow` or `test_flow`](./18_test_flows.mdx#test-a-deployed-flow-from-a-script).
+
 In the [flow YAML](../openflow/index.mdx), this is the `preview_only` key of the step's `mock`:
 
 ```yaml

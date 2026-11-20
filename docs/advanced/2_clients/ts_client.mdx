@@ -87,6 +87,12 @@ export async function main() {
 }
 ```
 
+## Test a flow with overridden steps
+
+`testFlow(path, args, steps)` runs a deployed flow with some of its steps mocked with a value or replaced by a function exported from the test script, steps inside subflows included, and returns its result.
+`testFlowAsync` returns the job id instead.
+See [Test a deployed flow from a script](../../flows/18_test_flows.mdx#test-a-deployed-flow-from-a-script) for an example and the rules that apply.
+
 ## Cancel a job
 
 `cancelJob(jobId, reason?)` cancels a queued or running [job](../../core_concepts/20_jobs/index.mdx) and returns the message from the cancel endpoint. It is the TypeScript equivalent of the Python client's `cancel_job`.

@@ -1,8 +1,10 @@
 ---
-description: How do I test and preview flows directly from the Windmill flow editor?
+description: How do I test flows in Windmill? Preview them from the flow editor, or run a deployed flow from a test script with mocked or replaced steps.
 ---
 
 import DocCard from '@site/src/components/DocCard';
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
 # Testing flows
 
@@ -126,3 +128,72 @@ Under [Cloud plans & Self-Hosted Enterprise Edition](/pricing), this feature is 
 `Test this step` is a way to test a single step of the flow. It comes useful to check your code or to have the results of your current steps suggested as inputs for further steps.
 
 The arguments are pre-filled from the step inputs (if the arguments use results from previous steps, they will be used if those were tested before), but you can change them manually.
+
+## Test a deployed flow from a script
+
+A test script can run a deployed flow with some of its steps overridden, using `testFlow` from the [TypeScript client](../advanced/2_clients/ts_client.mdx) or `test_flow` from the [Python client](../advanced/2_clients/python_client.md).
+Each entry of `steps` maps a step id to one of:
+
+- a value: the step does not run and returns that value, like a [mock](./5_step_mocking.md);
+- a function of the test script's own file: the step runs that function instead of its code, with the step's inputs as arguments, matched by name.
+
+A step inside a [subflow](./1_flow_editor.mdx#subflows) is named by the path of step ids to it: `notify:post` is step `post` of the subflow that step `notify` calls, at any depth (`a:b:c`).
+
+<Tabs className="unique-tabs">
+<TabItem value="bun" label="TypeScript (Bun)" attributes={{className: "text-xs p-4 !mt-0 !ml-0"}}>
+
+```ts
+import * as wmill from 'windmill-client';
+
+// Must be exported: the step calls it by name
+export function fakeFetch(url: string) {
+	return { status: 200 };
+}
+
+export async function main() {
+	return await wmill.testFlow('f/flows/sync', { user: 'a' }, {
+		fetch_users: fakeFetch, // replaced logic
+		send_email: 'sent', // mocked result
+		'notify:post': 'ok' // step `post` of the subflow that step `notify` calls
+	});
+}
+```
+
+</TabItem>
+<TabItem value="python" label="Python" attributes={{className: "text-xs p-4 !mt-0 !ml-0"}}>
+
+```python
+import wmill
+
+# Must be a named, top-level function: the step calls it by name
+def fake_fetch(url: str):
+    return {"status": 200}
+
+def main():
+    return wmill.test_flow(
+        "f/flows/sync",
+        {"user": "a"},
+        steps={
+            "fetch_users": fake_fetch,  # replaced logic
+            "send_email": "sent",  # mocked result
+            "notify:post": "ok",  # step `post` of the subflow that step `notify` calls
+        },
+    )
+```
+
+</TabItem>
+</Tabs>
+
+`testFlow` and `test_flow` wait for the flow and return its result; `testFlowAsync` and `test_flow_async` return the job id instead.
+The test runs the latest deployed version of the flow as a flow preview, with the overrides applied to a copy: the deployed flow is not changed.
+
+What to expect from a test run:
+
+- It needs a [role](../core_concepts/16_roles_and_permissions/index.mdx#workspace-roles) with the Write code capability, even when it only mocks steps.
+- Replacing a step with a function only works from a script running in Windmill, written in TypeScript (Bun or Deno) or Python, with no other files attached. Mocking a value also works from outside Windmill.
+- The flow's [preprocessor](../core_concepts/43_preprocessors/index.mdx) does not run: `args` are what the flow receives after it.
+- [Result caching](./4_cache.mdx) is off for the tested flow and for every overridden subflow.
+- Pins and mocks set in the editor for [test runs only](./5_step_mocking.md#test-runs-or-every-run) are ignored on steps the test does not override. Those that apply to every run are kept.
+- [AI agent](../core_concepts/54_ai_agents/index.mdx) tools cannot be overridden: override the agent step instead.
+- A subflow override applies to every call of that subflow made by the tested flow, and two steps calling the same subflow cannot override it differently. Overridden subflows, and every subflow on the way to an override, run as you rather than as their [run-on-behalf-of](../core_concepts/16_roles_and_permissions/index.mdx#run-on-behalf-of) identity. Subflow overrides need every worker on 1.879.0 or later, and restarting a test run drops them.
+- When the test script waits for the flow, a second worker must be free to run it, as with any script that runs a flow and waits for its result.
