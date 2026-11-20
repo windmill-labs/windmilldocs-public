@@ -177,6 +177,10 @@ The goal is to have just enough workers to handle the current workload (represen
 Autoscaling events can be viewed under the worker group details:
 ![Autoscaling events](./events.webp)
 
+Events only show scaling actions.
+To see why a group did not scale, [superadmins](../16_roles_and_permissions/index.mdx#superadmin) and [devops](../16_roles_and_permissions/index.mdx#devops) users can click "Record decisions": every autoscaling tick is recorded for 24 hours, with its inputs (worker count, occupancy, jobs waiting per tag) and the reason when nothing changed.
+Recordings are kept for 48 hours, and "Download" exports them as JSON to share with Windmill support.
+
 ## Billing
 
 In terms of billing for Windmill [Enterprise Edition](/pricing), Windmill measures how long the workers are online with a minute granularity. If you use 10 workers with 2GB for 1/10th of the month, it will count the same as if you had a single worker for the full month. It's like if in your [Windmill setup](../../enterprise/1_plans_details/index.mdx#setup-and-compute-units), the replicas of the worker group would adjust for a given amount of time.
