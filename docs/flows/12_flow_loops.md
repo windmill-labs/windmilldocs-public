@@ -20,7 +20,7 @@ For loops is a special type of steps that allows you to iterate over a list of i
 ## Configuration options
 
 Clicking on the `For loop` step on the mini-map, it will open the `For loop` step editor.
-There are 5 configuration options:
+The step has the following configuration options:
 
 ### Iterator expression
 
@@ -56,6 +56,11 @@ In addition, for supported languages ([TypeScript](../getting_started/0_scripts_
 We use the same logic as for [Dedicated workers](../core_concepts/25_dedicated_workers/index.mdx), but the worker is only "dedicated" to the flow steps for the duration of the loop.
 
 Squashing cannot be used in combination with parallelization.
+
+### Custom iteration labels
+
+A JavaScript expression evaluated per iteration, for example `flow_input.iter.value.name`, that names each iteration in the run viewer so you can find one without opening them all.
+Labels are truncated to 100 characters and never fail the loop: a failing expression leaves its iteration unlabelled, and a slow one can also leave the iterations started with it unlabelled.
 
 ## Test an iteration
 
