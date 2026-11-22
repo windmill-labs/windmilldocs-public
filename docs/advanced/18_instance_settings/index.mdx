@@ -177,6 +177,11 @@ How long to keep audit log entries in the database. Default: 365 days (EE), 14 d
 
 If you enable [Store audit logs in object storage](#store-audit-logs-in-object-storage), the bucket holds the durable long-term history, so you can safely lower this value to only what you need for the in-app [audit log](../../core_concepts/14_audit_logs/index.mdx) view. Windmill never deletes the exported audit logs from object storage.
 
+### Full-code app versions to keep
+
+Number of versions to keep for each [full-code app](../../full_code_apps/index.mdx) (`raw_app_versions_to_keep`), beyond which older ones are permanently deleted.
+Leave empty to keep them all.
+
 ### Maximum token expiration (days)
 
 Furthest ahead, in days, that a user-created API token can expire.
