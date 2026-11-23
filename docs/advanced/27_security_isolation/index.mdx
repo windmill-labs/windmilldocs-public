@@ -253,6 +253,23 @@ NSJAIL_PY_RLIMIT_AS_MB=unlimited
 
 Since these are set per [worker group](../../core_concepts/9_worker_groups/index.mdx), you can lift the cap only on a dedicated pool that runs these workloads. Only the address space limit is affected: the other resource limits (CPU, file size, open files) and the mount, PID and user namespace isolation that provide the actual security boundary are unchanged.
 
+### NSJAIL /tmp size and file size limit
+
+Inside the sandbox, a job's `/tmp` is by default a RAM-backed tmpfs of 800 MB. Because it lives in memory, files written there also count against the worker's memory limit. Two [instance settings](../18_instance_settings/index.mdx) control it:
+
+- **Nsjail /tmp backing** (`nsjail_tmp_backing`): `tmpfs` (default) or `disk`. With `disk`, `/tmp` is a per-job directory on the worker's disk, removed with the job directory. The space a job can fill is then bounded by the worker's disk (for example the pod's `ephemeral-storage` limit on Kubernetes).
+- **Nsjail tmpfs size (MB)** (`nsjail_tmpfs_size_mb`): size of the tmpfs when backing is `tmpfs`.
+
+To apply either to a single worker group only, set `FORCE_NSJAIL_TMP_BACKING` or `FORCE_NSJAIL_TMPFS_SIZE_MB` on that group's workers. These override the instance setting.
+
+Separately, Python, Ansible and dbt jobs are limited to 1000 MiB per file (`rlimit_fsize`), whatever the size of `/tmp`. Set `NSJAIL_RLIMIT_FSIZE_MB` on a worker group to raise it (value in MiB), or to `unlimited`, `none`, `inf` or `0` to remove the per-file limit. It is read once at worker startup.
+
+```bash
+# Jobs that download multi-GB files: disk-backed /tmp and no per-file cap
+FORCE_NSJAIL_TMP_BACKING=disk
+NSJAIL_RLIMIT_FSIZE_MB=unlimited
+```
+
 **Without NSJAIL (default):**
 
 - Jobs have full filesystem access under the worker's user permissions
