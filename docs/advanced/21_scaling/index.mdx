@@ -222,7 +222,7 @@ Workers come in different sizes based on memory limits. The right size depends o
 | Standard | 2GB | 1 CU |
 | Large | >2GB | 2 CU (self-hosted capped at 2 CU regardless of actual memory) |
 
-\* This memory-based rule does not apply to [native workers](../../core_concepts/9_worker_groups/index.mdx#native-worker-group), which always count as 1 CU regardless of their memory limit.
+\* This memory-based rule also applies to [native workers](../../core_concepts/9_worker_groups/index.mdx#native-worker-group), with a minimum of 1 CU.
 
 ### Choosing the right memory limit
 

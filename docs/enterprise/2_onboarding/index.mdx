@@ -344,7 +344,7 @@ A [Compute Unit](../1_plans_details/index.mdx#setup-and-compute-units) (CU) = 2 
 
 - Standard worker (2GB memory) = 1 CU
 - Large workers (>2GB memory) = 2 CU (capped on self-hosted)
-- 1 native worker (8 native subworkers) = 1 CU
+- 1 native worker (8 native subworkers) is counted by its memory limit like any other worker (1 CU at 2GB, minimum 1 CU)
 
 **Minimum recommended setup:** 3 CUs (2 standard workers at 2GB each + 1 native worker)
 
