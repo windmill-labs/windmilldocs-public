@@ -203,6 +203,9 @@ To find the address to allow, call `GET /api/client_ip` from the machine that wi
 
 From the Account settings page, you can view all your tokens with their labels, scopes, and expiration dates. Tokens can be revoked at any time by deleting them from the list.
 
+A warning above the list counts your tokens worth a second look, such as ones that never expire or carry admin rights no scope narrows.
+Superadmins review the tokens of every user from the [Token review](../../advanced/18_instance_settings/index.mdx#token-review) tab of instance settings.
+
 ## CLI token creation
 
 You can also create tokens using the [Windmill CLI](../../advanced/3_cli/user.md):
