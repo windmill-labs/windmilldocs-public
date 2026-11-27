@@ -177,7 +177,7 @@ Leave it empty for no limit.
 
 The limit applies to tokens created from Account settings, the [CLI](../../advanced/3_cli/index.mdx) (including browser login with `wmill workspace add`) and the API.
 A token requested with no expiration, or with one past the limit, is created with the limit as its expiration instead of being refused.
-The limit is checked when a token is created, so setting or lowering it does not change existing tokens.
+The limit is checked when a token is created or its expiration extended, so setting or lowering it does not change existing tokens.
 
 The limit does not apply to:
 
@@ -189,7 +189,7 @@ The limit does not apply to:
 On [Enterprise Edition](/pricing), the "Allowed IPs" field of the token form restricts a token, such as a CI or service account token, to a list of IP addresses or CIDR ranges.
 A request presenting it from any other address gets a 401, as if the token were invalid.
 Through the API, this is the `allowed_ips` field of `POST /api/users/tokens/create`.
-The list is set when the token is created: to change it, create a new token.
+To change the list later, see [Managing tokens](#managing-tokens).
 
 A token created with a restricted token inherits its ranges, or narrower ones.
 This includes [integration trigger](../../triggers/11_native_triggers/index.mdx) webhook tokens, so the external service calling them is refused too.
@@ -205,6 +205,11 @@ From the Account settings page, you can view all your tokens with their labels, 
 
 A warning above the list counts your tokens worth a second look, such as ones that never expire or carry admin rights no scope narrows.
 Superadmins review the tokens of every user from the [Token review](../../advanced/18_instance_settings/index.mdx#token-review) tab of instance settings.
+
+The pen icon of a token you created edits its label, scopes, expiration and, on Enterprise Edition, [allowed IPs](#allowed-ips).
+Narrower scopes, an earlier expiration or narrower IP ranges are always accepted; wider scopes, a later or removed expiration, or wider ranges, only as far as the credential making the change could create that token, so a scoped or IP-restricted token can't widen another one past its own reach.
+A later expiration is also capped by the [maximum token expiration](#maximum-token-expiration).
+Through the API, `POST /api/users/tokens/update_limits/{token_prefix}` changes `expiration` and `allowed_ips`: a field left out is unchanged and `null` removes the limit.
 
 ## CLI token creation
 
