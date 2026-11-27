@@ -211,6 +211,20 @@ Narrower scopes, an earlier expiration or narrower IP ranges are always accepted
 A later expiration is also capped by the [maximum token expiration](#maximum-token-expiration).
 Through the API, `POST /api/users/tokens/update_limits/{token_prefix}` changes `expiration` and `allowed_ips`: a field left out is unchanged and `null` removes the limit.
 
+## Test a token
+
+To see who a token acts as and whether it can call a route, paste it in **Test a token** below the tokens list, or use "Test this token" in a script or flow's [webhook panel](../4_webhooks/index.mdx#webhook-specific-tokens) to check it against the webhook's route.
+
+From the API, `GET /api/tokens/introspect` describes the token that authenticates the request, never another one, and any token can call it whatever its scopes.
+Its optional query parameters are `workspace`, `path` (a full `/api/...` path, or one relative to `/api/w/{workspace}/`) and `method` (`GET` by default):
+
+```bash
+curl -H "Authorization: Bearer <TOKEN>" \
+  "https://your-windmill-instance.com/api/tokens/introspect?workspace=<workspace>&path=variables/list"
+```
+
+An allowed route means the token's scopes and read-only flag let it through; the endpoint can still refuse it, for example when the identity has no permission on the item.
+
 ## CLI token creation
 
 You can also create tokens using the [Windmill CLI](../../advanced/3_cli/user.md):
