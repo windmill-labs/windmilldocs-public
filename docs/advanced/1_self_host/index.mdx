@@ -277,6 +277,17 @@ You can use any reverse proxy as long as it routes like the HTTP part of the pro
 
 The default docker-compose file exposes the Caddy reverse proxy on port 80, configured by the Caddyfile downloaded above. Configure both the Caddyfile and the docker-compose file to fit your needs. The documentation for Caddy is available [here](https://caddyserver.com/docs/caddyfile).
 
+#### Client IP behind a reverse proxy
+
+The servers take a request's client IP from its TCP connection. That IP is recorded in [audit logs](../../core_concepts/14_audit_logs/index.mdx#client-ip-and-user-agent) and used by the per-IP login rate limit.
+Forwarding headers are believed only when the connection comes from a proxy listed in the `TRUSTED_PROXIES` [environment variable](../../core_concepts/47_environment_variables/index.mdx#list-of-environment-variables), a comma-separated list of addresses or CIDRs.
+Behind a trusted proxy, `X-Forwarded-For` is read from the right, up to the first address that is not itself a trusted proxy.
+
+- The default is loopback only, plus the private ranges on Windmill Cloud. A proxy on the same host needs nothing, but a reverse proxy on another address (nginx, Traefik, a Kubernetes ingress) must be listed. Until it is, Windmill sees every client as the proxy's address.
+- Setting the variable replaces the default. `none` trusts no proxy.
+- `X-Real-IP` is not read on its own, because many proxies pass a client's own value through. If the edge in front of Windmill writes a single header with the client's address on every request, name it in `CLIENT_IP_HEADER` (for example `CF-Connecting-IP`, `CloudFront-Viewer-Address` or `X-Real-IP`). It is then read instead of `X-Forwarded-For`.
+- In the Docker compose setup, list Caddy's address rather than the compose network's range: workers share that network, so a job could otherwise forge its client address.
+
 #### Use provided Caddy to serve https
 
 For simplicity, we recommend using an external reverse proxy such as Cloudfront or Cloudflare and point to your instance on the port you have chosen (by default, :80).

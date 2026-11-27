@@ -37,6 +37,13 @@ A run's page opens this view from "Audit logs" in its actions menu, over the run
 
 Through the [API](https://app.windmill.dev/openapi.html#/operations/listAuditLogs), pass the run's ID as the `job_id` query parameter of `GET /w/{workspace}/audit/list`.
 
+## Client IP and user agent
+
+On an [Enterprise](/pricing) license, an entry written by a request also records the client's IP address and user agent, shown in the entry's details.
+Entries with no request behind them, for example those written by workers or schedules, record neither.
+
+Behind a self-hosted reverse proxy, entries record the proxy's address until it is listed in `TRUSTED_PROXIES`: see [Client IP behind a reverse proxy](../../advanced/1_self_host/index.mdx#client-ip-behind-a-reverse-proxy).
+
 ## Streaming a slow page in batches
 
 The selector at the bottom of the table sets how many logs a page holds: 25, 100 or 1000. On instances with a lot of audit logs, a full page can take a while to come back. If a load takes more than 4 seconds, Windmill offers to stream it in batches of 25 instead, so rows appear as each batch arrives rather than only once the whole page is ready.
@@ -112,8 +119,10 @@ Each record carries these attributes, all strings:
 | `username` | The user who performed it |
 | `email` | That user's email |
 | `span` | The prefix of the [token](../59_user_tokens/index.mdx) that authenticated the request, when there is one |
+| `client_ip` | The [client IP address](#client-ip-and-user-agent) of the request, when there is one |
+| `user_agent` | The user agent of the request, when there is one |
 
-On a Pro license, `operation`, `resource` and `parameters` are redacted as in the audit logs page, and the Community Edition emits no audit events.
+On a Pro license, `operation`, `resource` and `parameters` are redacted as in the audit logs page and `client_ip` and `user_agent` are left out, and the Community Edition emits no audit events.
 
 Audit events are emitted at `INFO`, so if you lower the log level, keep them with a directive for their target such as `RUST_LOG=warn,windmill:audit=info`.
 
